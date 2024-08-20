@@ -20,10 +20,14 @@ public class DoctorControllerV1 {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String createCustomer(@RequestBody DoctorRequest productRequest)
+    public String createCustomer(@RequestBody DoctorRequest doctorRequest)
     {
-        for(int i = 0; i < 200000; i++)
-            doctorServiceV1.createDoctor(productRequest);
+        for(int i = 0; i < 20000; i++)
+        {
+            doctorRequest.getEmail()
+            doctorServiceV1.createDoctor(doctorRequest);
+        }
+
         return "Đã thêm thông tin bác sĩ mới thành công!";
     }
 

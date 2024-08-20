@@ -39,6 +39,15 @@ public class Doctor {
     @Column(name = "email", length = 50, unique = true)
     private String email;
 
+    @Column(name = "province_or_city", length = 30)
+    private String provinceOrCity;
+
+    @Column(name = "district", length = 30)
+    private String district;
+
+    @Column(name = "ward_or_commune", length = 30)
+    private String wardOrCommune;
+
     @Column(name = "address", length = 100)
     private String address;
 

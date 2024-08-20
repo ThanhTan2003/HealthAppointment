@@ -1,5 +1,6 @@
 package com.programmingtechie.doctor_service.dto.response;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,6 +28,12 @@ public class DoctorResponse
     private String phoneNumber;
 
     private String email;
+
+    private String provinceOrCity;
+
+    private String district;
+
+    private String wardOrCommune;
 
     private String address;
 

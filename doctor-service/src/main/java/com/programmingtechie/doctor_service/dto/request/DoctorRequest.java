@@ -25,6 +25,12 @@ public class DoctorRequest
 
     private String email;
 
+    private String provinceOrCity;
+
+    private String district;
+
+    private String wardOrCommune;
+
     private String address;
 
     private String education;
