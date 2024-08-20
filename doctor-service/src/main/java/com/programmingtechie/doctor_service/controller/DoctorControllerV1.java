@@ -22,12 +22,7 @@ public class DoctorControllerV1 {
     @ResponseStatus(HttpStatus.CREATED)
     public String createCustomer(@RequestBody DoctorRequest doctorRequest)
     {
-        for(int i = 0; i < 20000; i++)
-        {
-            doctorRequest.getEmail()
-            doctorServiceV1.createDoctor(doctorRequest);
-        }
-
+        doctorServiceV1.createDoctor(doctorRequest);
         return "Đã thêm thông tin bác sĩ mới thành công!";
     }
 
