@@ -39,7 +39,7 @@ public class DoctorResponse
 
     private String education;
 
-    private String qualification;
+    private String qualificationId;
 
     private String position;
 

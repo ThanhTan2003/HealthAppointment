@@ -18,27 +18,30 @@ import java.util.List;
 public class DoctorControllerV1 {
     final DoctorServiceV1 doctorServiceV1;
 
-    @PostMapping
+    @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public String createCustomer(@RequestBody DoctorRequest doctorRequest)
-    {
+    public void createDoctor(@RequestBody DoctorRequest doctorRequest) {
         doctorServiceV1.createDoctor(doctorRequest);
-        return "Đã thêm thông tin bác sĩ mới thành công!";
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<DoctorResponse> getAll()
-    {
+    public List<DoctorResponse> getAll() {
         return doctorServiceV1.getAll();
     }
 
     @GetMapping("/get-all")
-    public PageResponse<DoctorResponse> getAll (
+    public PageResponse<DoctorResponse> getAll(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size
-    )
-    {
+    ) {
         return doctorServiceV1.getAll(page, size);
+    }
+
+    @PutMapping("update/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateDoctor(@PathVariable String id, @RequestBody DoctorRequest doctorRequest)
+    {
+        doctorServiceV1.updateDoctor(id, doctorRequest);
     }
 }

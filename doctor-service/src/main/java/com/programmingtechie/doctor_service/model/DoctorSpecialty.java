@@ -14,17 +14,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DoctorSpecialty
 {
-    @Id
-    private String doctorId;
-
-    @Id
-    private String specialtyId;
-
-    @ManyToOne
-    @JoinColumn(name = "doctor_id", insertable = false, updatable = false)
-    private Doctor doctor;
-
-    @ManyToOne
-    @JoinColumn(name = "specialty_id", insertable = false, updatable = false)
-    private Specialty specialty;
+    @EmbeddedId
+    private DoctorSpecialtyId id;
 }

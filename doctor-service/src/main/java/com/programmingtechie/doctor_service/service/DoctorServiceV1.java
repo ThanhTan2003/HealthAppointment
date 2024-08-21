@@ -27,6 +27,12 @@ public class DoctorServiceV1 {
     final DoctorRepository doctorRepository;
     final WebClient.Builder webClientBuilder;
 
+    public boolean checkForDuplicates(DoctorRequest doctorRequest)
+    {
+
+        return true;
+    }
+
     public void createDoctor(DoctorRequest doctorRequest) {
         Doctor doctor = Doctor.builder()
                 .fullName(doctorRequest.getFullName())
@@ -40,7 +46,7 @@ public class DoctorServiceV1 {
                 .wardOrCommune(doctorRequest.getWardOrCommune())
                 .address(doctorRequest.getAddress())
                 .education(doctorRequest.getEducation())
-                .qualification(doctorRequest.getQualification())
+                .qualificationId(doctorRequest.getQualificationId())
                 .position(doctorRequest.getPosition())
                 .description(doctorRequest.getDescription())
                 .status(doctorRequest.getStatus())
@@ -72,7 +78,7 @@ public class DoctorServiceV1 {
                 .wardOrCommune(doctor.getWardOrCommune())
                 .address(doctor.getAddress())
                 .education(doctor.getEducation())
-                .qualification(doctor.getQualification())
+                .qualificationId(doctor.getQualificationId())
                 .position(doctor.getPosition())
                 .description(doctor.getDescription())
                 .status(doctor.getStatus())
@@ -108,7 +114,7 @@ public class DoctorServiceV1 {
                         .wardOrCommune(doctor.getWardOrCommune())
                         .address(doctor.getAddress())
                         .education(doctor.getEducation())
-                        .qualification(doctor.getQualification())
+                        .qualificationId(doctor.getQualificationId())
                         .position(doctor.getPosition())
                         .description(doctor.getDescription())
                         .status(doctor.getStatus())
@@ -126,5 +132,9 @@ public class DoctorServiceV1 {
                 .totalElements(pageData.getTotalElements())
                 .data(doctorResponses)
                 .build();
+    }
+
+    public void updateDoctor(String id, DoctorRequest doctorRequest) {
+
     }
 }

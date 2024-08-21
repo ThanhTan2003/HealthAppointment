@@ -11,11 +11,15 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "doctor")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "doctor", indexes = {
+        @Index(name = "idx_fullName", columnList = "fullName"),
+        @Index(name = "idx_email", columnList = "email"),
+        @Index(name = "idx_phone", columnList = "phoneNumber")
+})
 public class Doctor {
     @Id
     @Column(nullable = false, length = 36)
@@ -54,10 +58,10 @@ public class Doctor {
     @Column(name = "education", length = 20)
     private String education;
 
-    @Column(name = "qualification", length = 30)
-    private String qualification;
+    @Column(name = "qualification_id", length = 36)
+    private String qualificationId;
 
-    @Column(name = "postion", length = 30)
+    @Column(name = "position", length = 30)
     private String position;
 
     @Column(name = "description", columnDefinition = "text")
