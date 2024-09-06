@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/vietnam-units/province")
+@RequestMapping("/api/v1/vietnam-units/ward")
 @RequiredArgsConstructor
 @Slf4j
 public class WardController {
