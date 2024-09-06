@@ -1,6 +1,7 @@
 package com.programmingtechie.vietnam_units_service.controller;
 
 import com.programmingtechie.vietnam_units_service.model.Province;
+import com.programmingtechie.vietnam_units_service.service.ProvinceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

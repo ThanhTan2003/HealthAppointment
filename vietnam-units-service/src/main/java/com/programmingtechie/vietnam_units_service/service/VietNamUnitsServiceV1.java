@@ -1,10 +1,6 @@
 package com.programmingtechie.vietnam_units_service.service;
 
-import com.programmingtechie.doctor_service.dto.request.DoctorRequest;
-import com.programmingtechie.doctor_service.dto.response.DoctorResponse;
-import com.programmingtechie.doctor_service.dto.response.PageResponse;
-import com.programmingtechie.doctor_service.model.Doctor;
-import com.programmingtechie.doctor_service.repository.DoctorRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;

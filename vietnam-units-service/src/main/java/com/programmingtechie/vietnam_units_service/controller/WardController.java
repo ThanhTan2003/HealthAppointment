@@ -1,6 +1,7 @@
 package com.programmingtechie.vietnam_units_service.controller;
 
 import com.programmingtechie.vietnam_units_service.model.Ward;
+import com.programmingtechie.vietnam_units_service.service.WardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
