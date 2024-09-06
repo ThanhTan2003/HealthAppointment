@@ -30,6 +30,7 @@
 		<module>medical-service</module>
 		<module>notification-service</module>
 		<module>payment-service</module>
+		<module>vietnam-units-service</module>
 	</modules>
     <scm>
 		<connection/>
