@@ -1,5 +1,6 @@
 package com.programmingtechie.vietnam_units_service.controller;
 
+import com.programmingtechie.vietnam_units_service.model.District;
 import com.programmingtechie.vietnam_units_service.model.Ward;
 import com.programmingtechie.vietnam_units_service.service.WardService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import java.util.List;
 @RequestMapping("/api/v1/vietnam-units/ward")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin
 public class WardController {
     final WardService wardService;
 
@@ -27,5 +29,10 @@ public class WardController {
     @ResponseStatus(HttpStatus.OK)
     public List<Ward> getAllWards() {
         return wardService.getAllWards();
+    }
+
+    @GetMapping("/district-code/{code}")
+    public List<Ward> getByDistrict_Code(@PathVariable String code) {
+        return wardService.getByDistrict_Code(code);
     }
 }

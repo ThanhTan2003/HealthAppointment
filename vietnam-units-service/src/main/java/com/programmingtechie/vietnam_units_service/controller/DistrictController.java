@@ -13,6 +13,7 @@ import java.util.List;
 @RequestMapping("/api/v1/vietnam-units/district")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin
 public class DistrictController {
     final DistrictService districtService;
 
@@ -27,5 +28,10 @@ public class DistrictController {
     @ResponseStatus(HttpStatus.OK)
     public List<District> getAllDistricts() {
         return districtService.getAllDistricts();
+    }
+
+    @GetMapping("/province-code/{code}")
+    public List<District> getByProvince_Code(@PathVariable String code) {
+        return districtService.getByProvince_Code(code);
     }
 }

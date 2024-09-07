@@ -23,4 +23,8 @@ public class WardService {
     public List<Ward> getAllWards() {
         return wardRepository.findAll();
     }
+
+    public List<Ward> getByDistrict_Code(String code) {
+        return wardRepository.findByDistrictCode(code);
+    }
 }

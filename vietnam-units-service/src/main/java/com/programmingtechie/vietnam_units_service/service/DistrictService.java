@@ -23,4 +23,8 @@ public class DistrictService {
     public List<District> getAllDistricts() {
         return districtRepository.findAll();
     }
+
+    public List<District> getByProvince_Code(String code) {
+        return districtRepository.findByProvinceCode(code);
+    }
 }

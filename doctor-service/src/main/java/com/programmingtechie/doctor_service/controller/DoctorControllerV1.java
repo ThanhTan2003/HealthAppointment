@@ -15,6 +15,7 @@ import java.util.List;
 @RequestMapping("/api/v1/doctor")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin
 public class DoctorControllerV1 {
     final DoctorServiceV1 doctorServiceV1;
 
