@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @Builder
 @Table(name = "account", indexes = {
         @Index(name = "idx_userName", columnList = "userName"),
-        @Index(name = "idx_role", columnList = "role"),
         @Index(name = "idx_status", columnList = "status"),
 })
 public class User {
