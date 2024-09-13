@@ -7,6 +7,7 @@ import com.programmingtechie.identity_service.dto.request.AuthenticationRequest;
 import com.programmingtechie.identity_service.dto.request.IntrospectRequest;
 import com.programmingtechie.identity_service.dto.response.AuthenticationResponse;
 import com.programmingtechie.identity_service.dto.response.IntrospectResponse;
+import com.programmingtechie.identity_service.model.User;
 import com.programmingtechie.identity_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +29,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.StringJoiner;
 
 
 @Service
@@ -42,22 +45,24 @@ import java.util.Date;
 public class AuthenticationService {
 
     final UserRepository userRepository;
+
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
 
     // Tao token moi
-    private String generateToken(String username) {
+    private String generateToken(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(username)
-                .issuer("devteria.com")
+                .subject(user.getUserName())
+                .issuer("Health Appointment")
                 .issueTime(new Date())
                 .expirationTime(new Date(
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
                 ))
-                .claim("userId", "Custom")
+                .claim("name", user.getAccountName())
+                .claim("scope", buildScope(user))
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -82,7 +87,7 @@ public class AuthenticationService {
         boolean result = passwordEncoder.matches(request.getPassword(), user.getPassword());
         return AuthenticationResponse.builder()
                 .authenticated(result)
-                .token(generateToken(request.getUserName()))
+                .token(generateToken(user))
                 .build();
     }
 
@@ -102,5 +107,14 @@ public class AuthenticationService {
         return IntrospectResponse.builder()
                 .valid(verified && expiryTime.after(new Date()))
                 .build();
+    }
+
+    // Lay role tu User
+    private String buildScope(User user){
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        if (!CollectionUtils.isEmpty(user.getRoles()))
+            user.getRoles().forEach(stringJoiner::add);
+
+        return stringJoiner.toString();
     }
 }

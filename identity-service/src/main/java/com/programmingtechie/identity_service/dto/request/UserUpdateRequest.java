@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,4 +25,6 @@ public class UserUpdateRequest {
     String accountTypeId;
 
     String doctorId;
+
+    Set<String> roles;
 }

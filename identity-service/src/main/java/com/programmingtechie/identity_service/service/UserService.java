@@ -37,6 +37,7 @@ public class UserService {
                 .lastAccessTime(user.getLastAccessTime())
 //                .accountTypeId(user.getAccountTypeId())
                 .doctorId(user.getDoctorId())
+                .roles(user.getRoles())
                 .build();
     }
 
@@ -51,7 +52,9 @@ public class UserService {
                 .status(request.getStatus())
 //                .accountTypeId(request.getAccountTypeId())
                 .doctorId(request.getDoctorId())
+                .roles(request.getRoles())
                 .build();
+
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
@@ -87,8 +90,8 @@ public class UserService {
 
         user.setAccountName(request.getAccountName());
         user.setStatus(request.getStatus());
-//        user.setAccountTypeId(request.getAccountTypeId());
         user.setDoctorId(request.getDoctorId());
+        user.setRoles(request.getRoles());
 
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Data
@@ -36,6 +37,8 @@ public class User {
 
     @Column(name = "doctor_id", length = 36)
     private String doctorId;
+
+    private Set<String> roles;
 
     @ManyToOne
     @JoinColumn(name = "account_type_id", referencedColumnName = "id")
