@@ -25,10 +25,9 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
-            "/users",
-            "/auth/token",
-            "/auth/introspect",
-            "/api/v1/identity/auth/log-in"
+            "/api/v1/identity/auth/log-in",
+            "/api/v1/identity/permission",
+            "/api/v1/identity/role"
     };
 
     @Value("${jwt.signerKey}")
@@ -37,8 +36,12 @@ public class SecurityConfig {
     // Cau hinh các Endpoints co the truy cap ma khong can xac thuc
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+//        httpSecurity.authorizeHttpRequests(request ->
+//                request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+//                        .anyRequest().authenticated());
+
         httpSecurity.authorizeHttpRequests(request ->
-                request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                request.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .anyRequest().authenticated());
 
         httpSecurity.oauth2ResourceServer(oauth2 ->

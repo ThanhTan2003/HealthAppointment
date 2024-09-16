@@ -2,21 +2,17 @@ package com.programmingtechie.identity_service.config;
 
 import com.programmingtechie.identity_service.enums.Role;
 import com.programmingtechie.identity_service.model.User;
-import com.programmingtechie.identity_service.model.UserRole;
 import com.programmingtechie.identity_service.repository.UserRepository;
-import com.programmingtechie.identity_service.repository.UserRoleRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashSet;
-import java.util.Optional;
 
 @Configuration
 @RequiredArgsConstructor
@@ -37,7 +33,7 @@ public class ApplicationInitConfig {
                         .password(passwordEncoder.encode("admin"))
                         .accountName("Admin")
                         .status("Đang hoạt động")
-                        .roles(roles)
+                        //.roles(roles)
                         .build();
 
                 userRepository.save(user);

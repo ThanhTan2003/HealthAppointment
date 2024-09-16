@@ -1,16 +1,15 @@
 package com.programmingtechie.identity_service.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -38,9 +37,9 @@ public class User {
     @Column(name = "doctor_id", length = 36)
     private String doctorId;
 
-    private Set<String> roles;
+    @Column(name = "account_type", length = 36)
+    private String accountType;
 
-    @ManyToOne
-    @JoinColumn(name = "account_type_id", referencedColumnName = "id")
-    private UserRole userRole;
+    @ManyToMany
+    Set<Role> roles;
 }
