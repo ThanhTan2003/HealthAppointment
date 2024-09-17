@@ -3,6 +3,7 @@ package com.programmingtechie.identity_service.controller;
 import com.nimbusds.jose.JOSEException;
 import com.programmingtechie.identity_service.dto.request.AuthenticationRequest;
 import com.programmingtechie.identity_service.dto.request.IntrospectRequest;
+import com.programmingtechie.identity_service.dto.request.LogOutRequest;
 import com.programmingtechie.identity_service.dto.response.AuthenticationResponse;
 import com.programmingtechie.identity_service.dto.response.IntrospectResponse;
 import com.programmingtechie.identity_service.service.AuthenticationService;
@@ -33,5 +34,12 @@ public class AuthenticationController {
     IntrospectResponse authenticate(@RequestBody IntrospectRequest request)
             throws ParseException, JOSEException {
         return authenticationService.introspect(request);
+    }
+
+    @PostMapping("/log-out")
+    void logout(@RequestBody LogOutRequest request) throws ParseException, JOSEException
+    {
+        authenticationService.logOut(request);
+
     }
 }
