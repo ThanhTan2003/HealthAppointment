@@ -1,5 +1,7 @@
 package com.programmingtechie.identity_service.dto.request;
 
+import com.programmingtechie.identity_service.dto.response.RoleResponse;
+import com.programmingtechie.identity_service.model.Role;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -23,11 +25,7 @@ public class UserCreationRequest {
 
     String status;
 
-    LocalDateTime lastAccessTime;
-
-    String accountTypeId;
-
     String doctorId;
 
-    Set<String> roles;
+    String roleId;
 }

@@ -37,9 +37,7 @@ public class User {
     @Column(name = "doctor_id", length = 36)
     private String doctorId;
 
-    @Column(name = "account_type", length = 36)
-    private String accountType;
-
-    @ManyToMany
-    Set<Role> roles;
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 }

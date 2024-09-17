@@ -66,10 +66,18 @@ public class UserController {
 
     // Cap nhat thong tin user
     @PutMapping("update/{userName}")
-    @PostAuthorize("hasRole('QuanTriVien') or returnObject.userName == authentication.name")
+    @PreAuthorize("hasRole('QuanTriVien')")
     @ResponseStatus(HttpStatus.OK)
     void updateUser(@Valid @PathVariable String userName, @RequestBody UserUpdateRequest request){
         userService.updateUser(request);
+    }
+
+    // Cap nhat thong tin user
+    @PutMapping("update-password/{userName}")
+    @PostAuthorize("returnObject.userName == authentication.name")
+    @ResponseStatus(HttpStatus.OK)
+    void updatePassword(@Valid @PathVariable String userName, @RequestBody UserUpdateRequest request){
+        userService.updatePassword(request);
     }
 
     // Xoa thong tin user

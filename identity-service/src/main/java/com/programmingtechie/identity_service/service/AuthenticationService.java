@@ -30,6 +30,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
@@ -112,8 +113,9 @@ public class AuthenticationService {
     // Lay role tu User
     private String buildScope(User user){
         StringJoiner stringJoiner = new StringJoiner(" ");
-//        if (!CollectionUtils.isEmpty(user.getRoles()))
-//            user.getRoles().forEach(stringJoiner::add);
+        if (user.getRole() != null && !StringUtils.isEmpty(user.getRole().getId())) {
+            stringJoiner.add(user.getRole().getId()); // Thêm role ID vào stringJoiner
+        }
 
         return stringJoiner.toString();
     }

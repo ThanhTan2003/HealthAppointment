@@ -4,7 +4,9 @@ import com.programmingtechie.identity_service.dto.request.UserCreationRequest;
 import com.programmingtechie.identity_service.dto.request.UserUpdateRequest;
 import com.programmingtechie.identity_service.dto.response.PageResponse;
 import com.programmingtechie.identity_service.dto.response.UserResponse;
+import com.programmingtechie.identity_service.model.Role;
 import com.programmingtechie.identity_service.model.User;
+import com.programmingtechie.identity_service.repository.RoleRepository;
 import com.programmingtechie.identity_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +31,7 @@ import java.util.List;
 public class UserService {
 
     final UserRepository userRepository;
+    final RoleRepository roleRepository;
     final WebClient.Builder webClientBuilder;
 
     private UserResponse userMapToUserResponse(User user) {
@@ -36,9 +41,9 @@ public class UserService {
                 .accountName(user.getAccountName())
                 .status(user.getStatus())
                 .lastAccessTime(user.getLastAccessTime())
-//                .accountTypeId(user.getAccountTypeId())
                 .doctorId(user.getDoctorId())
-                //.roles(user.getRoles())
+                .roleId(user.getRole().getId())
+                .roleName(user.getRole().getName())
                 .build();
     }
 
@@ -47,13 +52,17 @@ public class UserService {
         if (userRepository.existsByUserName(request.getUserName()))
             throw new IllegalArgumentException("Tài khoản đã tồn tại!");
 
+        Optional<Role> role = roleRepository.findById(request.getRoleId());
+
+        if(role.isEmpty())
+            throw new IllegalArgumentException("Không thể thực hiện phân quyền, vui lòng kiểm tra lại!");
+
         User user = User.builder()
                 .userName(request.getUserName())
                 .accountName(request.getAccountName())
                 .status(request.getStatus())
-//                .accountTypeId(request.getAccountTypeId())
                 .doctorId(request.getDoctorId())
-                //.roles(request.getRoles())
+                .role(role.get())
                 .build();
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
@@ -89,10 +98,9 @@ public class UserService {
         User user = userRepository.findByUserName(request.getUserName())
                 .orElseThrow(() -> new IllegalArgumentException("Không tồn tại tài khoản " + request.getUserName() +"!"));
 
-        user.setAccountName(request.getAccountName());
+        user.setPassword(request.getPassword());
         user.setStatus(request.getStatus());
         user.setDoctorId(request.getDoctorId());
-        //user.setRoles(request.getRoles());
 
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
@@ -118,5 +126,19 @@ public class UserService {
                 () -> new IllegalArgumentException("Không xác định được thông tin!"));
 
         return userMapToUserResponse(user);
+    }
+
+    public void updatePassword(UserUpdateRequest request) {
+        User user = userRepository.findByUserName(request.getUserName())
+                .orElseThrow(() -> new IllegalArgumentException("Không tồn tại tài khoản " + request.getUserName() +"!"));
+
+        user.setPassword(request.getPassword());
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        userRepository.save(user);
     }
 }

@@ -21,18 +21,5 @@ import java.util.List;
 public class RoleController {
     final RoleService roleService;
 
-    @PostMapping("/create")
-    RoleResponse create(@RequestBody RoleRequest request){
-        return roleService.create(request);
-    }
 
-    @GetMapping("/get-list")
-    List<RoleResponse> getAll(){
-        return roleService.getAll();
-    }
-
-    @DeleteMapping("/delete/{role}")
-    void delete(@PathVariable String role){
-        roleService.delete(role);
-    }
 }
