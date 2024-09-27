@@ -1,6 +1,5 @@
 package com.programmingtechie.customer_service.service;
 
-import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -50,15 +49,10 @@ public class CustomerServiceV1 {
             throw new IllegalArgumentException("Your phone number cannot be empty");
         }
 
-        // Kiểm tra định dạng ngày tháng cho dateOfBirth
+        // Kiểm tra ngày tháng năm sinh không được bỏ trống
         String dateOfBirthString = customerRequest.getDateOfBirth().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        try {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-            simpleDateFormat.setLenient(false);
-            simpleDateFormat.parse(dateOfBirthString);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Invalid date of birth");
+        if (dateOfBirthString == null || dateOfBirthString.isEmpty()) {
+            throw new IllegalArgumentException("Your date of birth cannot be empty");
         }
 
         // Kiểm tra password có ít nhất 1 ký tự in hoa, 1 ký tự đặc biệt và ít nhất 8 ký
