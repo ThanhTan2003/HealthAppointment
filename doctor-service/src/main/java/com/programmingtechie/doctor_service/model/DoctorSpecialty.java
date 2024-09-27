@@ -1,5 +1,6 @@
 package com.programmingtechie.doctor_service.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 

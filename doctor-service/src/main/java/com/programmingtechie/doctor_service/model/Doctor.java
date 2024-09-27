@@ -1,5 +1,6 @@
 package com.programmingtechie.doctor_service.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -51,6 +52,7 @@ public class Doctor {
 
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @JsonManagedReference
     private List<DoctorSpecialty> specialties;
 
     // Mối quan hệ One-to-Many với bảng DoctorQualification
