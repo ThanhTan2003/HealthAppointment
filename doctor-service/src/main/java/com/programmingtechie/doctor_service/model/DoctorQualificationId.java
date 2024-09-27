@@ -11,9 +11,8 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DoctorSpecialtyId implements Serializable {
+public class DoctorQualificationId implements Serializable {
     private String doctorId;
 
-    private String specialtyId;
+    private String qualificationAbbreviation;
 }
-

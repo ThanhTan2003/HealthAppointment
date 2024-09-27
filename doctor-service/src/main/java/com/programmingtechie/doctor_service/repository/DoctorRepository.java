@@ -15,11 +15,9 @@ public interface DoctorRepository extends JpaRepository<Doctor, String> {
     @Query("SELECT d FROM Doctor d")
     Page<Doctor> getAllDoctor(Pageable pageable);
 
-    Optional<Doctor> findFirstByPhoneNumberOrEmailOrIdentificationCode(String phoneNumber, String email, String identificationCode);
+//    Optional<Doctor> findFirstByPhoneNumberOrEmailOrIdentificationCode(String phoneNumber, String email, String identificationCode);
 
     Optional<Doctor> findByPhoneNumber(String phoneNumber);
-
-    Optional<Doctor> findByEmail(String email);
 
     Optional<Doctor> findByGender(String gender);
 }

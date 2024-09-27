@@ -1,28 +1,31 @@
 package com.programmingtechie.doctor_service.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Table(name = "qualification")
 public class Qualification {
     @Id
-    @Column(nullable = false, length = 36)
-    private String id;
-
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String abbreviation;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String name;
+
+    @Column(nullable = false)
+    private int displayOrder;
+
+    // Mối quan hệ One-to-Many với bảng DoctorQualification
+    @OneToMany(mappedBy = "qualification", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<DoctorQualification> doctorQualifications;
 }
