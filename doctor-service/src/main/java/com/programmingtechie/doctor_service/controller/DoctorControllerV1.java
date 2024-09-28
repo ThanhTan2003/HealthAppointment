@@ -5,6 +5,7 @@ import com.programmingtechie.doctor_service.dto.response.PageResponse;
 import com.programmingtechie.doctor_service.service.DoctorServiceV1;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -68,5 +69,14 @@ public class DoctorControllerV1 {
             @RequestParam(value = "size", required = false, defaultValue = "10") int size
     ) {
         return doctorServiceV1.getDoctorsByQualification(qualificationAbbreviation, page, size);
+    }
+
+    // API tìm kiếm bác sĩ theo từ khóa và phân trang
+    @GetMapping("/search")
+    public ResponseEntity<PageResponse<DoctorResponse>> searchDoctors(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return ResponseEntity.ok(doctorServiceV1.searchDoctors(keyword, page, size));
     }
 }

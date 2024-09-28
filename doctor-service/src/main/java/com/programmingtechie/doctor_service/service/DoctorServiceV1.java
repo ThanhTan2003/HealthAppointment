@@ -130,4 +130,20 @@ public class DoctorServiceV1 {
                 .build();
     }
 
+    // Tìm kiếm bác sĩ theo từ khóa và phân trang
+    public PageResponse<DoctorResponse> searchDoctors(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Doctor> pageData = doctorRepository.searchDoctors(keyword, pageable);
+
+        return PageResponse.<DoctorResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(this::mapToDoctorResponse)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
 }

@@ -50,6 +50,7 @@ public class Doctor {
     @ToString.Exclude
     private List<DoctorLeave> doctorLeaves;
 
+    // Mối quan hệ One-to-Many với bảng DoctorSpecialty
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @JsonManagedReference

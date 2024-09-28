@@ -26,4 +26,12 @@ public interface DoctorRepository extends JpaRepository<Doctor, String> {
     // Tìm danh sách bác sĩ theo Qualification với phân trang
     @Query("SELECT d FROM Doctor d JOIN d.doctorQualifications dq WHERE dq.qualification.abbreviation = :qualificationAbbreviation")
     Page<Doctor> findDoctorsByQualification(@Param("qualificationAbbreviation") String qualificationAbbreviation, Pageable pageable);
+
+    @Query("SELECT d FROM Doctor d WHERE " +
+            "LOWER(d.id) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(d.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(d.gender) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(d.phoneNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(d.status) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    Page<Doctor> searchDoctors(@Param("keyword") String keyword, Pageable pageable);
 }
