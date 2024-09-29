@@ -32,4 +32,13 @@ public class SpecialtyControllerV1
         Optional<SpecialtyResponse> specialty = specialtyServiceV1.getSpecialtyById(id);
         return specialty.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    // API tìm kiếm chuyên khoa theo từ khóa và phân trang
+    @GetMapping("/search")
+    public ResponseEntity<PageResponse<SpecialtyResponse>> searchSpecialties(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return ResponseEntity.ok(specialtyServiceV1.searchSpecialties(keyword, page, size));
+    }
 }

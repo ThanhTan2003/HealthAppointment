@@ -63,4 +63,19 @@ public class SpecialtyServiceV1 {
                 .description(specialtyResponse.getDescription())
                 .build();
     }
+
+    public PageResponse<SpecialtyResponse> searchSpecialties(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Specialty> pageData = specialtyRepository.searchSpecialties(keyword, pageable);
+
+        return PageResponse.<SpecialtyResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(this::mapToSpecialtyResponse)
+                        .collect(Collectors.toList()))
+                .build();
+    }
 }
