@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface DoctorRepository extends JpaRepository<Doctor, String> {
@@ -27,6 +26,16 @@ public interface DoctorRepository extends JpaRepository<Doctor, String> {
     @Query("SELECT d FROM Doctor d JOIN d.doctorQualifications dq WHERE dq.qualification.abbreviation = :qualificationAbbreviation")
     Page<Doctor> findDoctorsByQualification(@Param("qualificationAbbreviation") String qualificationAbbreviation, Pageable pageable);
 
+    // Tìm kiếm bác sĩ thông thường
+    @Query("SELECT d FROM Doctor d WHERE " +
+            "LOWER(d.id) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(d.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(d.gender) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(d.phoneNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(d.status) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    Page<Doctor> searchDoctors(@Param("keyword") String keyword, Pageable pageable);
+
+    // Tìm kiếm bác sĩ sử dụng extension unaccent
     @Query(value = "SELECT * FROM public.doctor WHERE " +
             "unaccent(LOWER(id)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) OR " +
             "unaccent(LOWER(full_name)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) OR " +
@@ -34,6 +43,6 @@ public interface DoctorRepository extends JpaRepository<Doctor, String> {
             "unaccent(LOWER(phone_number)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) OR " +
             "unaccent(LOWER(status)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%')))",
             nativeQuery = true)
-    Page<Doctor> searchDoctors(@Param("keyword") String keyword, Pageable pageable);
+    Page<Doctor> searchDoctorsWithUnaccent(@Param("keyword") String keyword, Pageable pageable);
 
 }

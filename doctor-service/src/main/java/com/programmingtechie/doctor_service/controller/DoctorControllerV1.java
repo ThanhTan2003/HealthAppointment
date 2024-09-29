@@ -72,6 +72,15 @@ public class DoctorControllerV1 {
     }
 
     // API tìm kiếm bác sĩ theo từ khóa và phân trang
+    @GetMapping("/search1")
+    public ResponseEntity<PageResponse<DoctorResponse>> searchDoctors1(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return ResponseEntity.ok(doctorServiceV1.searchDoctors1(keyword, page, size));
+    }
+
+    // API tìm kiếm bác sĩ theo từ khóa và phân trang sử dụng extension unaccent
     @GetMapping("/search")
     public ResponseEntity<PageResponse<DoctorResponse>> searchDoctors(
             @RequestParam("keyword") String keyword,
