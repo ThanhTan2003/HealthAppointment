@@ -27,11 +27,13 @@ public interface DoctorRepository extends JpaRepository<Doctor, String> {
     @Query("SELECT d FROM Doctor d JOIN d.doctorQualifications dq WHERE dq.qualification.abbreviation = :qualificationAbbreviation")
     Page<Doctor> findDoctorsByQualification(@Param("qualificationAbbreviation") String qualificationAbbreviation, Pageable pageable);
 
-    @Query("SELECT d FROM Doctor d WHERE " +
-            "LOWER(d.id) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(d.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(d.gender) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(d.phoneNumber) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(d.status) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    @Query(value = "SELECT * FROM public.doctor WHERE " +
+            "unaccent(LOWER(id)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) OR " +
+            "unaccent(LOWER(full_name)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) OR " +
+            "unaccent(LOWER(gender)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) OR " +
+            "unaccent(LOWER(phone_number)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) OR " +
+            "unaccent(LOWER(status)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%')))",
+            nativeQuery = true)
     Page<Doctor> searchDoctors(@Param("keyword") String keyword, Pageable pageable);
+
 }
