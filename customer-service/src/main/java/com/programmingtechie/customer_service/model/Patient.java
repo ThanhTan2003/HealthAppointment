@@ -4,7 +4,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
+import lombok.*;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Data
+@Table(name = "patient")
+@Entity
 public class Patient {
     @Id
     @Column(nullable = false, length = 36)

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -44,6 +45,10 @@ public class Customer {
 
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;
+
+    @OneToMany()
+    @JsonManagedReference
+    private Patient patientId;
 
     @PrePersist
     private void ensureId() {
