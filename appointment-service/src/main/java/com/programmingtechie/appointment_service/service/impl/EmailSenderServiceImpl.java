@@ -151,7 +151,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 
             // Send the email
             this.sendEmail(appointmentConfirmation.getEmailAddress(),
-                    "Xác nhận lịch hẹn từ Phòng Khám Đa Khoa Gia Định",
+                    "Xác nhận thông tin lịch hẹn",
                     emailContent);
 
         } catch (Exception e) {
@@ -216,7 +216,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 
             // Send the email
             this.sendEmail(notification.getEmailAddress(),
-                    "Thông báo thay đổi bác sĩ từ Phòng Khám Đa Khoa Gia Định",
+                    "Thông báo thay đổi bác sĩ",
                     emailContent);
 
         } catch (Exception e) {
