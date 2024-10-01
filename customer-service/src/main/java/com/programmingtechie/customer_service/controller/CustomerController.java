@@ -31,12 +31,12 @@ public class CustomerController {
         return "Welcome to health appointment app";
     }
     
-    @PostMapping("/welcome/login")
+    @PostMapping("/login")
     public String loginSystem(@RequestBody String entity) {
         return entity;
     }
     
-    @PostMapping("/welcome/register")
+    @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public String createCustomer(@RequestBody CustomerRequest customerRequest)
     {
@@ -45,11 +45,11 @@ public class CustomerController {
     }
 
     @GetMapping("/get-all")
-    public PageResponse<CustomerResponse> getAll (
+    public PageResponse<CustomerResponse> getAllCustomerWithoutSorting (
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "5") int size
     )
     {
-        return customerServiceV1.getAllCustomer(page, size);
+        return customerServiceV1.getAllCustomerWithoutSorting(page, size);
     }
 }

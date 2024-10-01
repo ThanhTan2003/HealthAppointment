@@ -3,9 +3,7 @@ package com.programmingtechie.customer_service.service;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import com.programmingtechie.customer_service.dto.request.CustomerRequest;
@@ -21,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class CustomerServiceV1 {
     final CustomerRepository customerRepository;
 
+    //Thêm thông tin khách hàng
     public void createCustomer(CustomerRequest customerRequest) {
         validCustomer(customerRequest);
         Customer customer = Customer.builder()
@@ -33,6 +32,28 @@ public class CustomerServiceV1 {
                 .build();
 
         customerRepository.save(customer);
+    }
+
+    //Cập nhật thông tin khách hàng
+    public void updateCustomer(CustomerRequest customerRequest) {
+        validCustomer(customerRequest);
+        Customer customer = Customer.builder()
+                .fullName(customerRequest.getFullName())
+                .dateOfBirth(customerRequest.getDateOfBirth())
+                .gender(customerRequest.getGender())
+                .email(customerRequest.getEmail())
+                .phoneNumber(customerRequest.getPhoneNumber())
+                .password(customerRequest.getPassword())
+                .build();
+
+        customerRepository.save(customer);
+    }
+
+    public void deleteCustomer(String id){
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Can not find user"));
+
+        
     }
 
     void validCustomer(CustomerRequest customerRequest) {
@@ -69,29 +90,19 @@ public class CustomerServiceV1 {
         }
     }
 
-    public PageResponse<CustomerResponse> getAllCustomer(int page, int size) {
-        // Tạo đối tượng Sort theo thứ tự tăng dần của fullName
-        Sort sort = Sort.by("fullName").ascending();
-
+    // Lấy danh sách khách hàng với thứ tự chưa sắp xếp
+    public PageResponse<CustomerResponse> getAllCustomerWithoutSorting(int page, int size) {
         // Tạo Pageable với page và size đầu vào
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
+        Pageable pageable = PageRequest.of(page - 1, size);
 
-        // Lấy dữ liệu trang từ repository (lưu ý: kiểu Pageable phải từ Spring, không
+        // Lấy dữ liệu trang từ repository (lưu ý: kiểu Pageable phải từ
+        // org.springframework, không
         // phải AWT)
-        var pageData = customerRepository.getAllCustomer(pageable);
+        Page<Customer> pageData = customerRepository.findAll(pageable);
 
         // Mapping dữ liệu từ entity Customer sang DTO CustomerResponse
         List<CustomerResponse> customerResponses = pageData.getContent().stream()
-                .map(doctor -> CustomerResponse.builder()
-                        .id(doctor.getId())
-                        .fullName(doctor.getFullName())
-                        .dateOfBirth(doctor.getDateOfBirth())
-                        .gender(doctor.getGender())
-                        .phoneNumber(doctor.getPhoneNumber())
-                        .email(doctor.getEmail())
-                        .status(doctor.getStatus())
-                        .lastUpdated(doctor.getLastUpdated())
-                        .build())
+                .map(this::mapToCustomerResponse)
                 .toList();
 
         // Trả về đối tượng PageResponse với các thông tin cần thiết
@@ -101,6 +112,34 @@ public class CustomerServiceV1 {
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(customerResponses)
+                .build();
+    }
+
+    // Tìm khách hàng theo id
+    public CustomerResponse getById(String id) {
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
+        return mapToCustomerResponse(customer);
+    }
+
+    // Tìm khách hàng theo id
+    public CustomerResponse getByFullName(String name) {
+        Customer customer = customerRepository.findByFullName(name)
+                .orElseThrow(() -> new RuntimeException("Customer not found with name: " + name));
+        return mapToCustomerResponse(customer);
+    }
+
+    // Hàm mapping dữ liệu từ entity Customer sang DTO CustomerResponse
+    private CustomerResponse mapToCustomerResponse(Customer customer) {
+        return CustomerResponse.builder()
+                .id(customer.getId())
+                .fullName(customer.getFullName())
+                .dateOfBirth(customer.getDateOfBirth())
+                .gender(customer.getGender())
+                .phoneNumber(customer.getPhoneNumber())
+                .email(customer.getEmail())
+                .status(customer.getStatus())
+                .lastUpdated(customer.getLastUpdated())
                 .build();
     }
 }

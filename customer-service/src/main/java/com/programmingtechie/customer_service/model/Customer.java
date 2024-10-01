@@ -2,6 +2,7 @@ package com.programmingtechie.customer_service.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -21,7 +22,7 @@ public class Customer {
     @Column(nullable = false, length = 36)
     private String id;
 
-    @Column(name = "full_name", nullable = false, length = 100)
+    @Column(name = "full_name", nullable = false, columnDefinition = "TEXT")
     private String fullName;
 
     @Column(name = "date_of_birth")
@@ -31,13 +32,13 @@ public class Customer {
     @Column(name = "gender", length = 4)
     private String gender;
 
-    @Column(name = "phone_number", length = 10, unique = true)
+    @Column(name = "phone_number", length = 15, unique = true)
     private String phoneNumber;
 
     @Column(name = "email", length = 50, unique = true)
     private String email;
 
-    @Column(name = "password", nullable = false, length = 100)
+    @Column(name = "password", nullable = false, columnDefinition = "TEXT")
     private String password;
 
     @Column(name = "status", length = 50)
@@ -46,9 +47,10 @@ public class Customer {
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;
 
-    @OneToMany()
+    @OneToMany(mappedBy = "customerId")
+    @ToString.Exclude
     @JsonManagedReference
-    private Patient patientId;
+    private List<Patient> patientId;
 
     @PrePersist
     private void ensureId() {

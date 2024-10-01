@@ -17,7 +17,7 @@ public class Patient {
     @Column(nullable = false, length = 36)
     private String id;
 
-    @Column(name = "full_name", nullable = false, length = 100)
+    @Column(name = "full_name", nullable = false, columnDefinition = "TEXT")
     private String fullName;
 
     @Column(name = "date_of_birth")
@@ -32,43 +32,51 @@ public class Patient {
     @Column(name = "identification_code_or_passport", nullable = false, length = 12)
     private String identificationCodeOrPassport;
 
-    @Column(name = "nation", nullable = false, length = 100)
+    @Column(name = "nation", nullable = false, columnDefinition = "TEXT")
     private String nation;
 
-    @Column(name = "occupation",nullable = false, length = 100)
+    @Column(name = "occupation", nullable = false, columnDefinition = "TEXT")
     private String occupation;
 
-    @Column(name = "phone_number", length = 10, unique = true)
+    @Column(name = "phone_number", nullable = false, length = 10, unique = true)
     private String phoneNumber;
 
-    @Column(name = "email", length = 50, unique = true)
+    @Column(name = "email", nullable = false, columnDefinition = "TEXT")
     private String email;
 
-    @Column(name = "country",nullable = false, length = 100)
+    @Column(name = "country", nullable = false, columnDefinition = "TEXT")
     private String country;
 
-    @Column(name = "province_or_city",nullable = false, length = 100)
+    @Column(name = "province", nullable = false, columnDefinition = "TEXT")
     private String province;
 
-    @Column(name = "district",nullable = false, length = 100)
+    @Column(name = "district", nullable = false, columnDefinition = "TEXT")
     private String district;
 
-    @Column(name = "ward_commune",nullable = false, length = 100)
+    @Column(name = "ward", nullable = false, columnDefinition = "TEXT")
     private String ward;
 
-    @Column(name = "address",nullable = false, length = 100)
+    @Column(name = "address", nullable = false, columnDefinition = "TEXT")
     private String address;
 
-    @Column(name = "relationship",nullable = false, length = 30)
+    @Column(name = "relationship", nullable = false, columnDefinition = "TEXT")
     private String relationship;
 
-    @Column(name = "note", length = 50)
+    @Column(name = "note", nullable = false, columnDefinition = "TEXT")
     private String note;
 
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;
 
-    @Column(name = "customer_id",nullable = false, length = 36)
-    private String customerId;
+    @ManyToOne
+    @JoinColumn(name = "customer_id", nullable = false)
+    @ToString.Exclude
+    @MapsId("customerId")
+    private Customer customerId;
+
+    @PreUpdate
+    private void updateTimestamp() {
+        this.lastUpdated = LocalDateTime.now();
+    }
 
 }
