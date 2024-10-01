@@ -16,10 +16,10 @@ public class PatientServiceV1 {
 
     final PatientRepository patientRepository;
 
-    //Thêm hồ sơ khám bệnh
+    //Thêm hồ sơ khám bệnh cho bệnh nhân
     public void createPatient(PatientRequest patientRequest) {
         validPatient(patientRequest);
-        
+
         Patient patient = Patient.builder()
                 .id(generatePatientID())
                 .fullName(patientRequest.getFullName())
@@ -96,6 +96,6 @@ public class PatientServiceV1 {
         }
         return result.toString();
     }
-    //////////////////////////////////////////////////////////////////////
+    //Kết thúc hàm tạo mã ngẫu nhiên
 
 }

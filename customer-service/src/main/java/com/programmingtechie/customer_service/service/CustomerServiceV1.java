@@ -104,7 +104,7 @@ public class CustomerServiceV1 {
     }
 
     // Lấy danh sách khách hàng với thứ tự chưa sắp xếp
-    public PageResponse<CustomerResponse> getAllCustomerWithoutSorting(int page, int size) {
+    public PageResponse<CustomerResponse> getAllCustomer(int page, int size) {
         // Tạo Pageable với page và size đầu vào
         Pageable pageable = PageRequest.of(page - 1, size);
 
@@ -128,6 +128,31 @@ public class CustomerServiceV1 {
                 .build();
     }
 
+    // Lấy danh sách khách hàng với thứ tự chưa sắp xếp kèm thông tin bệnh nhân
+    public PageResponse<CustomerResponse> getAllCustomerWithPatientInfo(int page, int size) {
+        // Tạo Pageable với page và size đầu vào
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        // Lấy dữ liệu trang từ repository (lưu ý: kiểu Pageable phải từ
+        // org.springframework, không
+        // phải AWT)
+        Page<Customer> pageData = customerRepository.findAll(pageable);
+
+        // Mapping dữ liệu từ entity Customer sang DTO CustomerResponse
+        List<CustomerResponse> customerResponses = pageData.getContent().stream()
+                .map(this::mapToCustomerResponseWithPatientInfo)
+                .toList();
+
+        // Trả về đối tượng PageResponse với các thông tin cần thiết
+        return PageResponse.<CustomerResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(customerResponses)
+                .build();
+    }
+
     // Tìm khách hàng theo id
     public CustomerResponse getById(String id) {
         Customer customer = customerRepository.findById(id)
@@ -135,7 +160,7 @@ public class CustomerServiceV1 {
         return mapToCustomerResponse(customer);
     }
 
-    // Tìm khách hàng theo id
+    // Tìm khách hàng theo tên
     public CustomerResponse getByFullName(String name) {
         Customer customer = customerRepository.findByFullName(name)
                 .orElseThrow(() -> new RuntimeException("Customer not found with name: " + name));
@@ -156,6 +181,8 @@ public class CustomerServiceV1 {
                 .build();
     }
 
+    // Hàm mapping dữ liệu từ entity Customer sang DTO CustomerResponse với thông
+    // tin bệnh nhân
     private CustomerResponse mapToCustomerResponseWithPatientInfo(Customer customer) {
         return CustomerResponse.builder()
                 .id(customer.getId())
@@ -172,6 +199,7 @@ public class CustomerServiceV1 {
                 .build();
     }
 
+    // Hàm mapping dữ liệu từ entity Patient sang DTO PatientResponse
     private PatientResponse mapPatientToPatientResponse(Patient patient) {
         return PatientResponse.builder()
                 .id(patient.getId())

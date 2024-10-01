@@ -10,6 +10,8 @@ import com.programmingtechie.customer_service.model.Customer;
 
 import java.util.Optional;
 import java.util.List;
+import com.programmingtechie.customer_service.model.Patient;
+
 
 
 @Repository
@@ -18,6 +20,8 @@ public interface CustomerRepository extends JpaRepository<Customer,String>{
     Page<Customer> getAllCustomer(Pageable pageable);
 
     Optional<Customer> findByFullName(String fullName);
+
+    List<Customer> findByPatientId(List<Patient> patientId);
 
     boolean existsByPhoneNumber(String phoneNumber);
 

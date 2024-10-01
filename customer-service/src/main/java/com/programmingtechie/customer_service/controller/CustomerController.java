@@ -60,16 +60,20 @@ public class CustomerController {
     }
 
     @GetMapping("/get-all")
-    public PageResponse<CustomerResponse> getAllCustomerWithoutSorting (
+    public PageResponse<CustomerResponse> getAllCustomer (
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "5") int size
     )
     {
-        return customerServiceV1.getAllCustomerWithoutSorting(page, size);
+        return customerServiceV1.getAllCustomer(page, size);
     }
 
-    @PostMapping("path")
-    public String createPatient(@RequestBody String entity) {
-        return entity;
+    @GetMapping("/get-all-with-patient-info")
+    public PageResponse<CustomerResponse> getAllCustomerWithPatientInfo (
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "5") int size
+    )
+    {
+        return customerServiceV1.getAllCustomerWithPatientInfo(page, size);
     }
 }
