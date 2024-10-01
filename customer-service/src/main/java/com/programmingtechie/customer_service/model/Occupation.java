@@ -1,5 +1,5 @@
 package com.programmingtechie.customer_service.model;
-
+import java.util.*;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,4 +16,11 @@ public class Occupation {
 
     @Column(name = "name", nullable = false, length = 100)
     private String name;
+
+    @PrePersist
+    private void ensureId() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID().toString();
+        }
+    }
 }

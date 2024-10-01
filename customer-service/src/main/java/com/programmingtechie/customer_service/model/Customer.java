@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
@@ -26,15 +25,16 @@ public class Customer {
     private String fullName;
 
     @Column(name = "date_of_birth")
-    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate dateOfBirth;
 
     @Column(name = "gender", length = 4)
     private String gender;
 
+    //Số điện thoại cá nhân của tài khoản
     @Column(name = "phone_number", length = 15, unique = true)
     private String phoneNumber;
 
+    //Email cá nhân của tài khoản
     @Column(name = "email", length = 50, unique = true)
     private String email;
 

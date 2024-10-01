@@ -38,9 +38,11 @@ public class Patient {
     @Column(name = "occupation", nullable = false, columnDefinition = "TEXT")
     private String occupation;
 
+    //Số điện thoại liên hệ với người có thông tin trong hồ sơ
     @Column(name = "phone_number", nullable = false, length = 10, unique = true)
     private String phoneNumber;
 
+    //Email liên hệ với người có thông tin trong hồ sơ
     @Column(name = "email", nullable = false, columnDefinition = "TEXT")
     private String email;
 

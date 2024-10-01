@@ -3,6 +3,8 @@ package com.programmingtechie.customer_service.dto.response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import java.util.*;
+
 import lombok.*;
 
 @Data
@@ -27,4 +29,6 @@ public class CustomerResponse {
     private String status;
 
     private LocalDateTime lastUpdated;
+
+    private List<PatientResponse> patient;
 }

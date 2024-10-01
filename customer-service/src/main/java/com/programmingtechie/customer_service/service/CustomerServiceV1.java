@@ -1,7 +1,8 @@
 package com.programmingtechie.customer_service.service;
 
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -9,7 +10,9 @@ import org.springframework.stereotype.Service;
 import com.programmingtechie.customer_service.dto.request.CustomerRequest;
 import com.programmingtechie.customer_service.dto.response.CustomerResponse;
 import com.programmingtechie.customer_service.dto.response.PageResponse;
+import com.programmingtechie.customer_service.dto.response.PatientResponse;
 import com.programmingtechie.customer_service.model.Customer;
+import com.programmingtechie.customer_service.model.Patient;
 import com.programmingtechie.customer_service.repository.CustomerRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -19,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class CustomerServiceV1 {
     final CustomerRepository customerRepository;
 
-    //Thêm thông tin khách hàng
+    // Thêm thông tin khách hàng
     public void createCustomer(CustomerRequest customerRequest) {
         validCustomer(customerRequest);
         Customer customer = Customer.builder()
@@ -34,26 +37,36 @@ public class CustomerServiceV1 {
         customerRepository.save(customer);
     }
 
-    //Cập nhật thông tin khách hàng
-    public void updateCustomer(CustomerRequest customerRequest) {
+    // Cập nhật thông tin khách hàng
+    public void updateCustomer(String id, CustomerRequest customerRequest) {
         validCustomer(customerRequest);
-        Customer customer = Customer.builder()
-                .fullName(customerRequest.getFullName())
-                .dateOfBirth(customerRequest.getDateOfBirth())
-                .gender(customerRequest.getGender())
-                .email(customerRequest.getEmail())
-                .phoneNumber(customerRequest.getPhoneNumber())
-                .password(customerRequest.getPassword())
-                .build();
+        Optional<Customer> optionalCustomer = customerRepository.findById(id);
+        boolean isPhoneNumberExists = customerRepository.existsByPhoneNumber(customerRequest.getPhoneNumber());
+        boolean isEmailAlreadyExists = customerRepository.existsByEmail(customerRequest.getEmail());
+        if (isEmailAlreadyExists || isPhoneNumberExists) {
+            throw new IllegalArgumentException("Điện thoại hoặc email đã tồn tại, vui lòng thử lại.");
+        }
+        if (optionalCustomer.isPresent()) {
+            Customer customer = Customer.builder()
+                    .fullName(customerRequest.getFullName())
+                    .dateOfBirth(customerRequest.getDateOfBirth())
+                    .gender(customerRequest.getGender())
+                    .email(customerRequest.getEmail())
+                    .phoneNumber(customerRequest.getPhoneNumber())
+                    .password(customerRequest.getPassword())
+                    .build();
 
-        customerRepository.save(customer);
+            customerRepository.save(customer);
+        } else {
+            throw new IllegalArgumentException("Customer with ID " + id + " not found");
+        }
+
     }
 
-    public void deleteCustomer(String id){
+    public void deleteCustomer(String id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Can not find user"));
 
-        
     }
 
     void validCustomer(CustomerRequest customerRequest) {
@@ -140,6 +153,45 @@ public class CustomerServiceV1 {
                 .email(customer.getEmail())
                 .status(customer.getStatus())
                 .lastUpdated(customer.getLastUpdated())
+                .build();
+    }
+
+    private CustomerResponse mapToCustomerResponseWithPatientInfo(Customer customer) {
+        return CustomerResponse.builder()
+                .id(customer.getId())
+                .fullName(customer.getFullName())
+                .dateOfBirth(customer.getDateOfBirth())
+                .gender(customer.getGender())
+                .phoneNumber(customer.getPhoneNumber())
+                .email(customer.getEmail())
+                .status(customer.getStatus())
+                .lastUpdated(customer.getLastUpdated())
+                .patient(customer.getPatientId().stream()
+                        .map(this::mapPatientToPatientResponse)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    private PatientResponse mapPatientToPatientResponse(Patient patient) {
+        return PatientResponse.builder()
+                .id(patient.getId())
+                .fullName(patient.getFullName())
+                .dateOfBirth(patient.getDateOfBirth())
+                .gender(patient.getGender())
+                .insuranceId(patient.getInsuranceId())
+                .identificationCodeOrPassport(patient.getIdentificationCodeOrPassport())
+                .nation(patient.getNation())
+                .occupation(patient.getOccupation())
+                .phoneNumber(patient.getPhoneNumber())
+                .email(patient.getEmail())
+                .country(patient.getCountry())
+                .province(patient.getProvince())
+                .district(patient.getDistrict())
+                .ward(patient.getWard())
+                .address(patient.getAddress())
+                .relationship(patient.getRelationship())
+                .note(patient.getNote())
+                .lastUpdated(patient.getLastUpdated())
                 .build();
     }
 }

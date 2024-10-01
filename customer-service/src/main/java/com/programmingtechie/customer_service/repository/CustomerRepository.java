@@ -18,4 +18,8 @@ public interface CustomerRepository extends JpaRepository<Customer,String>{
     Page<Customer> getAllCustomer(Pageable pageable);
 
     Optional<Customer> findByFullName(String fullName);
+
+    boolean existsByPhoneNumber(String phoneNumber);
+
+    boolean existsByEmail(String email);
 }

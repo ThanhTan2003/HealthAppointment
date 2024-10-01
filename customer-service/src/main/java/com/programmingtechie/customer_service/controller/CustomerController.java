@@ -1,9 +1,8 @@
 package com.programmingtechie.customer_service.controller;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +17,9 @@ import com.programmingtechie.customer_service.dto.response.PageResponse;
 import com.programmingtechie.customer_service.service.CustomerServiceV1;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 @RestController
 @RequestMapping("/api/v1/customer")
@@ -44,6 +46,19 @@ public class CustomerController {
         return "Tạo tài khoản thành công!";
     }
 
+    @PutMapping("/update/{id}")
+    public String updateCustomer(@PathVariable String id, @RequestBody CustomerRequest customerRequest) {
+        customerServiceV1.updateCustomer(id,customerRequest);
+       return "Update successfully";
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public String deleteCustomer(@PathVariable String id) {
+        customerServiceV1.deleteCustomer(id);
+        return "Xóa thông tin khách hàng thành công!";
+    }
+
     @GetMapping("/get-all")
     public PageResponse<CustomerResponse> getAllCustomerWithoutSorting (
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
@@ -51,5 +66,10 @@ public class CustomerController {
     )
     {
         return customerServiceV1.getAllCustomerWithoutSorting(page, size);
+    }
+
+    @PostMapping("path")
+    public String createPatient(@RequestBody String entity) {
+        return entity;
     }
 }
