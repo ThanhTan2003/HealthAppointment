@@ -23,14 +23,10 @@
 	</developers>
     <modules>
         <module>customer-service</module>
-		<module>analytical-and-reporting-service</module>
 		<module>api-gateway</module>
 		<module>appointment-service</module>
 		<module>doctor-service</module>
 		<module>medical-service</module>
-		<module>notification-service</module>
-		<module>payment-service</module>
-		<module>vietnam-units-service</module>
 		<module>identity-service</module>
 	</modules>
     <scm>

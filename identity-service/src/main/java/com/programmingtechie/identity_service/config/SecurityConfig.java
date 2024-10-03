@@ -29,7 +29,8 @@ public class SecurityConfig {
             "/api/v1/identity/auth/log-in",
             "/api/v1/identity/auth/log-out",
             "/api/v1/identity/permission",
-            "/api/v1/identity/role"
+            "/api/v1/identity/role",
+            "/api/v1/identity/auth/refresh"
     };
 
     @Autowired
