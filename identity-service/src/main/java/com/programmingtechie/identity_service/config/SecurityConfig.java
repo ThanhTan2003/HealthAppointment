@@ -26,11 +26,12 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/identity/auth/log-in",
-            "/api/v1/identity/auth/log-out",
-            "/api/v1/identity/permission",
-            "/api/v1/identity/role",
-            "/api/v1/identity/auth/refresh"
+            "/identity/auth/log-in",
+            "/identity/auth/log-out",
+            "/identity/permission",
+            "/identity/auth/introspect",
+            "/identity/identity/role",
+            "/identity/auth/refresh"
     };
 
     @Autowired
