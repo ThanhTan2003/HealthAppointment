@@ -97,7 +97,7 @@ public class CustomerServiceV1 {
         }
 
         // Kiểm tra phoneNumber có định dạng số và ít nhất 12 ký tự
-        if (!customerRequest.getPhoneNumber().matches("^[0-9]{12,}$")) {
+        if (!customerRequest.getPhoneNumber().matches("^[0-9]{10,}$")) {
             throw new IllegalArgumentException(
                     "Phone number must contain only digits and be at least 12 characters long.");
         }
@@ -164,6 +164,20 @@ public class CustomerServiceV1 {
     public CustomerResponse getByFullName(String name) {
         Customer customer = customerRepository.findByFullName(name)
                 .orElseThrow(() -> new RuntimeException("Customer not found with name: " + name));
+        return mapToCustomerResponse(customer);
+    }
+
+    // Tìm khách hàng theo số điện thoại
+    public CustomerResponse getByPhoneNumber(String phone) {
+        Customer customer = customerRepository.findByPhoneNumber(phone)
+                .orElseThrow(() -> new RuntimeException("Customer not found with phone number: " + phone));
+        return mapToCustomerResponse(customer);
+    }
+
+    // Tìm khách hàng theo email
+    public CustomerResponse getByEmail(String email) {
+        Customer customer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Customer not found with email: " + email));
         return mapToCustomerResponse(customer);
     }
 

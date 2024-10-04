@@ -6,8 +6,12 @@ import org.springframework.stereotype.Repository;
 import com.programmingtechie.customer_service.model.Patient;
 
 import java.util.Optional;
+import java.util.List;
+
 
 @Repository
 public interface PatientRepository extends JpaRepository<Patient,String>{
-    
+    boolean existsByInsuranceId(String insuranceId);
+
+    boolean existsByIdentificationCodeOrPassport(String identificationCodeOrPassport);
 }

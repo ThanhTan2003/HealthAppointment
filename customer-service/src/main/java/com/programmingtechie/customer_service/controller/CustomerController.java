@@ -49,7 +49,7 @@ public class CustomerController {
     @PutMapping("/update/{id}")
     public String updateCustomer(@PathVariable String id, @RequestBody CustomerRequest customerRequest) {
         customerServiceV1.updateCustomer(id,customerRequest);
-       return "Update successfully";
+       return "Cập nhật thông tin thành công";
     }
 
     @DeleteMapping("/delete/{id}")
