@@ -1,12 +1,11 @@
 package com.programmingtechie.doctor_service.controller;
 
-import com.programmingtechie.doctor_service.dto.request.DoctorRequest;
 import com.programmingtechie.doctor_service.dto.response.DoctorResponse;
 import com.programmingtechie.doctor_service.dto.response.PageResponse;
 import com.programmingtechie.doctor_service.service.DoctorServiceV1;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,20 +18,7 @@ import java.util.List;
 public class DoctorControllerV1 {
     final DoctorServiceV1 doctorServiceV1;
 
-    // Tao thong tin bac si moi
-    @PostMapping("/create")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void createDoctor(@RequestBody DoctorRequest doctorRequest) {
-        doctorServiceV1.createDoctor(doctorRequest);
-    }
-
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<DoctorResponse> getAll() {
-        return doctorServiceV1.getAll();
-    }
-
-    // Lay danh sach bac si
+    // Lấy danh sách bác sĩ với phân trang
     @GetMapping("/get-all")
     public PageResponse<DoctorResponse> getAll(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
@@ -41,55 +27,65 @@ public class DoctorControllerV1 {
         return doctorServiceV1.getAll(page, size);
     }
 
-    // Lay theo id
+    // Lấy bác sĩ theo id qua GET
     @GetMapping("/id/{id}")
-    public DoctorResponse geById(@PathVariable String id) {
+    public DoctorResponse getById(@PathVariable String id) {
         return doctorServiceV1.getById(id);
     }
 
-    // Lay theo id
+    // Lấy bác sĩ theo id qua POST
     @PostMapping("/id")
-    public DoctorResponse geById1(@RequestBody String id) {
+    public DoctorResponse getByIdPost(@RequestBody String id) {
         return doctorServiceV1.getById(id);
     }
 
-    // Lay theo phone
-    @GetMapping("/phone/{phone}")
+    // Lấy bác sĩ theo số điện thoại qua GET
+    @GetMapping("/phone/{phoneNumber}")
     public DoctorResponse getByPhoneNumber(@PathVariable String phoneNumber) {
         return doctorServiceV1.getByPhoneNumber(phoneNumber);
     }
 
-    // Lay theo phone
+    // Lấy bác sĩ theo số điện thoại qua POST
     @PostMapping("/phone")
-    public DoctorResponse getByPhoneNumber1(@RequestBody String phoneNumber) {
+    public DoctorResponse getByPhoneNumberPost(@RequestBody String phoneNumber) {
         return doctorServiceV1.getByPhoneNumber(phoneNumber);
     }
 
-    // Lay theo email
-    @PostMapping("/email")
-    public DoctorResponse getByEmail(@RequestBody String email) {
-        return doctorServiceV1.getByEmail(email);
+    // Lấy danh sách bác sĩ theo Specialty với phân trang
+    @GetMapping("/specialty/{specialtyId}")
+    public PageResponse<DoctorResponse> getDoctorsBySpecialty(
+            @PathVariable String specialtyId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+    ) {
+        return doctorServiceV1.getDoctorsBySpecialty(specialtyId, page, size);
     }
 
-    // Lay theo email
-    @PostMapping("/gender")
-    public DoctorResponse getByGender(@RequestBody String gender) {
-        return doctorServiceV1.getByGender(gender);
+    // Lấy danh sách bác sĩ theo Qualification với phân trang
+    @GetMapping("/qualification/{qualificationAbbreviation}")
+    public PageResponse<DoctorResponse> getDoctorsByQualification(
+            @PathVariable String qualificationAbbreviation,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+    ) {
+        return doctorServiceV1.getDoctorsByQualification(qualificationAbbreviation, page, size);
     }
 
-    // Cap nhat thong tin bac si
-    @PutMapping("update/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public void updateDoctor(@PathVariable String id, @RequestBody DoctorRequest doctorRequest)
-    {
-        doctorServiceV1.updateDoctor(id, doctorRequest);
+    // API tìm kiếm bác sĩ theo từ khóa và phân trang
+    @GetMapping("/search1")
+    public ResponseEntity<PageResponse<DoctorResponse>> searchDoctors1(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return ResponseEntity.ok(doctorServiceV1.searchDoctors1(keyword, page, size));
     }
 
-    // Xoa thong tin bac si
-    @DeleteMapping("delete/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public void deleteDoctor(@PathVariable String id)
-    {
-        doctorServiceV1.deleteDoctor(id);
+    // API tìm kiếm bác sĩ theo từ khóa và phân trang sử dụng extension unaccent
+    @GetMapping("/search")
+    public ResponseEntity<PageResponse<DoctorResponse>> searchDoctors(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return ResponseEntity.ok(doctorServiceV1.searchDoctors(keyword, page, size));
     }
 }
