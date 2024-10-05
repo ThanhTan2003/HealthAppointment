@@ -17,6 +17,4 @@ import java.util.List;
 @Transactional
 public class RoleService {
     final RoleRepository roleRepository;
-
-
 }

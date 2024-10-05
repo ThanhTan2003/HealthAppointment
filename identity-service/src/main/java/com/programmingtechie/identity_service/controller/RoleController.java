@@ -13,13 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/identity/role")
+@RequestMapping("/api/v1/identity/role")
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RoleController {
     final RoleService roleService;
-
-
 }

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.text.ParseException;
 
 @RestController
-@RequestMapping("/identity/auth")
+@RequestMapping("/api/v1/identity/auth")
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin

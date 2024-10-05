@@ -1,6 +1,7 @@
 package com.programmingtechie.identity_service.config;
 
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jwt.SignedJWT;
 import com.programmingtechie.identity_service.dto.request.IntrospectRequest;
 import com.programmingtechie.identity_service.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,36 +19,20 @@ import java.util.Objects;
 
 @Component
 public class CustomJwtDecoder implements JwtDecoder {
-    @Value("${jwt.signerKey}")
-    private String signerKey;
-
-    @Autowired
-    private AuthenticationService authenticationService;
-
-    private NimbusJwtDecoder nimbusJwtDecoder = null;
-
     @Override
-    public Jwt decode(String token) throws JwtException {
-
+    public Jwt decode(String token) throws JwtException { // Phuong thuc decode de giai ma token JWT
         try {
-            var response = authenticationService.introspect(IntrospectRequest.builder()
-                    .token(token)
-                    .build());
+            SignedJWT signedJWT = SignedJWT.parse(token); // Parse token de lay SignedJWT
 
-            if (!response.isValid())
-                throw new JwtException("Token invalid");
-        } catch (JOSEException | ParseException e) {
-            throw new JwtException(e.getMessage());
+            return new Jwt(token, // Tao doi tuong Jwt
+                    signedJWT.getJWTClaimsSet().getIssueTime().toInstant(), // Lay thoi gian phat hanh token
+                    signedJWT.getJWTClaimsSet().getExpirationTime().toInstant(), // Lay thoi gian het han token
+                    signedJWT.getHeader().toJSONObject(), // Lay header cua token
+                    signedJWT.getJWTClaimsSet().getClaims() // Lay claims cua token
+            );
+
+        } catch (ParseException e) { // Xu ly truong hop parse token that bai
+            throw new JwtException("Invalid token"); // Nen exception neu token khong hop le
         }
-
-        if (Objects.isNull(nimbusJwtDecoder)) {
-            SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
-            nimbusJwtDecoder = NimbusJwtDecoder
-                    .withSecretKey(secretKeySpec)
-                    .macAlgorithm(MacAlgorithm.HS512)
-                    .build();
-        }
-
-        return nimbusJwtDecoder.decode(token);
     }
 }

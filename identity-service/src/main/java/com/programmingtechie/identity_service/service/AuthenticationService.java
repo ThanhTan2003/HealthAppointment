@@ -37,6 +37,7 @@ import java.util.StringJoiner;
 import java.util.UUID;
 
 
+// Dich vu nay cung cap cac chuc nang lien quan den xac thuc trong he thong
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -46,6 +47,7 @@ public class AuthenticationService {
     final UserRepository userRepository;
     final InvalidatedTokenRepository invalidatedTokenRepository;
 
+    // Cac gia tri lien quan den JWT (key ky, thoi gian hieu luc, thoi gian lam moi token)
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
@@ -58,129 +60,135 @@ public class AuthenticationService {
     @Value("${jwt.refreshable-duration}")
     protected long REFRESHABLE_DURATION;
 
-    // Tao token moi
+    // Phuong thuc tao token moi cho nguoi dung
     private String generateToken(User user) {
+        // Tao phan header cho JWT voi thuat toan ky HS512
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
+        // Tao cac claims cho JWT, bao gom thong tin nhu ten nguoi dung, thoi gian phat hanh, thoi gian het han
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getUserName())
-                .issuer("Health Appointment")
-                .issueTime(new Date())
-                .expirationTime(new Date(
-                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()
-                ))
-                .jwtID(UUID.randomUUID().toString())
-                .claim("name", user.getAccountName())
-                .claim("scope", buildScope(user))
+                .subject(user.getUserName()) // Ten nguoi dung
+                .issuer("Health Appointment") // Nguoi phat hanh token
+                .issueTime(new Date()) // Thoi gian phat hanh token
+                .expirationTime(new Date(Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli())) // Thoi gian het han
+                .jwtID(UUID.randomUUID().toString()) // ID cua JWT
+                .claim("name", user.getAccountName()) // Them thong tin ve ten nguoi dung
+                .claim("scope", buildScope(user)) // Them thong tin ve quyen han cua nguoi dung
                 .build();
 
-        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject()); // Chuyen doi claims thanh doi tuong Payload
 
-        JWSObject jwsObject = new JWSObject(header, payload);
+        JWSObject jwsObject = new JWSObject(header, payload); // Tao JWT tu header va payload
 
         try {
-            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
-            return jwsObject.serialize();
+            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes())); // Ky token bang SIGNER_KEY
+            return jwsObject.serialize(); // Tra ve chuoi JWT
         } catch (JOSEException e) {
-            log.error("Cannot create token", e);
+            log.error("Cannot create token", e); // Ghi log neu xay ra loi
             throw new RuntimeException(e);
         }
     }
 
-    // Dang nhap
+    // Phuong thuc dang nhap
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         var user = userRepository.findByUserName(request.getUserName())
-                .orElseThrow(() -> new IllegalArgumentException("Tài khoản không tồn tại!"));
+                .orElseThrow(() -> new IllegalArgumentException("Tai khoan khong ton tai!")); // Kiem tra tai khoan co ton tai khong
 
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-        boolean result = passwordEncoder.matches(request.getPassword(), user.getPassword());
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10); // Ma hoa mat khau
+        boolean result = passwordEncoder.matches(request.getPassword(), user.getPassword()); // Kiem tra mat khau
         return AuthenticationResponse.builder()
-                .authenticated(result)
-                .token(generateToken(user))
+                .authenticated(result) // Tra ve ket qua dang nhap
+                .token(generateToken(user)) // Tra ve token neu dang nhap thanh cong
                 .build();
     }
 
-    // Kiem tra token
+    // Phuong thuc kiem tra token
     public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
         var token = request.getToken();
         boolean isValid = true;
 
         try {
-            verifyToken(token, false);
+            verifyToken(token, false); // Kiem tra token
         } catch (AppException e) {
-            isValid = false;
+            isValid = false; // Neu token khong hop le, tra ve false
         }
 
-        return IntrospectResponse.builder().valid(isValid).build();
+        return IntrospectResponse.builder().valid(isValid).build(); // Tra ve ket qua kiem tra
     }
 
-    // Lay role tu User
+    // Phuong thuc lay quyen (role) cua nguoi dung
     private String buildScope(User user){
         StringJoiner stringJoiner = new StringJoiner(" ");
         if (user.getRole() != null && !StringUtils.isEmpty(user.getRole().getId())) {
-            stringJoiner.add(user.getRole().getId()); // Thêm role ID vào stringJoiner
+            stringJoiner.add(user.getRole().getId()); // Them ID cua quyen vao chuoi
         }
 
-        return stringJoiner.toString();
+        return stringJoiner.toString(); // Tra ve chuoi cac quyen
     }
 
+    // Phuong thuc kiem tra tinh hop le cua token
     private SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {
-        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes()); // Xac thuc token bang SIGNER_KEY
 
-        SignedJWT signedJWT = SignedJWT.parse(token);
+        SignedJWT signedJWT = SignedJWT.parse(token); // Phan tich token
 
-        Date expiryTime = (isRefresh)
+        Date expiryTime = (isRefresh) // Lay thoi gian het han cua token
                 ? new Date(signedJWT.getJWTClaimsSet().getIssueTime()
                 .toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS).toEpochMilli())
                 : signedJWT.getJWTClaimsSet().getExpirationTime();
 
-        var verified = signedJWT.verify(verifier);
+        var verified = signedJWT.verify(verifier); // Xac thuc token
 
+        // Kiem tra xem token da het han hoac bi vo hieu hoa chua
         if (!(verified && expiryTime.after(new Date()))) throw new AppException(ErrorCode.UNAUTHENTICATED);
 
         if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
             throw new AppException(ErrorCode.UNAUTHENTICATED);
 
-        return signedJWT;
+        return signedJWT; // Tra ve token da xac thuc
     }
 
+    // Phuong thuc dang xuat
     public void logOut(LogOutRequest request) throws ParseException, JOSEException {
         try {
-            var signToken = verifyToken(request.getToken(), true);
+            var signToken = verifyToken(request.getToken(), true); // Xac thuc token khi dang xuat
 
-            String jit = signToken.getJWTClaimsSet().getJWTID();
-            Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+            String jit = signToken.getJWTClaimsSet().getJWTID(); // Lay ID cua token
+            Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime(); // Lay thoi gian het han
 
+            // Luu token vao danh sach cac token da vo hieu hoa
             InvalidatedToken invalidatedToken =
                     InvalidatedToken.builder()
                             .id(jit)
                             .expiryTime(expiryTime)
                             .build();
 
-            invalidatedTokenRepository.save(invalidatedToken);
+            invalidatedTokenRepository.save(invalidatedToken); // Luu vao co so du lieu
         } catch (AppException exception){
-            log.info("Token already expired");
+            log.info("Token already expired"); // Ghi log neu token da het han
         }
     }
 
+    // Phuong thuc lam moi token
     public AuthenticationResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {
-        var signedJWT = verifyToken(request.getToken(), true);
+        var signedJWT = verifyToken(request.getToken(), true); // Xac thuc token
 
-        var jit = signedJWT.getJWTClaimsSet().getJWTID();
-        var expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        var jit = signedJWT.getJWTClaimsSet().getJWTID(); // Lay ID cua token
+        var expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime(); // Lay thoi gian het han
 
+        // Luu token cu vao danh sach cac token da vo hieu hoa
         InvalidatedToken invalidatedToken =
                 InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
 
         invalidatedTokenRepository.save(invalidatedToken);
 
-        var username = signedJWT.getJWTClaimsSet().getSubject();
+        var username = signedJWT.getJWTClaimsSet().getSubject(); // Lay ten nguoi dung tu token
 
         var user =
-                userRepository.findByUserName(username).orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
+                userRepository.findByUserName(username).orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED)); // Tim nguoi dung trong co so du lieu
 
-        var token = generateToken(user);
+        var token = generateToken(user); // Tao token moi
 
-        return AuthenticationResponse.builder().token(token).authenticated(true).build();
+        return AuthenticationResponse.builder().token(token).authenticated(true).build(); // Tra ve token moi va ket qua xac thuc
     }
 }

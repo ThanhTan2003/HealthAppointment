@@ -7,6 +7,7 @@ import com.programmingtechie.api_gateway.service.IdentityService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -19,9 +20,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.beans.factory.annotation.Value;
 
+import java.util.Arrays;
 import java.util.List;
-import static org.hibernate.query.sqm.tree.SqmNode.log;
 
 @Component
 @Slf4j
@@ -31,9 +34,26 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     IdentityService identityService;
     ObjectMapper objectMapper;
 
+    @NonFinal
+    private String[] publicEndpoints = {
+            "/identity/auth/.*"
+    };
+
+    @Value("${app.api-prefix}")
+    @NonFinal
+    private String apiPrefix;
+
+    private boolean isPublicEndpoint(ServerHttpRequest request){
+        return Arrays.stream(publicEndpoints)
+                .anyMatch(s -> request.getURI().getPath().matches(apiPrefix + s));
+    }
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         log.info("Enter authentication filter....");
+
+        if (isPublicEndpoint(exchange.getRequest()))
+            return chain.filter(exchange);
 
         // Get token from authorization header
         List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
@@ -60,14 +80,6 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             log.error("Error during introspection", e);
             return unauthenticated(exchange.getResponse());
         });
-
-//        return identityService.introspect(token).flatMap(introspectResponse -> {
-//            if (introspectResponse.isValid())
-//                return chain.filter(exchange);
-//            else
-//                return unauthenticated(exchange.getResponse());
-//        }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
-        //return chain.filter(exchange);
     }
 
     @Override

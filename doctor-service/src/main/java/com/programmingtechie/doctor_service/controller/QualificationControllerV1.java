@@ -6,6 +6,7 @@ import com.programmingtechie.doctor_service.service.QualificationServiceV1;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class QualificationControllerV1 {
 
     // Lấy tất cả qualifications với phân trang
     @GetMapping("/get-all")
+    @PreAuthorize("hasRole('QuanTriVien')")
     public ResponseEntity<PageResponse<QualificationResponse>> getAllQualifications(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
@@ -28,6 +30,7 @@ public class QualificationControllerV1 {
 
     // Lấy qualification theo abbreviation
     @GetMapping("/abbreviation/{abbreviation}")
+    @PreAuthorize("hasRole('QuanTriVien')")
     public ResponseEntity<QualificationResponse> getQualificationByAbbreviation(@PathVariable String abbreviation) {
         Optional<QualificationResponse> qualification = qualificationServiceV1.getQualificationByAbbreviation(abbreviation);
         return qualification.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());

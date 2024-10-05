@@ -20,7 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.List;
 
 @RestController
-@RequestMapping("/identity/user")
+@RequestMapping("/api/v1/identity/user")
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin

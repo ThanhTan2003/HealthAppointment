@@ -17,7 +17,6 @@ import java.util.UUID;
 @Builder
 @Table(name = "doctor", indexes = {
         @Index(name = "idx_fullName", columnList = "fullName"),
-        @Index(name = "idx_email", columnList = "email"),
         @Index(name = "idx_phone", columnList = "phoneNumber")
 })
 public class Doctor {
