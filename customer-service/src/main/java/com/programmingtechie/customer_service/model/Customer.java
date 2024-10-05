@@ -30,11 +30,11 @@ public class Customer {
     @Column(name = "gender", length = 4)
     private String gender;
 
-    //Số điện thoại cá nhân của tài khoản
+    // Số điện thoại cá nhân của tài khoản
     @Column(name = "phone_number", length = 15, unique = true)
     private String phoneNumber;
 
-    //Email cá nhân của tài khoản
+    // Email cá nhân của tài khoản
     @Column(name = "email", length = 50, unique = true)
     private String email;
 
@@ -44,7 +44,10 @@ public class Customer {
     @Column(name = "status", length = 50)
     private String status;
 
-    @Column(name = "last_updated")
+    @Column(name = "last_access_time")
+    private LocalDateTime lastAccessTime;
+
+    @Column(name = "last_updated",nullable = true)
     private LocalDateTime lastUpdated;
 
     @OneToMany(mappedBy = "customerId")

@@ -1,6 +1,7 @@
 package com.programmingtechie.customer_service.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.programmingtechie.customer_service.dto.request.CustomerRequest;
 import com.programmingtechie.customer_service.dto.response.CustomerResponse;
 import com.programmingtechie.customer_service.dto.response.PageResponse;
-import com.programmingtechie.customer_service.model.Customer;
 import com.programmingtechie.customer_service.service.CustomerServiceV1;
 
 import lombok.RequiredArgsConstructor;
@@ -72,51 +72,83 @@ public class CustomerController {
         return customerServiceV1.getAllCustomerWithPatientInfo(page, size);
     }
 
-    //Tìm khách hàng theo email với phương thức GET
+    // Tìm khách hàng theo họ tên với phương thức GET
+    @GetMapping("full-name/{name}")
+    public CustomerResponse getCustomerByFullName(@PathVariable String name) {
+        return customerServiceV1.getCustomerByFullName(name);
+    }
+
+    // Tìm khách hàng theo họ tên với phương thức POST
+    @PostMapping("/full-name")
+    public CustomerResponse getCustomerByFullNamePostMethod(@RequestBody String name) {
+        return customerServiceV1.getCustomerByFullName(name);
+    }
+
+    // Tìm khách hàng theo email với phương thức GET
     @GetMapping("/email/{email}")
     public CustomerResponse getCustomerByEmail(@PathVariable String email) {
         return customerServiceV1.getCustomerByEmail(email);
     }
 
-    //Tìm khách hàng theo email với phương thức POST
+    // Tìm khách hàng theo email với phương thức POST
     @PostMapping("/email")
     public CustomerResponse getCustomerByEmailPostMethod(@RequestBody String email) {
         return customerServiceV1.getCustomerByEmail(email);
     }
 
-    //Tìm khách hàng theo số điện thoại với phương thức GET
+    // Tìm khách hàng theo số điện thoại với phương thức GET
     @GetMapping("/phone/{phone}")
     public CustomerResponse getCustomerByPhone(@PathVariable String phone) {
         return customerServiceV1.getCustomerByPhone(phone);
     }
 
-    //Tìm khách hàng theo số điện thoại với phương thức POST
+    // Tìm khách hàng theo số điện thoại với phương thức POST
     @PostMapping("/phone")
     public CustomerResponse getCustomerByPhonePostMethod(@RequestBody String phone) {
         return customerServiceV1.getCustomerByPhone(phone);
     }
 
-    //Tìm khách hàng theo email với phương thức GET kèm thông tin hồ sơ khám bệnh
+    // Tìm khách hàng theo email với phương thức GET kèm thông tin hồ sơ khám bệnh
     @GetMapping("/email/patient/{email}")
     public CustomerResponse getCustomerByEmailWithPatientInfo(@PathVariable String email) {
         return customerServiceV1.getCustomerByEmailWithPatientInfo(email);
     }
 
-    //Tìm khách hàng theo số điện thoại với phương thức GET kèm thông tin hồ sơ khám bệnh
+    // Tìm khách hàng theo số điện thoại với phương thức GET kèm thông tin hồ sơ
+    // khám bệnh
     @GetMapping("/phone/patient/{phone}")
     public CustomerResponse getCustomerByPhoneWithPatientInfo(@PathVariable String phone) {
         return customerServiceV1.getCustomerByPhoneWithPatientInfo(phone);
     }
 
-    //Tìm khách hàng theo email với phương thức POST kèm thông tin hồ sơ khám bệnh
+    // Tìm khách hàng theo email với phương thức POST kèm thông tin hồ sơ khám bệnh
     @PostMapping("/email/patient")
     public CustomerResponse getCustomerByEmailPostMethodPatientInfo(@RequestBody String email) {
         return customerServiceV1.getCustomerByEmailWithPatientInfo(email);
     }
 
-    //Tìm khách hàng theo số điện thoại với phương thức POST kèm thông tin hồ sơ khám bệnh
+    // Tìm khách hàng theo số điện thoại với phương thức POST kèm thông tin hồ sơ
+    // khám bệnh
     @PostMapping("/phone/patient")
     public CustomerResponse getCustomerByPhonePostMethodPatientInfo(@RequestBody String phone) {
         return customerServiceV1.getCustomerByPhoneWithPatientInfo(phone);
+    }
+
+    // Tìm khách hàng phương thức GET có phân trang
+    @GetMapping("/search")
+    public ResponseEntity<PageResponse<CustomerResponse>> searchCustomers(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return ResponseEntity.ok(customerServiceV1.searchCustomers(keyword, page, size));
+    }
+
+    // Tìm khách hàng phương thức GET có phân trang với RequestBody
+    @GetMapping("/search")
+    public ResponseEntity<PageResponse<CustomerResponse>> searchCustomersRequestBody(
+            @RequestBody String keyword,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return ResponseEntity.ok(customerServiceV1.searchCustomers(keyword, page, size));
     }
 }

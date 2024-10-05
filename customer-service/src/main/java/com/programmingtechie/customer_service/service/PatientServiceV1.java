@@ -5,7 +5,6 @@ import java.util.*;
 import org.springframework.stereotype.Service;
 
 import com.programmingtechie.customer_service.dto.request.PatientRequest;
-import com.programmingtechie.customer_service.model.Customer;
 import com.programmingtechie.customer_service.model.Patient;
 import com.programmingtechie.customer_service.repository.PatientRepository;
 

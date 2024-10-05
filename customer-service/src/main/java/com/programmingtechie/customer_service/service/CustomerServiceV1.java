@@ -111,6 +111,22 @@ public class CustomerServiceV1 {
         return mapToCustomerResponseWithPatientInfo(customer);
     }
 
+    public PageResponse<CustomerResponse> searchCustomers(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Customer> pageData = customerRepository.searchCustomers(keyword, pageable);
+
+        return PageResponse.<CustomerResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(this::mapToCustomerResponse)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+
     void validCustomer(CustomerRequest customerRequest) {
         if (customerRequest.getFullName() == null || customerRequest.getFullName().isEmpty()) {
             throw new IllegalArgumentException("Full name cannot be empty");
