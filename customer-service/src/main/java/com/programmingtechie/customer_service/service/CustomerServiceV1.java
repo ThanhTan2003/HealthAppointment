@@ -69,6 +69,48 @@ public class CustomerServiceV1 {
 
     }
 
+    // Tìm khách hàng theo id
+    public CustomerResponse getById(String id) {
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
+        return mapToCustomerResponse(customer);
+    }
+
+    // Tìm khách hàng theo tên
+    public CustomerResponse getCustomerByFullName(String name) {
+        Customer customer = customerRepository.findByFullName(name)
+                .orElseThrow(() -> new RuntimeException("Customer not found with name: " + name));
+        return mapToCustomerResponse(customer);
+    }
+
+    // Tìm khách hàng theo email cơ bản
+    public CustomerResponse getCustomerByEmail(String email) {
+        Customer customer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Customer not found with email: " + email));
+        return mapToCustomerResponse(customer);
+    }
+
+     // Tìm khách hàng theo số điện thoại cơ bản
+    public CustomerResponse getCustomerByPhone(String phone) {
+        Customer customer = customerRepository.findByPhoneNumber(phone)
+                .orElseThrow(() -> new RuntimeException("Customer not found with phone number: " + phone));
+        return mapToCustomerResponse(customer);
+    }
+
+    // Tìm khách hàng theo email với thông tin hồ sơ khám bệnh đầy đủ
+    public CustomerResponse getCustomerByEmailWithPatientInfo(String email) {
+        Customer customer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Customer not found with email: " + email));
+        return mapToCustomerResponseWithPatientInfo(customer);
+    }
+
+    // Tìm khách hàng theo số điện thoại với thông tin hồ sơ khám bệnh đầy đủ
+    public CustomerResponse getCustomerByPhoneWithPatientInfo(String phone) {
+        Customer customer = customerRepository.findByPhoneNumber(phone)
+                .orElseThrow(() -> new RuntimeException("Customer not found with phone: " + phone));
+        return mapToCustomerResponseWithPatientInfo(customer);
+    }
+
     void validCustomer(CustomerRequest customerRequest) {
         if (customerRequest.getFullName() == null || customerRequest.getFullName().isEmpty()) {
             throw new IllegalArgumentException("Full name cannot be empty");
@@ -153,34 +195,6 @@ public class CustomerServiceV1 {
                 .build();
     }
 
-    // Tìm khách hàng theo id
-    public CustomerResponse getById(String id) {
-        Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
-        return mapToCustomerResponse(customer);
-    }
-
-    // Tìm khách hàng theo tên
-    public CustomerResponse getByFullName(String name) {
-        Customer customer = customerRepository.findByFullName(name)
-                .orElseThrow(() -> new RuntimeException("Customer not found with name: " + name));
-        return mapToCustomerResponse(customer);
-    }
-
-    // Tìm khách hàng theo số điện thoại
-    public CustomerResponse getByPhoneNumber(String phone) {
-        Customer customer = customerRepository.findByPhoneNumber(phone)
-                .orElseThrow(() -> new RuntimeException("Customer not found with phone number: " + phone));
-        return mapToCustomerResponse(customer);
-    }
-
-    // Tìm khách hàng theo email
-    public CustomerResponse getByEmail(String email) {
-        Customer customer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Customer not found with email: " + email));
-        return mapToCustomerResponse(customer);
-    }
-
     // Hàm mapping dữ liệu từ entity Customer sang DTO CustomerResponse
     private CustomerResponse mapToCustomerResponse(Customer customer) {
         return CustomerResponse.builder()
@@ -208,13 +222,13 @@ public class CustomerServiceV1 {
                 .status(customer.getStatus())
                 .lastUpdated(customer.getLastUpdated())
                 .patient(customer.getPatientId().stream()
-                        .map(this::mapPatientToPatientResponse)
+                        .map(this::mapToPatientResponse)
                         .collect(Collectors.toList()))
                 .build();
     }
 
     // Hàm mapping dữ liệu từ entity Patient sang DTO PatientResponse
-    private PatientResponse mapPatientToPatientResponse(Patient patient) {
+    private PatientResponse mapToPatientResponse(Patient patient) {
         return PatientResponse.builder()
                 .id(patient.getId())
                 .fullName(patient.getFullName())
