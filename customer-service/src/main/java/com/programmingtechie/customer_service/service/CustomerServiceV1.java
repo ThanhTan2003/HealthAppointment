@@ -237,7 +237,7 @@ public class CustomerServiceV1 {
                 .email(customer.getEmail())
                 .status(customer.getStatus())
                 .lastUpdated(customer.getLastUpdated())
-                .patient(customer.getPatientId().stream()
+                .patient(customer.getPatients().stream()
                         .map(this::mapToPatientResponse)
                         .collect(Collectors.toList()))
                 .build();

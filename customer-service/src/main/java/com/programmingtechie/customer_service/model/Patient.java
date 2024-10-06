@@ -70,11 +70,16 @@ public class Patient {
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;
 
+//    @ManyToOne
+//    @JoinColumn(name = "customer_id", nullable = false)
+//    @ToString.Exclude
+//    @MapsId("customerId")
+//    private Customer customerId;
+
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     @ToString.Exclude
-    @MapsId("customerId")
-    private Customer customerId;
+    private Customer customer;
 
     @PreUpdate
     private void updateTimestamp() {

@@ -50,10 +50,15 @@ public class Customer {
     @Column(name = "last_updated",nullable = true)
     private LocalDateTime lastUpdated;
 
-    @OneToMany(mappedBy = "customerId")
+//    @OneToMany(mappedBy = "customerId")
+//    @ToString.Exclude
+//    @JsonManagedReference
+//    private List<Patient> patientId;
+
+    @OneToMany(mappedBy = "customer")
     @ToString.Exclude
     @JsonManagedReference
-    private List<Patient> patientId;
+    private List<Patient> patients;
 
     @PrePersist
     private void ensureId() {
