@@ -73,7 +73,6 @@ public class Patient {
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     @ToString.Exclude
-    @MapsId("customerId")
     private Customer customerId;
 
     @PreUpdate

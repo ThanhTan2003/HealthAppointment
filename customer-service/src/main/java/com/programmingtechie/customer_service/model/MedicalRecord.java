@@ -27,7 +27,7 @@ public class MedicalRecord {
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;
 
-    @Column(name = "patient_id",nullable = false, length = 36)
-    private String patientId;
+    // @Column(name = "patient_id",nullable = false, length = 36)
+    // private String patientId;
 
 }

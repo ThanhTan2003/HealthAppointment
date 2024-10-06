@@ -144,7 +144,7 @@ public class PatientServiceV1 {
     }
 
     // Tạo mã ngẫu nhiên
-    public static String generatePatientID() {
+    private static String generatePatientID() {
         String prefix = "BN-";
         String middlePart = generateRandomDigits(10); // 6 chữ số ngẫu nhiên
         String suffixPart = generateRandomAlphanumeric(10); // 6 ký tự chữ hoa hoặc số ngẫu nhiên

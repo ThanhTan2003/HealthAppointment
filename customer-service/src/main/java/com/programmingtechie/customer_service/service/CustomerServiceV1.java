@@ -67,6 +67,10 @@ public class CustomerServiceV1 {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Can not find user"));
 
+        if (!customer.getPatientId().isEmpty() || customer.getPatientId() != null) {
+            throw new IllegalStateException("Customer has associated patients. Cannot delete.");
+        }
+        customerRepository.delete(customer);
     }
 
     // Tìm khách hàng theo id
@@ -90,7 +94,7 @@ public class CustomerServiceV1 {
         return mapToCustomerResponse(customer);
     }
 
-     // Tìm khách hàng theo số điện thoại cơ bản
+    // Tìm khách hàng theo số điện thoại cơ bản
     public CustomerResponse getCustomerByPhone(String phone) {
         Customer customer = customerRepository.findByPhoneNumber(phone)
                 .orElseThrow(() -> new RuntimeException("Customer not found with phone number: " + phone));
@@ -125,7 +129,6 @@ public class CustomerServiceV1 {
                         .collect(Collectors.toList()))
                 .build();
     }
-
 
     void validCustomer(CustomerRequest customerRequest) {
         if (customerRequest.getFullName() == null || customerRequest.getFullName().isEmpty()) {

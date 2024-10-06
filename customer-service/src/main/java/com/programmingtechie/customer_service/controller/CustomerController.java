@@ -144,7 +144,7 @@ public class CustomerController {
     }
 
     // Tìm khách hàng phương thức GET có phân trang với RequestBody
-    @GetMapping("/search")
+    @PostMapping("/search")
     public ResponseEntity<PageResponse<CustomerResponse>> searchCustomersRequestBody(
             @RequestBody String keyword,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
