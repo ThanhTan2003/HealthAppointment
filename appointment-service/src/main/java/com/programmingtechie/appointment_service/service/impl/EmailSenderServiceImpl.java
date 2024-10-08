@@ -51,6 +51,9 @@ public class EmailSenderServiceImpl implements EmailSenderService {
                     "<p>Xin chào!</p>" +
                     "<p style='text-align: justify'>Bạn đã đặt lịch hẹn khám bệnh thành công trên hệ thống đặt lịch khám chữa bệnh trực tuyến của <b>Phòng Khám Đa Khoa Gia Định TP.Mỹ Tho</b>.</p>" +
                     "<p>Dưới đây là thông tin chi tiết:</p>" +
+                    "<div style=\"text-align: center;\">"+
+                    "<img src=\"https://barcode.tec-it.com/barcode.ashx?data="+ appointmentBookingInfo.getId() + "&code=Code128&dpi=96\" alt=\"Mã vạch lịch hẹn\" style=\"max-width: 70%; height: auto; margin-bottom: 20px; text-align: center;\" />"+
+                    "</div>"+
                     "<table style='width: 100%; border-collapse: collapse; table-layout: fixed;'>" +
                     "<tr><td style='padding: 8px; border: 1px solid #e0e0e0;'><strong>Mã lịch hẹn:</strong></td>" +
                     "<td style='padding: 8px; border: 1px solid #e0e0e0;'>" + appointmentBookingInfo.getId() + "</td></tr>" +
@@ -113,6 +116,9 @@ public class EmailSenderServiceImpl implements EmailSenderService {
                     + "<p>Xin chào!</p>"
                     + "<p style='text-align: justify'>Lịch hẹn của bạn hiện đã được <b>Phòng Khám Đa Khoa Gia Định TP.Mỹ Tho</b> xác nhận.</p>"
                     + "<p>Dưới đây là thông tin chi tiết:</p>"
+                    +"<div style=\"text-align: center;\">"
+                    +"<img src=\"https://barcode.tec-it.com/barcode.ashx?data="+ appointmentConfirmation.getId() + "&code=Code128&dpi=96\" alt=\"Mã vạch lịch hẹn\" style=\"max-width: 70%; height: auto; margin-bottom: 20px; text-align: center;\" />"
+                    +"</div>"
                     + "<table style='width: 100%; border-collapse: collapse; table-layout: fixed;'>"
                     + "<tr><td style='padding: 8px; border: 1px solid #e0e0e0;'><strong>Mã hồ sơ:</strong></td>"
                     + "<td style='padding: 8px; border: 1px solid #e0e0e0;'>" + appointmentConfirmation.getId() + "</td></tr>"
@@ -170,6 +176,9 @@ public class EmailSenderServiceImpl implements EmailSenderService {
                     + "<p>Xin chào!</p>"
                     + "<p style='text-align: justify;'>Bạn đã đặt lịch hẹn khám chữa bệnh tại <b>Phòng Khám Đa Khoa Gia Định TP. Mỹ Tho</b>.</p>"
                     + "<p>Thông tin như sau:</p>"
+                    +"<div style=\"text-align: center;\">"
+                    +"<img src=\"https://barcode.tec-it.com/barcode.ashx?data="+ notification.getId() + "&code=Code128&dpi=96\" alt=\"Mã vạch lịch hẹn\" style=\"max-width: 70%; height: auto; margin-bottom: 20px; text-align: center;\" />"
+                    +"</div>"
                     + "<table style='width: 100%; border-collapse: collapse; table-layout: fixed;'>"
                     + "<tr><td style='padding: 8px; border: 1px solid #e0e0e0;'><strong>Mã hồ sơ:</strong></td>"
                     + "<td style='padding: 8px; border: 1px solid #e0e0e0;'>" + notification.getId() + "</td></tr>"
