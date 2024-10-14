@@ -1,8 +1,26 @@
 package com.programmingtechie.identity_service.service;
 
+import java.text.ParseException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.StringJoiner;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import com.nimbusds.jose.*;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import com.programmingtechie.identity_service.dto.request.AuthenticationRequest;
 import com.programmingtechie.identity_service.dto.request.IntrospectRequest;
 import com.programmingtechie.identity_service.dto.request.LogOutRequest;
@@ -15,27 +33,10 @@ import com.programmingtechie.identity_service.model.InvalidatedToken;
 import com.programmingtechie.identity_service.model.User;
 import com.programmingtechie.identity_service.repository.InvalidatedTokenRepository;
 import com.programmingtechie.identity_service.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jose.crypto.MACVerifier;
-import com.nimbusds.jwt.SignedJWT;
 import lombok.experimental.NonFinal;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.StringUtils;
-
-import java.text.ParseException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.StringJoiner;
-import java.util.UUID;
-
+import lombok.extern.slf4j.Slf4j;
 
 // Dich vu nay cung cap cac chuc nang lien quan den xac thuc trong he thong
 @Service
@@ -70,7 +71,8 @@ public class AuthenticationService {
                 .subject(user.getUserName()) // Ten nguoi dung
                 .issuer("Health Appointment") // Nguoi phat hanh token
                 .issueTime(new Date()) // Thoi gian phat hanh token
-                .expirationTime(new Date(Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli())) // Thoi gian het han
+                .expirationTime(new Date(
+                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli())) // Thoi gian het han
                 .jwtID(UUID.randomUUID().toString()) // ID cua JWT
                 .claim("name", user.getAccountName()) // Them thong tin ve ten nguoi dung
                 .claim("scope", buildScope(user)) // Them thong tin ve quyen han cua nguoi dung
@@ -91,8 +93,10 @@ public class AuthenticationService {
 
     // Phuong thuc dang nhap
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        var user = userRepository.findByUserName(request.getUserName())
-                .orElseThrow(() -> new IllegalArgumentException("Tai khoan khong ton tai!")); // Kiem tra tai khoan co ton tai khong
+        var user = userRepository
+                .findByUserName(request.getUserName())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Tai khoan khong ton tai!")); // Kiem tra tai khoan co ton tai khong
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10); // Ma hoa mat khau
         boolean result = passwordEncoder.matches(request.getPassword(), user.getPassword()); // Kiem tra mat khau
@@ -117,7 +121,7 @@ public class AuthenticationService {
     }
 
     // Phuong thuc lay quyen (role) cua nguoi dung
-    private String buildScope(User user){
+    private String buildScope(User user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
         if (user.getRole() != null && !StringUtils.isEmpty(user.getRole().getId())) {
             stringJoiner.add(user.getRole().getId()); // Them ID cua quyen vao chuoi
@@ -133,8 +137,12 @@ public class AuthenticationService {
         SignedJWT signedJWT = SignedJWT.parse(token); // Phan tich token
 
         Date expiryTime = (isRefresh) // Lay thoi gian het han cua token
-                ? new Date(signedJWT.getJWTClaimsSet().getIssueTime()
-                .toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS).toEpochMilli())
+                ? new Date(signedJWT
+                        .getJWTClaimsSet()
+                        .getIssueTime()
+                        .toInstant()
+                        .plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS)
+                        .toEpochMilli())
                 : signedJWT.getJWTClaimsSet().getExpirationTime();
 
         var verified = signedJWT.verify(verifier); // Xac thuc token
@@ -164,7 +172,7 @@ public class AuthenticationService {
                             .build();
 
             invalidatedTokenRepository.save(invalidatedToken); // Luu vao co so du lieu
-        } catch (AppException exception){
+        } catch (AppException exception) {
             log.info("Token already expired"); // Ghi log neu token da het han
         }
     }
@@ -184,11 +192,15 @@ public class AuthenticationService {
 
         var username = signedJWT.getJWTClaimsSet().getSubject(); // Lay ten nguoi dung tu token
 
-        var user =
-                userRepository.findByUserName(username).orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED)); // Tim nguoi dung trong co so du lieu
+        var user = userRepository
+                .findByUserName(username)
+                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED)); // Tim nguoi dung trong co so du lieu
 
         var token = generateToken(user); // Tao token moi
 
-        return AuthenticationResponse.builder().token(token).authenticated(true).build(); // Tra ve token moi va ket qua xac thuc
+        return AuthenticationResponse.builder()
+                .token(token)
+                .authenticated(true)
+                .build(); // Tra ve token moi va ket qua xac thuc
     }
 }

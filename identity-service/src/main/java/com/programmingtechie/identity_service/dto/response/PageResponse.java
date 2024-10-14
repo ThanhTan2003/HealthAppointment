@@ -1,18 +1,18 @@
 package com.programmingtechie.identity_service.dto.response;
 
+import java.util.Collections;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Collections;
-import java.util.List;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class PageResponse<T>{
+public class PageResponse<T> {
     int totalPages;
     int currentPage;
     int pageSize;

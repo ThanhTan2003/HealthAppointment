@@ -1,21 +1,22 @@
 package com.programmingtechie.identity_service.config;
 
-import com.programmingtechie.identity_service.enums.DefaultRoles;
-import com.programmingtechie.identity_service.model.Role;
-import com.programmingtechie.identity_service.model.User;
-import com.programmingtechie.identity_service.repository.RoleRepository;
-import com.programmingtechie.identity_service.repository.UserRepository;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Optional;
+
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.HashSet;
-import java.util.Optional;
+import com.programmingtechie.identity_service.enums.DefaultRoles;
+import com.programmingtechie.identity_service.model.Role;
+import com.programmingtechie.identity_service.model.User;
+import com.programmingtechie.identity_service.repository.RoleRepository;
+import com.programmingtechie.identity_service.repository.UserRepository;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @RequiredArgsConstructor
@@ -44,9 +45,9 @@ public class ApplicationInitConfig {
     }
 
     @Bean
-    ApplicationRunner initializeUser(UserRepository userRepository){
+    ApplicationRunner initializeUser(UserRepository userRepository) {
         return args -> {
-            if (userRepository.findByUserName("admin").isEmpty()){
+            if (userRepository.findByUserName("admin").isEmpty()) {
 
                 // Tìm kiếm role với id là "QuanTriVien"
                 Optional<Role> role = roleRepository.findById("QuanTriVien");

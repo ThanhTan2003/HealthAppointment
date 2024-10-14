@@ -3,8 +3,6 @@ package com.programmingtechie.identity_service.dto.request;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Set;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -16,5 +14,4 @@ public class RoleRequest {
     String name;
 
     String description;
-
 }

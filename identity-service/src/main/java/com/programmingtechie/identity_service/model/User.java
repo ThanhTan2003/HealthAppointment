@@ -1,10 +1,10 @@
 package com.programmingtechie.identity_service.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
-import java.util.Set;
+
+import jakarta.persistence.*;
+
+import lombok.*;
 
 @Entity
 @Getter
@@ -13,10 +13,12 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "account", indexes = {
-        @Index(name = "idx_userName", columnList = "userName"),
-        @Index(name = "idx_status", columnList = "status"),
-})
+@Table(
+        name = "account",
+        indexes = {
+            @Index(name = "idx_userName", columnList = "userName"),
+            @Index(name = "idx_status", columnList = "status"),
+        })
 public class User {
     @Id
     @Column(name = "user_name", nullable = false, columnDefinition = "TEXT")

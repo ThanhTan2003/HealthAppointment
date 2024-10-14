@@ -1,15 +1,8 @@
 package com.programmingtechie.identity_service.service;
 
-import com.programmingtechie.identity_service.dto.request.UserCreationRequest;
-import com.programmingtechie.identity_service.dto.request.UserUpdateRequest;
-import com.programmingtechie.identity_service.dto.response.PageResponse;
-import com.programmingtechie.identity_service.dto.response.UserResponse;
-import com.programmingtechie.identity_service.model.Role;
-import com.programmingtechie.identity_service.model.User;
-import com.programmingtechie.identity_service.repository.RoleRepository;
-import com.programmingtechie.identity_service.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,9 +13,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import com.programmingtechie.identity_service.dto.request.UserCreationRequest;
+import com.programmingtechie.identity_service.dto.request.UserUpdateRequest;
+import com.programmingtechie.identity_service.dto.response.PageResponse;
+import com.programmingtechie.identity_service.dto.response.UserResponse;
+import com.programmingtechie.identity_service.model.Role;
+import com.programmingtechie.identity_service.model.User;
+import com.programmingtechie.identity_service.repository.RoleRepository;
+import com.programmingtechie.identity_service.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +55,7 @@ public class UserService {
 
         Optional<Role> role = roleRepository.findById(request.getRoleId());
 
-        if(role.isEmpty())
+        if (role.isEmpty())
             throw new IllegalArgumentException("Không thể thực hiện phân quyền, vui lòng kiểm tra lại!");
 
         User user = User.builder()
@@ -75,9 +76,8 @@ public class UserService {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("userName").ascending());
         var pageData = userRepository.getAllUser(pageable);
 
-        List<UserResponse> userResponses = pageData.getContent().stream()
-                .map(this::userMapToUserResponse)
-                .toList();
+        List<UserResponse> userResponses =
+                pageData.getContent().stream().map(this::userMapToUserResponse).toList();
 
         return PageResponse.<UserResponse>builder()
                 .currentPage(page)
@@ -89,14 +89,17 @@ public class UserService {
     }
 
     public UserResponse getUserByUserId(String userId) {
-        User user = userRepository.findById(userId)
+        User user = userRepository
+                .findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tồn tại tài khoản " + userId + "!"));
         return userMapToUserResponse(user);
     }
 
     public void updateUser(UserUpdateRequest request) {
-        User user = userRepository.findByUserName(request.getUserName())
-                .orElseThrow(() -> new IllegalArgumentException("Không tồn tại tài khoản " + request.getUserName() +"!"));
+        User user = userRepository
+                .findByUserName(request.getUserName())
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Không tồn tại tài khoản " + request.getUserName() + "!"));
 
         user.setPassword(request.getPassword());
         user.setStatus(request.getStatus());
@@ -118,19 +121,22 @@ public class UserService {
         userRepository.deleteById(userName);
     }
 
-    public UserResponse getMyInfo(){
+    public UserResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
 
-        User user = userRepository.findByUserName(name).orElseThrow(
-                () -> new IllegalArgumentException("Không xác định được thông tin!"));
+        User user = userRepository
+                .findByUserName(name)
+                .orElseThrow(() -> new IllegalArgumentException("Không xác định được thông tin!"));
 
         return userMapToUserResponse(user);
     }
 
     public void updatePassword(UserUpdateRequest request) {
-        User user = userRepository.findByUserName(request.getUserName())
-                .orElseThrow(() -> new IllegalArgumentException("Không tồn tại tài khoản " + request.getUserName() +"!"));
+        User user = userRepository
+                .findByUserName(request.getUserName())
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Không tồn tại tài khoản " + request.getUserName() + "!"));
 
         user.setPassword(request.getPassword());
 

@@ -1,11 +1,12 @@
 package com.programmingtechie.identity_service.model;
 
+import java.util.Date;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.*;
 
-import java.util.Date;
+import lombok.*;
 
 @Entity
 @Getter

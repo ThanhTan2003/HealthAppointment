@@ -1,15 +1,17 @@
 package com.programmingtechie.identity_service.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.programmingtechie.identity_service.dto.response.ApiResponse;
-import com.programmingtechie.identity_service.exception.ErrorCode;
+import java.io.IOException;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
-import java.io.IOException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.programmingtechie.identity_service.dto.response.ApiResponse;
+import com.programmingtechie.identity_service.exception.ErrorCode;
 
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override

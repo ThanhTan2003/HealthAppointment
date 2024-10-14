@@ -3,8 +3,6 @@ package com.programmingtechie.identity_service.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Set;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
