@@ -5,8 +5,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
-
 import com.programmingtechie.api_gateway.repository.IdentityClient;
+
+import java.util.List;
 
 // Lop cau hinh WebClient de cau hinh cac doi tuong can thiet cho viec ket noi den cac dich vu ben ngoai
 
