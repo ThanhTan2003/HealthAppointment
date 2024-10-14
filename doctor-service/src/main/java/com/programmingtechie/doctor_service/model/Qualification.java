@@ -1,9 +1,10 @@
 package com.programmingtechie.doctor_service.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.util.List;
+
+import jakarta.persistence.*;
+
+import lombok.*;
 
 @Entity
 @Getter

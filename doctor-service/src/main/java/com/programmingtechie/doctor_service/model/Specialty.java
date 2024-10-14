@@ -1,10 +1,11 @@
 package com.programmingtechie.doctor_service.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
+
+import jakarta.persistence.*;
+
+import lombok.*;
 
 @Entity
 @Table(name = "specialty")
@@ -14,8 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Specialty
-{
+public class Specialty {
     @Id
     private String id;
 

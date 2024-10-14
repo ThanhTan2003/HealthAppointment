@@ -1,11 +1,9 @@
 package com.programmingtechie.doctor_service.service;
 
-import com.programmingtechie.doctor_service.dto.response.PageResponse;
-import com.programmingtechie.doctor_service.dto.response.QualificationResponse;
-import com.programmingtechie.doctor_service.model.Qualification;
-import com.programmingtechie.doctor_service.repository.QualificationRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,9 +11,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.programmingtechie.doctor_service.dto.response.PageResponse;
+import com.programmingtechie.doctor_service.dto.response.QualificationResponse;
+import com.programmingtechie.doctor_service.model.Qualification;
+import com.programmingtechie.doctor_service.repository.QualificationRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -50,8 +52,7 @@ public class QualificationServiceV1 {
 
     // Lấy qualification theo abbreviation
     public Optional<QualificationResponse> getQualificationByAbbreviation(String abbreviation) {
-        return qualificationRepository.findById(abbreviation)
-                .map(this::mapToQualificationResponse);
+        return qualificationRepository.findById(abbreviation).map(this::mapToQualificationResponse);
     }
 
     // Chuyển đổi từ Qualification sang QualificationResponse

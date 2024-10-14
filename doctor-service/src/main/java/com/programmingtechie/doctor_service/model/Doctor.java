@@ -1,12 +1,14 @@
 package com.programmingtechie.doctor_service.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
+import jakarta.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import lombok.*;
 
 @Entity
 @Getter
@@ -15,10 +17,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "doctor", indexes = {
-        @Index(name = "idx_fullName", columnList = "fullName"),
-        @Index(name = "idx_phone", columnList = "phoneNumber")
-})
+@Table(
+        name = "doctor",
+        indexes = {
+            @Index(name = "idx_fullName", columnList = "fullName"),
+            @Index(name = "idx_email", columnList = "email"),
+            @Index(name = "idx_phone", columnList = "phoneNumber")
+        })
 public class Doctor {
     @Id
     @Column(nullable = false, length = 36)

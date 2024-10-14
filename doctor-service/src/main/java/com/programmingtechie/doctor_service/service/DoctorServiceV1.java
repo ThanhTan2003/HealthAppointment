@@ -1,5 +1,14 @@
 package com.programmingtechie.doctor_service.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
+
 import com.programmingtechie.doctor_service.dto.response.DoctorResponse;
 import com.programmingtechie.doctor_service.dto.response.PageResponse;
 import com.programmingtechie.doctor_service.dto.response.QualificationResponse;
@@ -9,16 +18,9 @@ import com.programmingtechie.doctor_service.model.DoctorSpecialty;
 import com.programmingtechie.doctor_service.model.Qualification;
 import com.programmingtechie.doctor_service.model.Specialty;
 import com.programmingtechie.doctor_service.repository.DoctorRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.data.domain.PageRequest;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,9 +35,8 @@ public class DoctorServiceV1 {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Doctor> pageData = doctorRepository.findAll(pageable);
 
-        List<DoctorResponse> doctorResponses = pageData.getContent().stream()
-                .map(this::mapToDoctorResponse)
-                .collect(Collectors.toList());
+        List<DoctorResponse> doctorResponses =
+                pageData.getContent().stream().map(this::mapToDoctorResponse).collect(Collectors.toList());
 
         return PageResponse.<DoctorResponse>builder()
                 .currentPage(page)
@@ -48,15 +49,18 @@ public class DoctorServiceV1 {
 
     // Lấy bác sĩ theo ID
     public DoctorResponse getById(String id) {
-        Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Doctor not found with id: " + id));
+        Doctor doctor = doctorRepository
+                .findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bác sĩ có id: " + id));
         return mapToDoctorResponse(doctor);
     }
 
     // Lấy bác sĩ theo số điện thoại
     public DoctorResponse getByPhoneNumber(String phoneNumber) {
-        Doctor doctor = doctorRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new RuntimeException("Doctor not found with phone number: " + phoneNumber));
+        Doctor doctor = doctorRepository
+                .findByPhoneNumber(phoneNumber)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Không tìm thấy bác sĩ có số điện thoại: " + phoneNumber));
         return mapToDoctorResponse(doctor);
     }
 
@@ -96,7 +100,8 @@ public class DoctorServiceV1 {
     }
 
     // Lấy danh sách bác sĩ theo Qualification với phân trang
-    public PageResponse<DoctorResponse> getDoctorsByQualification(String qualificationAbbreviation, int page, int size) {
+    public PageResponse<DoctorResponse> getDoctorsByQualification(
+            String qualificationAbbreviation, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Doctor> pageData = doctorRepository.findDoctorsByQualification(qualificationAbbreviation, pageable);
 
@@ -161,5 +166,4 @@ public class DoctorServiceV1 {
                         .collect(Collectors.toList()))
                 .build();
     }
-
 }
