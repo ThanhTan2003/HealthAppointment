@@ -3,6 +3,7 @@ package com.programmingtechie.doctor_service.controller;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.programmingtechie.doctor_service.dto.response.PageResponse;
@@ -21,6 +22,7 @@ public class SpecialtyControllerV1 {
 
     // Lấy tất cả specialties với phân trang
     @GetMapping("/get-all")
+    @PreAuthorize("hasRole('QuanTriVien')")
     public ResponseEntity<PageResponse<SpecialtyResponse>> getAllSpecialties(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
@@ -29,6 +31,7 @@ public class SpecialtyControllerV1 {
 
     // Lấy specialty theo id
     @GetMapping("/id/{id}")
+    @PreAuthorize("hasRole('QuanTriVien')")
     public ResponseEntity<SpecialtyResponse> getSpecialtyById(@PathVariable String id) {
         Optional<SpecialtyResponse> specialty = specialtyServiceV1.getSpecialtyById(id);
         return specialty.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()
@@ -37,6 +40,7 @@ public class SpecialtyControllerV1 {
 
     // API tìm kiếm chuyên khoa theo từ khóa và phân trang
     @GetMapping("/search")
+    @PreAuthorize("hasRole('QuanTriVien')")
     public ResponseEntity<PageResponse<SpecialtyResponse>> searchSpecialties(
             @RequestParam("keyword") String keyword,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,

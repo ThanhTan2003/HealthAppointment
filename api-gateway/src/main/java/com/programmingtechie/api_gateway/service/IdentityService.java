@@ -1,12 +1,14 @@
 package com.programmingtechie.api_gateway.service;
 
+import org.springframework.stereotype.Service;
+
 import com.programmingtechie.api_gateway.dto.request.IntrospectRequest;
 import com.programmingtechie.api_gateway.dto.response.IntrospectResponse;
 import com.programmingtechie.api_gateway.repository.IdentityClient;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -15,9 +17,8 @@ import reactor.core.publisher.Mono;
 public class IdentityService {
     IdentityClient identityClient;
 
-    public Mono<IntrospectResponse> introspect(String token){
-        return identityClient.introspect(IntrospectRequest.builder()
-                .token(token)
-                .build());
+    public Mono<IntrospectResponse> introspect(String token) {
+        return identityClient.introspect(
+                IntrospectRequest.builder().token(token).build());
     }
 }
