@@ -1,21 +1,22 @@
 package com.programmingtechie.doctor_service.controller;
 
-import com.programmingtechie.doctor_service.dto.response.PageResponse;
-import com.programmingtechie.doctor_service.dto.response.SpecialtyResponse;
-import com.programmingtechie.doctor_service.service.SpecialtyServiceV1;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Optional;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import com.programmingtechie.doctor_service.dto.response.PageResponse;
+import com.programmingtechie.doctor_service.dto.response.SpecialtyResponse;
+import com.programmingtechie.doctor_service.service.SpecialtyServiceV1;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/v1/doctor/specialty")
 @RequiredArgsConstructor
 @Slf4j
-public class SpecialtyControllerV1
-{
+public class SpecialtyControllerV1 {
     final SpecialtyServiceV1 specialtyServiceV1;
 
     // Lấy tất cả specialties với phân trang
@@ -30,7 +31,8 @@ public class SpecialtyControllerV1
     @GetMapping("/id/{id}")
     public ResponseEntity<SpecialtyResponse> getSpecialtyById(@PathVariable String id) {
         Optional<SpecialtyResponse> specialty = specialtyServiceV1.getSpecialtyById(id);
-        return specialty.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return specialty.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()
+                .build());
     }
 
     // API tìm kiếm chuyên khoa theo từ khóa và phân trang

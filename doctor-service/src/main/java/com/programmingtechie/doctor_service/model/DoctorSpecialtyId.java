@@ -1,11 +1,12 @@
 package com.programmingtechie.doctor_service.model;
 
+import java.io.Serializable;
+
 import jakarta.persistence.Embeddable;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
 
 @Embeddable
 @Data
@@ -16,4 +17,3 @@ public class DoctorSpecialtyId implements Serializable {
 
     private String specialtyId;
 }
-

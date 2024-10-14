@@ -1,14 +1,14 @@
 package com.programmingtechie.doctor_service.controller;
 
-import com.programmingtechie.doctor_service.dto.response.DoctorResponse;
-import com.programmingtechie.doctor_service.dto.response.PageResponse;
-import com.programmingtechie.doctor_service.service.DoctorServiceV1;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import com.programmingtechie.doctor_service.dto.response.DoctorResponse;
+import com.programmingtechie.doctor_service.dto.response.PageResponse;
+import com.programmingtechie.doctor_service.service.DoctorServiceV1;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/v1/doctor")
@@ -22,8 +22,7 @@ public class DoctorControllerV1 {
     @GetMapping("/get-all")
     public PageResponse<DoctorResponse> getAll(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size
-    ) {
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         return doctorServiceV1.getAll(page, size);
     }
 
@@ -56,8 +55,7 @@ public class DoctorControllerV1 {
     public PageResponse<DoctorResponse> getDoctorsBySpecialty(
             @PathVariable String specialtyId,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size
-    ) {
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         return doctorServiceV1.getDoctorsBySpecialty(specialtyId, page, size);
     }
 
@@ -66,8 +64,7 @@ public class DoctorControllerV1 {
     public PageResponse<DoctorResponse> getDoctorsByQualification(
             @PathVariable String qualificationAbbreviation,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size
-    ) {
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         return doctorServiceV1.getDoctorsByQualification(qualificationAbbreviation, page, size);
     }
 

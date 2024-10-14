@@ -1,15 +1,16 @@
 package com.programmingtechie.doctor_service.controller;
 
-import com.programmingtechie.doctor_service.dto.response.PageResponse;
-import com.programmingtechie.doctor_service.dto.response.QualificationResponse;
-import com.programmingtechie.doctor_service.service.QualificationServiceV1;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Optional;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import com.programmingtechie.doctor_service.dto.response.PageResponse;
+import com.programmingtechie.doctor_service.dto.response.QualificationResponse;
+import com.programmingtechie.doctor_service.service.QualificationServiceV1;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/v1/doctor/qualification")
@@ -29,7 +30,9 @@ public class QualificationControllerV1 {
     // Lấy qualification theo abbreviation
     @GetMapping("/abbreviation/{abbreviation}")
     public ResponseEntity<QualificationResponse> getQualificationByAbbreviation(@PathVariable String abbreviation) {
-        Optional<QualificationResponse> qualification = qualificationServiceV1.getQualificationByAbbreviation(abbreviation);
-        return qualification.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        Optional<QualificationResponse> qualification =
+                qualificationServiceV1.getQualificationByAbbreviation(abbreviation);
+        return qualification.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()
+                .build());
     }
 }

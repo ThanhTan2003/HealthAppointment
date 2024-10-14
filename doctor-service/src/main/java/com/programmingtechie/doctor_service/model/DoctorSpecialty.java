@@ -1,7 +1,7 @@
 package com.programmingtechie.doctor_service.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
 import lombok.*;
 
 @Entity
@@ -12,17 +12,16 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Table(name = "doctor_specialty")
-public class DoctorSpecialty
-{
+public class DoctorSpecialty {
     @EmbeddedId
     private DoctorSpecialtyId id;
 
-    @MapsId("doctorId")  // Ánh xạ với khóa chính phức hợp
+    @MapsId("doctorId") // Ánh xạ với khóa chính phức hợp
     @ManyToOne
     @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
-    @MapsId("specialtyId")  // Ánh xạ với khóa chính phức hợp
+    @MapsId("specialtyId") // Ánh xạ với khóa chính phức hợp
     @ManyToOne
     @JoinColumn(name = "specialty_id", nullable = false)
     private Specialty specialty;
