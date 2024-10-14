@@ -6,6 +6,7 @@ import com.programmingtechie.medical_service.dto.response.RoomResponse;
 import com.programmingtechie.medical_service.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,6 +16,7 @@ public class RoomController {
     private final RoomService roomService;
 
     @GetMapping("/get-all")
+    @PreAuthorize("hasRole('QuanTriVien')")
     public ResponseEntity<PageResponse<RoomResponse>> getAllRooms(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
@@ -22,16 +24,19 @@ public class RoomController {
     }
 
     @GetMapping("/id/{id}")
+    @PreAuthorize("hasRole('QuanTriVien')")
     public ResponseEntity<RoomResponse> getRoomById(@PathVariable String id) {
         return ResponseEntity.ok(roomService.getRoomById(id));
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('QuanTriVien')")
     public ResponseEntity<RoomResponse> createRoom(@RequestBody RoomRequest roomRequest) {
         return ResponseEntity.ok(roomService.createRoom(roomRequest));
     }
 
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('QuanTriVien')")
     public ResponseEntity<RoomResponse> updateRoom(
             @PathVariable String id,
             @RequestBody RoomRequest roomRequest) {
@@ -39,12 +44,14 @@ public class RoomController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('QuanTriVien')")
     public ResponseEntity<Void> deleteRoom(@PathVariable String id) {
         roomService.deleteRoom(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasRole('QuanTriVien')")
     public ResponseEntity<PageResponse<RoomResponse>> searchRooms(
             @RequestParam("keyword") String keyword,
             @RequestParam(value = "page", defaultValue = "1") int page,
