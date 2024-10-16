@@ -53,7 +53,7 @@ public class Customer {
     @OneToMany(mappedBy = "customerId")
     @ToString.Exclude
     @JsonManagedReference
-    private List<Patient> patientId;
+    private List<Patient> patients;
 
     @PrePersist
     private void ensureId() {

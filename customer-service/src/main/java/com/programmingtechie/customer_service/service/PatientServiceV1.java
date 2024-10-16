@@ -5,9 +5,12 @@ import java.util.*;
 import org.springframework.stereotype.Service;
 
 import com.programmingtechie.customer_service.dto.request.PatientRequest;
+import com.programmingtechie.customer_service.model.Customer;
 import com.programmingtechie.customer_service.model.Patient;
+import com.programmingtechie.customer_service.repository.CustomerRepository;
 import com.programmingtechie.customer_service.repository.PatientRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -15,11 +18,13 @@ import lombok.RequiredArgsConstructor;
 public class PatientServiceV1 {
 
     final PatientRepository patientRepository;
+    final CustomerRepository customerRepository;
 
     // Thêm hồ sơ khám bệnh cho bệnh nhân
-    public void createPatient(PatientRequest patientRequest) {
+    public void createPatient(PatientRequest patientRequest, String customerId) {
         validPatient(patientRequest);
-
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
         Patient patient = Patient.builder()
                 .id(generatePatientID())
                 .fullName(patientRequest.getFullName())
@@ -38,12 +43,13 @@ public class PatientServiceV1 {
                 .address(patientRequest.getAddress())
                 .relationship(patientRequest.getRelationship())
                 .note(patientRequest.getNote())
+                .customerId(customer)
                 .build();
 
         patientRepository.save(patient);
     }
 
-    //Cập nhật hồ sơ khám bệnh
+    // Cập nhật hồ sơ khám bệnh
     public void updatePatient(String id, PatientRequest patientRequest) {
         validPatient(patientRequest);
         Optional<Patient> optionalPatient = patientRepository.findById(id);
@@ -81,6 +87,19 @@ public class PatientServiceV1 {
             throw new IllegalArgumentException("Patient with ID " + id + " not found");
         }
 
+    }
+
+    public void deletePatient(String id) {
+        // Kiểm tra xem bệnh nhân có tồn tại hay không
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
+
+        // Kiểm tra các ràng buộc khác (nếu có)
+        // Ví dụ: Kiểm tra xem bệnh nhân có liên kết với lịch khám nào không
+        // ...
+
+        // Xóa bệnh nhân
+        patientRepository.delete(patient);
     }
 
     // Hàm kiểm tra các thông tin hợp lệ của bệnh nhân

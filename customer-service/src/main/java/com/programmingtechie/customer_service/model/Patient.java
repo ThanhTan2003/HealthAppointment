@@ -3,6 +3,8 @@ package com.programmingtechie.customer_service.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -73,6 +75,7 @@ public class Patient {
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     @ToString.Exclude
+    @JsonBackReference
     private Customer customerId;
 
     @PreUpdate

@@ -19,8 +19,8 @@ public class PatientController {
     final PatientServiceV1 patientServiceV1;
 
     @PostMapping("/create-patient")
-    public void createPatient(@RequestBody PatientRequest patientRequest) {
-        patientServiceV1.createPatient(patientRequest);
+    public void createPatient(@RequestBody PatientRequest patientRequest,@RequestBody String id) {
+        patientServiceV1.createPatient(patientRequest,id);
     }
 
 }

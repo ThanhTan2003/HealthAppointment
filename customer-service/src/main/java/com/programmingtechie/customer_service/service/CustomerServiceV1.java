@@ -5,6 +5,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.programmingtechie.customer_service.dto.request.CustomerRequest;
@@ -24,6 +26,7 @@ public class CustomerServiceV1 {
 
     // Thêm thông tin khách hàng
     public void createCustomer(CustomerRequest customerRequest) {
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         validCustomer(customerRequest);
         Customer customer = Customer.builder()
                 .fullName(customerRequest.getFullName())
@@ -31,7 +34,7 @@ public class CustomerServiceV1 {
                 .gender(customerRequest.getGender())
                 .email(customerRequest.getEmail())
                 .phoneNumber(customerRequest.getPhoneNumber())
-                .password(customerRequest.getPassword())
+                .password(passwordEncoder.encode(customerRequest.getPassword()))
                 .build();
 
         customerRepository.save(customer);
@@ -67,7 +70,7 @@ public class CustomerServiceV1 {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Can not find user"));
 
-        if (!customer.getPatientId().isEmpty() || customer.getPatientId() != null) {
+        if (!customer.getPatients().isEmpty() || customer.getPatients() != null) {
             throw new IllegalStateException("Customer has associated patients. Cannot delete.");
         }
         customerRepository.delete(customer);
@@ -240,7 +243,7 @@ public class CustomerServiceV1 {
                 .email(customer.getEmail())
                 .status(customer.getStatus())
                 .lastUpdated(customer.getLastUpdated())
-                .patient(customer.getPatientId().stream()
+                .patient(customer.getPatients().stream()
                         .map(this::mapToPatientResponse)
                         .collect(Collectors.toList()))
                 .build();
