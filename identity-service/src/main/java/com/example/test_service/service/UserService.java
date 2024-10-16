@@ -1,4 +1,4 @@
-package com.example.test_service.service;
+package com.programmingtechie.identity_service.service;
 
 import java.util.HashSet;
 
@@ -7,11 +7,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.test_service.dto.request.UserRequest;
-import com.example.test_service.dto.response.UserResponse;
-import com.example.test_service.enums.Role;
-import com.example.test_service.model.User;
-import com.example.test_service.repository.UserRepository;
+import com.programmingtechie.identity_service.dto.request.UserRequest;
+import com.programmingtechie.identity_service.dto.response.UserResponse;
+import com.programmingtechie.identity_service.enums.Role;
+import com.programmingtechie.identity_service.model.User;
+import com.programmingtechie.identity_service.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 

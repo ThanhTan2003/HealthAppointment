@@ -1,4 +1,4 @@
-package com.example.test_service.dto.request;
+package com.programmingtechie.identity_service.dto.request;
 
 import lombok.*;
 

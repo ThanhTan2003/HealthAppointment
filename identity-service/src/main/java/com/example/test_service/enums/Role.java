@@ -1,4 +1,4 @@
-package com.example.test_service.enums;
+package com.programmingtechie.identity_service.enums;
 
 public enum Role {
     ADMIN,

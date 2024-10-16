@@ -1,4 +1,4 @@
-package com.example.test_service.model;
+package com.programmingtechie.identity_service.model;
 
 import java.util.Set;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package com.example.test_service.service;
+package com.programmingtechie.identity_service.service;
 
 import java.text.ParseException;
 import java.time.Instant;
@@ -12,18 +12,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import com.example.test_service.dto.request.AuthenRequest;
-import com.example.test_service.dto.request.IntrospectRequest;
-import com.example.test_service.dto.request.LogoutRequest;
-import com.example.test_service.dto.request.RefreshRequest;
-import com.example.test_service.dto.response.AuthenResponse;
-import com.example.test_service.dto.response.IntrospectResponse;
-import com.example.test_service.exception.AppException;
-import com.example.test_service.exception.ErrorCode;
-import com.example.test_service.model.InvalidatedToken;
-import com.example.test_service.model.User;
-import com.example.test_service.repository.InvalidatedTokenRepository;
-import com.example.test_service.repository.UserRepository;
+import com.programmingtechie.identity_service.dto.request.AuthenRequest;
+import com.programmingtechie.identity_service.dto.request.IntrospectRequest;
+import com.programmingtechie.identity_service.dto.request.LogoutRequest;
+import com.programmingtechie.identity_service.dto.request.RefreshRequest;
+import com.programmingtechie.identity_service.dto.response.AuthenResponse;
+import com.programmingtechie.identity_service.dto.response.IntrospectResponse;
+import com.programmingtechie.identity_service.exception.AppException;
+import com.programmingtechie.identity_service.exception.ErrorCode;
+import com.programmingtechie.identity_service.model.InvalidatedToken;
+import com.programmingtechie.identity_service.model.User;
+import com.programmingtechie.identity_service.repository.InvalidatedTokenRepository;
+import com.programmingtechie.identity_service.repository.UserRepository;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;

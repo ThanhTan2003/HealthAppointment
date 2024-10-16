@@ -1,4 +1,4 @@
-package com.example.test_service.config;
+package com.programmingtechie.identity_service.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

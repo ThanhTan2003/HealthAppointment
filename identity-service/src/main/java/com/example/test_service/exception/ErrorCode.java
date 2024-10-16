@@ -1,4 +1,4 @@
-package com.example.test_service.exception;
+package com.programmingtechie.identity_service.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;

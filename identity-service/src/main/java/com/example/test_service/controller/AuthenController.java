@@ -1,4 +1,4 @@
-package com.example.test_service.controller;
+package com.programmingtechie.identity_service.controller;
 
 import java.text.ParseException;
 
@@ -6,13 +6,13 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.test_service.dto.request.AuthenRequest;
-import com.example.test_service.dto.request.IntrospectRequest;
-import com.example.test_service.dto.request.LogoutRequest;
-import com.example.test_service.dto.request.RefreshRequest;
-import com.example.test_service.dto.response.AuthenResponse;
-import com.example.test_service.dto.response.IntrospectResponse;
-import com.example.test_service.service.AuthenService;
+import com.programmingtechie.identity_service.dto.request.AuthenRequest;
+import com.programmingtechie.identity_service.dto.request.IntrospectRequest;
+import com.programmingtechie.identity_service.dto.request.LogoutRequest;
+import com.programmingtechie.identity_service.dto.request.RefreshRequest;
+import com.programmingtechie.identity_service.dto.response.AuthenResponse;
+import com.programmingtechie.identity_service.dto.response.IntrospectResponse;
+import com.programmingtechie.identity_service.service.AuthenService;
 import com.nimbusds.jose.JOSEException;
 
 import lombok.RequiredArgsConstructor;

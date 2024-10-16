@@ -1,4 +1,4 @@
-package com.example.test_service.exception;
+package com.programmingtechie.identity_service.exception;
 
 public class AppException extends RuntimeException {
 

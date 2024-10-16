@@ -1,4 +1,4 @@
-package com.example.test_service.config;
+package com.programmingtechie.identity_service.config;
 
 import java.util.HashSet;
 

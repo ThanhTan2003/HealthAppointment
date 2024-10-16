@@ -1,4 +1,4 @@
-package com.example.test_service.controller;
+package com.programmingtechie.identity_service.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.test_service.dto.request.UserRequest;
-import com.example.test_service.dto.response.UserResponse;
-import com.example.test_service.service.UserService;
+import com.programmingtechie.identity_service.dto.request.UserRequest;
+import com.programmingtechie.identity_service.dto.response.UserResponse;
+import com.programmingtechie.identity_service.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

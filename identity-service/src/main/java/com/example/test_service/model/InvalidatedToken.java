@@ -1,4 +1,4 @@
-package com.example.test_service.model;
+package com.programmingtechie.identity_service.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

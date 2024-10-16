@@ -1,4 +1,4 @@
-package com.example.test_service.dto.response;
+package com.programmingtechie.identity_service.dto.response;
 
 import lombok.*;
 
