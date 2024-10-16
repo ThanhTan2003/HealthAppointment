@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum DefaultRoles {
+    NGUOI_DUNG("NguoiDung", "Người dùng"),
     QUAN_TRI_VIEN("QuanTriVien", "Quản trị viên"),
     BAC_SI("BacSi", "Bác sĩ"),
     NHAN_VIEN_TU_VAN("NhanVienTuVan", "Nhân viên tư vấn"),

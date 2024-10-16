@@ -4,9 +4,14 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.UUID;
 
+import com.programmingtechie.identity_service.dto.request.Customer.CustomerAuthenticationRequest;
+import com.programmingtechie.identity_service.model.Customer;
+import com.programmingtechie.identity_service.repository.CustomerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,6 +51,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthenticationService {
 
     final UserRepository userRepository;
+    final CustomerRepository customerRepository;
     final InvalidatedTokenRepository invalidatedTokenRepository;
 
     // Cac gia tri lien quan den JWT (key ky, thoi gian hieu luc, thoi gian lam moi token)
@@ -60,6 +66,9 @@ public class AuthenticationService {
     @NonFinal
     @Value("${jwt.refreshable-duration}")
     protected long REFRESHABLE_DURATION;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     // Phuong thuc tao token moi cho nguoi dung
     private String generateToken(User user) {
@@ -86,7 +95,39 @@ public class AuthenticationService {
             jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes())); // Ky token bang SIGNER_KEY
             return jwsObject.serialize(); // Tra ve chuoi JWT
         } catch (JOSEException e) {
-            log.error("Cannot create token", e); // Ghi log neu xay ra loi
+            log.error("Không thể tạo token!", e); // Ghi log neu xay ra loi
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Phuong thuc tao token moi cho Customer
+    private String generateCustomerToken(Customer customer) {
+        // Tao phan header cho JWT voi thuat toan ky HS512
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+
+        // Tao cac claims cho JWT, bao gom thong tin nhu ten nguoi dung, thoi gian phat hanh, thoi gian het han
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(customer.getEmail()) // Email nguoi dung se la subject cua token
+                .issuer("Health Appointment") // Nguoi phat hanh token
+                .issueTime(new Date()) // Thoi gian phat hanh token
+                .expirationTime(new Date(
+                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli())) // Thoi gian het han
+                .jwtID(UUID.randomUUID().toString()) // ID cua JWT
+                .claim("name", customer.getFullName())
+                .claim("phone_number", customer.getPhoneNumber())
+                .claim("email", customer.getEmail())
+                .claim("scope", "NguoiDung") // Quyen han duoc gan co dinh la "NguoiDung"
+                .build();
+
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject()); // Chuyen doi claims thanh doi tuong Payload
+
+        JWSObject jwsObject = new JWSObject(header, payload); // Tao JWT tu header va payload
+
+        try {
+            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes())); // Ky token bang SIGNER_KEY
+            return jwsObject.serialize(); // Tra ve chuoi JWT
+        } catch (JOSEException e) {
+            log.error("Không thể tạo token cho người dùng!", e); // Ghi log neu xay ra loi
             throw new RuntimeException(e);
         }
     }
@@ -103,6 +144,37 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .authenticated(result) // Tra ve ket qua dang nhap
                 .token(generateToken(user)) // Tra ve token neu dang nhap thanh cong
+                .build();
+    }
+
+    public AuthenticationResponse authenticate(CustomerAuthenticationRequest request) {
+        // Tìm theo email
+        Optional<Customer> customer = customerRepository.findByEmail(request.getUserName());
+
+        // Nếu không tìm thấy theo email, thì tìm theo số điện thoại
+        if (customer.isEmpty()) {
+            customer = customerRepository.findByPhoneNumber(request.getUserName());
+        }
+
+        // Nếu không tìm thấy cả email và số điện thoại, ném ngoại lệ
+        Customer foundCustomer = customer.orElseThrow(() -> new IllegalArgumentException("Thông tin đăng nhập không hợp lệ!"));
+
+        log.info("check email/phone");
+
+        // Kiểm tra mật khẩu khớp với mật khẩu được mã hóa trong cơ sở dữ liệu
+        boolean passwordMatches = passwordEncoder.matches(request.getPassword(), foundCustomer.getPassword());
+
+        log.info("check password");
+
+        // Nếu mật khẩu không khớp, ném ngoại lệ
+        if (!passwordMatches) {
+            throw new IllegalArgumentException("Thông tin đăng nhập không hợp lệ!");
+        }
+
+        // Trả về phản hồi sau khi đăng nhập thành công
+        return AuthenticationResponse.builder()
+                .authenticated(true)
+                .token(generateCustomerToken(foundCustomer))
                 .build();
     }
 
@@ -197,6 +269,32 @@ public class AuthenticationService {
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED)); // Tim nguoi dung trong co so du lieu
 
         var token = generateToken(user); // Tao token moi
+
+        return AuthenticationResponse.builder()
+                .token(token)
+                .authenticated(true)
+                .build(); // Tra ve token moi va ket qua xac thuc
+    }
+
+    public AuthenticationResponse customerRefreshToken(RefreshRequest request) throws ParseException, JOSEException {
+        var signedJWT = verifyToken(request.getToken(), true); // Xac thuc token
+
+        var jit = signedJWT.getJWTClaimsSet().getJWTID(); // Lay ID cua token
+        var expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime(); // Lay thoi gian het han
+
+        // Luu token cu vao danh sach cac token da vo hieu hoa
+        InvalidatedToken invalidatedToken =
+                InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
+
+        invalidatedTokenRepository.save(invalidatedToken);
+
+        var email = signedJWT.getJWTClaimsSet().getSubject(); // Lay email dung tu token
+
+        var customer = customerRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED)); // Tim nguoi dung trong co so du lieu
+
+        var token = generateCustomerToken(customer); // Tao token moi
 
         return AuthenticationResponse.builder()
                 .token(token)

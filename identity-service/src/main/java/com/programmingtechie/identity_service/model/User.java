@@ -40,6 +40,7 @@ public class User {
     private String doctorId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id", nullable = false)
-    private Role role;
+    @JoinColumn(name = "account_type_id", nullable = false)
+    private Role role;  // Liên kết với bảng `AccountType`
+
 }

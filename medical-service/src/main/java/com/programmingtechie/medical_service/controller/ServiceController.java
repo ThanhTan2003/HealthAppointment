@@ -16,7 +16,7 @@ public class ServiceController {
     private final ServiceService serviceService;
 
     @GetMapping("/get-all")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("hasRole('QuanTriVien') or hasRole('NguoiDung')")
     public ResponseEntity<PageResponse<ServiceResponse>> getAllServices(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
