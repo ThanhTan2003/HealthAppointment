@@ -1,10 +1,10 @@
-package com.example.test_service;
+package com.programmingtechie.identity_service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class TestServiceApplicationTests {
+class IdentityServiceApplicationTests {
 
 	@Test
 	void contextLoads() {
