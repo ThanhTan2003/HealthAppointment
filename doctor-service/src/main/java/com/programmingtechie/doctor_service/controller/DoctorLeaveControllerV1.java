@@ -11,5 +11,4 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/v1/doctor/doctor-leave")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin
 public class DoctorLeaveControllerV1 {}

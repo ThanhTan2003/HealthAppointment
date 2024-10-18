@@ -15,8 +15,10 @@ import lombok.NoArgsConstructor;
 public class DoctorResponse {
     private String id;
     private String fullName;
+    private String qualificationName;
     private String gender;
     private String phoneNumber;
+    private String email;
     private String description;
     private String status;
     private LocalDateTime lastUpdated;

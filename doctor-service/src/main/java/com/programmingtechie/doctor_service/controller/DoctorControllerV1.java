@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/v1/doctor")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin
 public class DoctorControllerV1 {
     final DoctorServiceV1 doctorServiceV1;
 
