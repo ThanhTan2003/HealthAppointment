@@ -29,7 +29,6 @@ import org.springframework.web.context.request.WebRequest;
 @RequestMapping("/api/v1/identity/auth")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationController {
 

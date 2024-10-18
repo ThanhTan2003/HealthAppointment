@@ -30,7 +30,6 @@ import java.util.Map;
 @RequestMapping("/api/v1/identity/user")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
 

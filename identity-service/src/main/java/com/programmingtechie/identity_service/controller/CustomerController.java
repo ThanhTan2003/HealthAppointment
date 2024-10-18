@@ -24,7 +24,6 @@ import java.util.Map;
 @RequestMapping("/api/v1/identity/customer")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin
 public class CustomerController {
     final CustomerService customerService;
 
