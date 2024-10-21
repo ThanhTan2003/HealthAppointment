@@ -24,13 +24,13 @@ public class ServiceController {
     }
 
     @GetMapping("/id/{id}")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("hasRole('QuanTriVien') or hasRole('NguoiDung')")
     public ResponseEntity<ServiceResponse> getServiceById(@PathVariable String id) {
         return ResponseEntity.ok(serviceService.getServiceById(id));
     }
 
     @GetMapping("/service-type/{serviceTypeId}")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("hasRole('QuanTriVien') or hasRole('NguoiDung')")
     public ResponseEntity<PageResponse<ServiceResponse>> getServicesByServiceTypeId(
             @PathVariable String serviceTypeId,
             @RequestParam(value = "page", defaultValue = "1") int page,
@@ -38,7 +38,7 @@ public class ServiceController {
         return ResponseEntity.ok(serviceService.getServicesByServiceTypeId(serviceTypeId, page, size));
     }
 
-    @GetMapping("/specialty/{specialtyId}")
+    @GetMapping("hasRole('QuanTriVien') or hasRole('NguoiDung')")
     @PreAuthorize("hasRole('QuanTriVien')")
     public ResponseEntity<PageResponse<ServiceResponse>> getServicesBySpecialtyId(
             @PathVariable String specialtyId,
@@ -69,7 +69,7 @@ public class ServiceController {
     }
 
     @GetMapping("/search")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("hasRole('QuanTriVien') or hasRole('NguoiDung')")
     public ResponseEntity<PageResponse<ServiceResponse>> searchServices(
             @RequestParam("keyword") String keyword,
             @RequestParam(value = "page", defaultValue = "1") int page,

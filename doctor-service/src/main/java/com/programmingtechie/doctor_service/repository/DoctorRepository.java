@@ -44,8 +44,10 @@ public interface DoctorRepository extends JpaRepository<Doctor, String> {
                     + "unaccent(LOWER(full_name)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) OR "
                     + "unaccent(LOWER(gender)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) OR "
                     + "unaccent(LOWER(phone_number)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) OR "
-                    + "unaccent(LOWER(status)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%')))",
-            nativeQuery = true)
+                    + "unaccent(LOWER(status)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) "
+                    + "ORDER BY unaccent(LOWER(split_part(full_name, ' ', array_length(string_to_array(full_name, ' '), 1)))) ASC",
+            nativeQuery = true
+    )
     Page<Doctor> searchDoctorsWithUnaccent(@Param("keyword") String keyword, Pageable pageable);
 
     @Query(

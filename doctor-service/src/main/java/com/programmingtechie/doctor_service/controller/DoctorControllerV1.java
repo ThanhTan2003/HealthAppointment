@@ -20,7 +20,7 @@ public class DoctorControllerV1 {
 
     // Lấy danh sách bác sĩ với phân trang
     @GetMapping("/get-all")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("hasRole('QuanTriVien') or hasRole('NguoiDung')")
     public PageResponse<DoctorResponse> getAll(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
