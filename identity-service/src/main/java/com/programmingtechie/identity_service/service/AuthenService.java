@@ -7,10 +7,11 @@ import java.util.Date;
 import java.util.StringJoiner;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import com.programmingtechie.identity_service.dto.request.AuthenRequest;
 import com.programmingtechie.identity_service.dto.request.IntrospectRequest;
@@ -20,8 +21,9 @@ import com.programmingtechie.identity_service.dto.response.AuthenResponse;
 import com.programmingtechie.identity_service.dto.response.IntrospectResponse;
 import com.programmingtechie.identity_service.exception.AppException;
 import com.programmingtechie.identity_service.exception.ErrorCode;
+import com.programmingtechie.identity_service.model.Customer;
 import com.programmingtechie.identity_service.model.InvalidatedToken;
-import com.programmingtechie.identity_service.model.User;
+import com.programmingtechie.identity_service.repository.CustomerRepository;
 import com.programmingtechie.identity_service.repository.InvalidatedTokenRepository;
 import com.programmingtechie.identity_service.repository.UserRepository;
 import com.nimbusds.jose.JOSEException;
@@ -45,26 +47,25 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthenService {
     final UserRepository userRepository;
     final InvalidatedTokenRepository invalidatedTokenRepository;
+    final CustomerRepository customerRepository;
 
     @NonFinal
-    protected String SIGNER_KEY = "OVnnQLJzC0dbN8uUTI4UaMMT9/GvZdLjDut9PkafIbDnQz+lMjjJCUTeJp2UCNNM";
+    protected String SIGNER_KEY = "BpbYzjZCyoHbx8E8AvSPDFxsE0739IlW4YKWheQPHSnIDtl/3jZNcLiKonRqda2DQ1rr72U0EUZ0TksWFBLBzwaS";
 
     public AuthenResponse creataLogin(AuthenRequest authenRequest) {
-        var user = userRepository.findByEmail(authenRequest.getEmail())
+        var customer = customerRepository.findByEmail(authenRequest.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Tài khoản không tồn tại!"));
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
-        boolean isValid = passwordEncoder.matches(authenRequest.getPassword(), user.getPassword());
+        boolean isValid = passwordEncoder.matches(authenRequest.getPassword(), customer.getPassword());
 
         if (!isValid) {
             throw new IllegalArgumentException("Invalid login");
         }
-        var token = generateToken(user);
+        var token = generateToken(customer);
 
         return AuthenResponse.builder()
-                .email(authenRequest.getEmail())
                 .token(token)
-                .isLogin(true)
                 .build();
     }
 
@@ -83,19 +84,20 @@ public class AuthenService {
                 .build();
     }
 
-    private String generateToken(User user) {
+    private String generateToken(Customer customer) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .jwtID(UUID.randomUUID().toString())// cần thêm id của token để thực hiện kiểm tra ngoại lệ của những
                                                     // token đã hết hạn
-                .subject(user.getEmail())
+                .subject(customer.getEmail())
                 .issuer("healthapp.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
-                .claim("email", user.getEmail())
-                .claim("scope", buildScope(user))
+                .claim("email", customer.getEmail())
+                .claim("scope", buildScope(customer))
+                .claim("phone", customer.getPhoneNumber())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -166,22 +168,21 @@ public class AuthenService {
 
         var email = signedJWT.getJWTClaimsSet().getSubject();
 
-        var user = userRepository.findByEmail(email).orElseThrow(
+        var customer = customerRepository.findByEmail(email).orElseThrow(
                 () -> new AppException(ErrorCode.UNAUTHENTICATED));
 
-        var token = generateToken(user);
+        var token = generateToken(customer);
 
         return AuthenResponse.builder()
                 .token(token)
-                .isLogin(true)
                 .build();
     }
 
-    private String buildScope(User user) {
+    private String buildScope(Customer customer) {
         StringJoiner stringJoiner = new StringJoiner(" ");
-        if (!CollectionUtils.isEmpty(user.getRoles()))
-            user.getRoles().forEach(stringJoiner::add);
-
+        if (customer.getRole() != null && !StringUtils.hasLength(customer.getRole().getId())) {
+            stringJoiner.add(customer.getRole().getId());
+        }
         return stringJoiner.toString();
     }
 }

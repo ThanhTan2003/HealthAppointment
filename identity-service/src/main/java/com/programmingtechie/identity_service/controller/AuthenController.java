@@ -21,12 +21,12 @@ import lombok.RequiredArgsConstructor;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/identity/auth/")
 @RequiredArgsConstructor
 public class AuthenController {
     final AuthenService authenService;
 
-    @PostMapping("/login")
+    @PostMapping("/customer/log-in")
     public AuthenResponse postMethodName(@RequestBody AuthenRequest authenRequest) {
         return authenService.creataLogin(authenRequest);
     }
@@ -37,13 +37,13 @@ public class AuthenController {
         return authenService.introspect(request);
     }
 
-    @PostMapping("/refresh")
+    @PostMapping("/customer/refresh")
     AuthenResponse authenticate(@RequestBody RefreshRequest request)
             throws ParseException, JOSEException {
         return authenService.refreshToken(request);
     }
 
-    @PostMapping("/logout")
+    @PostMapping("/log-out")
     void logout(@RequestBody LogoutRequest request)
             throws ParseException, JOSEException {
         authenService.logout(request);

@@ -26,7 +26,7 @@ public class ApplicationInitConfig {
         return args -> {
             if (userRepository.findByEmail("admin@gmail.com").isEmpty()) {
                 var roles = new HashSet<String>();
-                roles.add(Role.ADMIN.name());
+                roles.add(Role.QUAN_TRI_VIEN.name());
 
                 User user = User.builder()
                         .email("admin@gmail.com")

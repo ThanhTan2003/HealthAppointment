@@ -23,7 +23,7 @@ public class UserService {
     public UserResponse createCustomer(UserRequest userRequest) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         HashSet<String> roles = new HashSet<>();
-        roles.add(Role.USER.name());
+        roles.add(Role.NGUOI_DUNG.name());
         User user = User.builder()
                 .email(userRequest.getEmail())
                 .password(passwordEncoder.encode(userRequest.getPassword()))
