@@ -21,5 +21,5 @@ public class Role {
 
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
     @ToString.Exclude
-    private List<Customer> customers;
+    private List<User> users;
 }

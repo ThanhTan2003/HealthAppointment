@@ -1,6 +1,6 @@
 package com.programmingtechie.identity_service.dto.response;
 
-import java.util.Set;
+import java.time.LocalDateTime;
 
 import lombok.*;
 
@@ -9,8 +9,19 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserResponse {
-    private String id;
-    private String email;
-    private String password;
-    private Set<String> roles;
+     String userName;
+
+    String password;
+
+    String accountName;
+
+    String roleId;
+
+    String roleName;
+
+    String status;
+
+    LocalDateTime lastAccessTime;
+
+    String doctorId;
 }

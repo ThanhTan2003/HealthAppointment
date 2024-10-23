@@ -1,36 +1,46 @@
 package com.programmingtechie.identity_service.model;
 
-import java.util.Set;
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 
-
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-@Data
-@Table(name = "test_data")
 @Entity
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(
+        name = "account",
+        indexes = {
+            @Index(name = "idx_userName", columnList = "userName"),
+            @Index(name = "idx_status", columnList = "status"),
+        })
 public class User {
     @Id
-    @Column(nullable = false, length = 36)
-    private String id;
+    @Column(name = "user_name", nullable = false, columnDefinition = "TEXT")
+    private String userName;
 
-    @Column(name = "email", length = 100, unique = true)
-    private String email;
-
-    @Column(name = "password", nullable = false, length = 100)
+    @Column(name = "password", nullable = false, columnDefinition = "TEXT")
     private String password;
 
-    @Column(name = "roles", nullable = false, length = 100)
-    private Set<String> roles;
+    @Column(name = "account_name", nullable = false, columnDefinition = "TEXT")
+    private String accountName;
 
-    @PrePersist
-    private void ensureId() {
-        if (this.id == null) {
-            this.id = UUID.randomUUID().toString();
-        }
-    }
+    @Column(name = "status", nullable = false, columnDefinition = "TEXT")
+    private String status;
+
+    @Column(name = "last_access_time")
+    private LocalDateTime lastAccessTime;
+
+    @Column(name = "doctor_id", length = 36)
+    private String doctorId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_type_id", nullable = false)
+    private Role role;  // Liên kết với bảng `AccountType`
+
 }

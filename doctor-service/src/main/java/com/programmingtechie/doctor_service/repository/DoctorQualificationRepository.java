@@ -7,5 +7,4 @@ import com.programmingtechie.doctor_service.model.DoctorQualification;
 import com.programmingtechie.doctor_service.model.DoctorQualificationId;
 
 @Repository
-public interface DoctorQualificationRepository extends JpaRepository<DoctorQualification, DoctorQualificationId> {
-}
+public interface DoctorQualificationRepository extends JpaRepository<DoctorQualification, DoctorQualificationId> {}

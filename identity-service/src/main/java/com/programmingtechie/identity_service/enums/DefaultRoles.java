@@ -3,7 +3,7 @@ package com.programmingtechie.identity_service.enums;
 import lombok.*;
 
 @Getter
-public enum Role {
+public enum DefaultRoles {
     NGUOI_DUNG("NguoiDung", "Người dùng"),
     QUAN_TRI_VIEN("QuanTriVien", "Quản trị viên"),
     BAC_SI("BacSi", "Bác sĩ"),
@@ -13,7 +13,7 @@ public enum Role {
     private final String id;
     private final String name;
 
-    Role(String id, String name) {
+    DefaultRoles(String id, String name) {
         this.id = id;
         this.name = name;
     }

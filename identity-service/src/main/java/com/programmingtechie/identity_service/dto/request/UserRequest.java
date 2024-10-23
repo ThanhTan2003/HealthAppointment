@@ -7,6 +7,15 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRequest {
-    private String email;
-    private String password;
+    String userName;
+
+    String password;
+
+    String accountName;
+
+    String status;
+
+    String doctorId;
+
+    String roleId;
 }
