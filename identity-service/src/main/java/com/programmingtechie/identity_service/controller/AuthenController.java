@@ -28,7 +28,7 @@ public class AuthenController {
 
     @PostMapping("/customer/log-in")
     public AuthenResponse postMethodName(@RequestBody AuthenRequest authenRequest) {
-        return authenService.creataLogin(authenRequest);
+        return authenService.authenticatedCustomer(authenRequest);
     }
 
     @PostMapping("/introspect")

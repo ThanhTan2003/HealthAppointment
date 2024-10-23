@@ -29,7 +29,7 @@ public interface CustomerRepository extends JpaRepository<Customer, String> {
 
     List<Customer> findByStatus(String status);
     
-    Optional<Customer> findByFullName(String fullName);
+    List<Customer> findByFullName(String fullName);
 
     Optional<Customer> findByPhoneNumber(String phoneNumber);
 

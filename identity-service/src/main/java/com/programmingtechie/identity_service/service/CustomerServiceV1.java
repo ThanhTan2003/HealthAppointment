@@ -100,10 +100,9 @@ public class CustomerServiceV1 {
     }
 
     // Tìm khách hàng theo tên
-    public CustomerResponse getCustomerByFullName(String name) {
-        Customer customer = customerRepository.findByFullName(name)
-                .orElseThrow(() -> new RuntimeException("Customer not found with name: " + name));
-        return mapToCustomerResponse(customer);
+    public List<CustomerResponse> getCustomerByFullName(String name) {
+        List<Customer> customers = customerRepository.findByFullName(name);
+        return customers.stream().map(this::mapToCustomerResponse).toList();
     }
 
     // Tìm khách hàng theo email cơ bản
@@ -205,29 +204,9 @@ public class CustomerServiceV1 {
                 .build();
     }
 
-    // Lấy danh sách khách hàng với thứ tự chưa sắp xếp
-    public PageResponse<CustomerResponse> getAllCustomer(int page, int size) {
-        // Tạo Pageable với page và size đầu vào
-        Pageable pageable = PageRequest.of(page - 1, size);
-
-        // Lấy dữ liệu trang từ repository (lưu ý: kiểu Pageable phải từ
-        // org.springframework, không
-        // phải AWT)
-        Page<Customer> pageData = customerRepository.findAll(pageable);
-
-        // Mapping dữ liệu từ entity Customer sang DTO CustomerResponse
-        List<CustomerResponse> customerResponses = pageData.getContent().stream()
-                .map(this::mapToCustomerResponse)
-                .toList();
-
-        // Trả về đối tượng PageResponse với các thông tin cần thiết
-        return PageResponse.<CustomerResponse>builder()
-                .currentPage(page)
-                .pageSize(pageData.getSize())
-                .totalPages(pageData.getTotalPages())
-                .totalElements(pageData.getTotalElements())
-                .data(customerResponses)
-                .build();
+    public List<CustomerResponse> findCustomersByStatus(String status) {
+        List<Customer> customers = customerRepository.findByStatus(status);
+        return customers.stream().map(this::mapToCustomerResponse).toList();
     }
 
     // Hàm mapping dữ liệu từ entity Customer sang DTO CustomerResponse
@@ -244,7 +223,7 @@ public class CustomerServiceV1 {
                 .build();
     }
 
-    public CustomerResponse getMyInfo() {
+    public CustomerResponse getInfo() {
         var context = SecurityContextHolder.getContext();
         String email = context.getAuthentication().getName();
 

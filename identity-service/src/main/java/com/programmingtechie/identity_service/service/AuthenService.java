@@ -52,7 +52,7 @@ public class AuthenService {
     @NonFinal
     protected String SIGNER_KEY = "BpbYzjZCyoHbx8E8AvSPDFxsE0739IlW4YKWheQPHSnIDtl/3jZNcLiKonRqda2DQ1rr72U0EUZ0TksWFBLBzwaS";
 
-    public AuthenResponse creataLogin(AuthenRequest authenRequest) {
+    public AuthenResponse authenticatedCustomer(AuthenRequest authenRequest) {
         var customer = customerRepository.findByEmail(authenRequest.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("Tài khoản không tồn tại!"));
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
@@ -98,6 +98,7 @@ public class AuthenService {
                 .claim("email", customer.getEmail())
                 .claim("scope", buildScope(customer))
                 .claim("phone", customer.getPhoneNumber())
+                .claim("scope", "NguoiDung")
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
