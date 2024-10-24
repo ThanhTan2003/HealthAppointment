@@ -2,6 +2,7 @@ package com.programmingtechie.identity_service.service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,6 +58,7 @@ public class CustomerServiceV1 {
                 .email(customerRequest.getEmail())
                 .password(passwordEncoder.encode(customerRequest.getPassword()))
                 .role(role.get())
+                .lastUpdated(LocalDateTime.now())
                 .build();
 
         customerRepository.save(customer);

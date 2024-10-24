@@ -52,7 +52,6 @@ public class UserController {
 
     // Tao user moi
     @PostMapping("/create")
-    @PreAuthorize("hasRole('QuanTriVien')")
     @ResponseStatus(HttpStatus.CREATED)
     void createUser(@RequestBody @Valid UserRequest request) {
         userService.createUser(request);

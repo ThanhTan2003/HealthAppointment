@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +31,6 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/v1/identity/customer")
 @RequiredArgsConstructor
-@CrossOrigin("*")
 public class CustomerController {
     final CustomerServiceV1 customerServiceV1;
 
@@ -49,11 +47,6 @@ public class CustomerController {
 
         // Trả về response với mã 500
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @GetMapping("/welcome")
-    public String getGreeting() {
-        return "Welcome to health appointment app";
     }
 
     @PostMapping("/create")

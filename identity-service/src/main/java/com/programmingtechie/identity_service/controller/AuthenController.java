@@ -2,7 +2,6 @@ package com.programmingtechie.identity_service.controller;
 
 import java.text.ParseException;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +18,6 @@ import com.programmingtechie.identity_service.service.AuthenService;
 
 import lombok.RequiredArgsConstructor;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/v1/identity/auth/")
 @RequiredArgsConstructor
