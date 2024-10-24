@@ -23,7 +23,7 @@ public class DoctorResponse {
     private String status;
     private LocalDateTime lastUpdated;
 
-    // Danh sách các chuyên khoa mà bác sĩ thuộc về
+    // Danh sách các chuyên khoa bác sĩ
     private List<SpecialtyResponse> specialties;
 
     // Danh sách học hàm, học vị của bác sĩ
