@@ -1,18 +1,15 @@
 package com.programmingtechie.doctor_service.dto.request;
 
-import jakarta.persistence.Column;
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class DoctorRequest
-{
+public class DoctorRequest {
     private String fullName;
 
     private LocalDate dateOfBirth;

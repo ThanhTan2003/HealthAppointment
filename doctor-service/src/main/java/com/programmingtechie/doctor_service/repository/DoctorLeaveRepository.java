@@ -6,5 +6,4 @@ import org.springframework.stereotype.Repository;
 import com.programmingtechie.doctor_service.model.DoctorLeave;
 
 @Repository
-public interface DoctorLeaveRepository extends JpaRepository<DoctorLeave, String> {
-}
+public interface DoctorLeaveRepository extends JpaRepository<DoctorLeave, String> {}

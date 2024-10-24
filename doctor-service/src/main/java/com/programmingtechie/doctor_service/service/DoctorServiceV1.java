@@ -67,13 +67,13 @@ public class DoctorServiceV1 {
     private String getQualificationName(Doctor doctor) {
         // Lấy danh sách các học vị (abbreviation) từ doctor.getDoctorQualifications()
         return doctor.getDoctorQualifications().stream()
-                .map(doctorQualification -> doctorQualification.getQualification().getAbbreviation())
-//                .sorted()
+                .map(doctorQualification ->
+                        doctorQualification.getQualification().getAbbreviation())
+                //                .sorted()
                 // Optional: nếu cần sắp xếp theo thứ tự, bạn có thể tùy chỉnh.
-                .collect(Collectors.joining(". "))  // Thay dấu chấm thành ". " để không có dấu chấm cuối cùng
-                .trim();  // Loại bỏ khoảng trắng thừa nếu có
+                .collect(Collectors.joining(". ")) // Thay dấu chấm thành ". " để không có dấu chấm cuối cùng
+                .trim(); // Loại bỏ khoảng trắng thừa nếu có
     }
-
 
     // Hàm chuyển đổi từ Doctor sang DoctorResponse
     private DoctorResponse mapToDoctorResponse(Doctor doctor) {
