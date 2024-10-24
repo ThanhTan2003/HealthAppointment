@@ -19,23 +19,23 @@ import com.programmingtechie.identity_service.service.AuthenService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/identity/auth/")
+@RequestMapping("/api/v1/identity/auth")
 @RequiredArgsConstructor
 public class AuthenController {
     final AuthenService authenService;
 
     @PostMapping("/customer/log-in")
-    public AuthenResponse postMethodName(@RequestBody AuthenRequest authenRequest) {
+    public AuthenResponse authenticate(@RequestBody AuthenRequest authenRequest) {
         return authenService.authenticatedCustomer(authenRequest);
     }
 
     @PostMapping("/introspect")
-    IntrospectResponse authenticate(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
+    IntrospectResponse introspect(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
         return authenService.introspect(request);
     }
 
     @PostMapping("/customer/refresh")
-    AuthenResponse authenticate(@RequestBody RefreshRequest request) throws ParseException, JOSEException {
+    AuthenResponse refreshToken(@RequestBody RefreshRequest request) throws ParseException, JOSEException {
         return authenService.refreshToken(request);
     }
 

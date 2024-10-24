@@ -20,7 +20,6 @@ public class SecurityConfig {
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
 
-    // Cau hinh các Endpoints co the truy cap ma khong can xac thuc
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
