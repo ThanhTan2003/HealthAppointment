@@ -37,7 +37,9 @@ public class CustomerServiceV1 {
         }
 
         if (!customerRequest.getPhoneNumber().isEmpty()) { // Chỉ kiểm tra số điện thoại nếu nó không rỗng
-            if (customerRepository.findByPhoneNumber(customerRequest.getPhoneNumber()).isPresent()) {
+            if (customerRepository
+                    .findByPhoneNumber(customerRequest.getPhoneNumber())
+                    .isPresent()) {
                 throw new IllegalArgumentException("Số điện thoại đã có tài khoản!");
             }
         }
@@ -47,8 +49,6 @@ public class CustomerServiceV1 {
             throw new IllegalArgumentException("Vai trò người dùng không tồn tại!");
         }
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-
-       
 
         Customer customer = Customer.builder()
                 .fullName(customerRequest.getFullName())
@@ -87,19 +87,19 @@ public class CustomerServiceV1 {
         } else {
             throw new IllegalArgumentException("Customer with ID " + id + " not found");
         }
-
     }
 
     public void deleteCustomer(String id) {
-        Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Can not find user"));
+        Customer customer =
+                customerRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Can not find user"));
 
         customerRepository.delete(customer);
     }
 
     // Tìm khách hàng theo id
     public CustomerResponse getById(String id) {
-        Customer customer = customerRepository.findById(id)
+        Customer customer = customerRepository
+                .findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
         return mapToCustomerResponse(customer);
     }
@@ -112,14 +112,16 @@ public class CustomerServiceV1 {
 
     // Tìm khách hàng theo email cơ bản
     public CustomerResponse getCustomerByEmail(String email) {
-        Customer customer = customerRepository.findByEmail(email)
+        Customer customer = customerRepository
+                .findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Customer not found with email: " + email));
         return mapToCustomerResponse(customer);
     }
 
     // Tìm khách hàng theo số điện thoại cơ bản
     public CustomerResponse getCustomerByPhone(String phone) {
-        Customer customer = customerRepository.findByPhoneNumber(phone)
+        Customer customer = customerRepository
+                .findByPhoneNumber(phone)
                 .orElseThrow(() -> new RuntimeException("Customer not found with phone number: " + phone));
         return mapToCustomerResponse(customer);
     }
@@ -156,7 +158,8 @@ public class CustomerServiceV1 {
     }
 
     void validCustomer(CustomerRequest customerRequest) {
-        if (customerRequest.getFullName() == null || customerRequest.getFullName().isEmpty()) {
+        if (customerRequest.getFullName() == null
+                || customerRequest.getFullName().isEmpty()) {
             throw new IllegalArgumentException("Full name cannot be empty");
         }
         if (customerRequest.getEmail() == null || customerRequest.getEmail().isEmpty()) {
@@ -165,7 +168,8 @@ public class CustomerServiceV1 {
         if (customerRequest.getGender() == null || customerRequest.getGender().isEmpty()) {
             throw new IllegalArgumentException("Your gender cannot be empty");
         }
-        if (customerRequest.getPhoneNumber() == null || customerRequest.getPhoneNumber().isEmpty()) {
+        if (customerRequest.getPhoneNumber() == null
+                || customerRequest.getPhoneNumber().isEmpty()) {
             throw new IllegalArgumentException("Your phone number cannot be empty");
         }
 
@@ -196,9 +200,8 @@ public class CustomerServiceV1 {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("fullName").ascending());
         var pageData = customerRepository.getAllCustomer(pageable);
 
-        List<CustomerResponse> customerResponses = pageData.getContent().stream()
-                .map(this::mapToCustomerResponse)
-                .toList();
+        List<CustomerResponse> customerResponses =
+                pageData.getContent().stream().map(this::mapToCustomerResponse).toList();
 
         return PageResponse.<CustomerResponse>builder()
                 .currentPage(page)

@@ -30,20 +30,17 @@ public class AuthenController {
     }
 
     @PostMapping("/introspect")
-    IntrospectResponse authenticate(@RequestBody IntrospectRequest request)
-            throws ParseException, JOSEException {
+    IntrospectResponse authenticate(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
         return authenService.introspect(request);
     }
 
     @PostMapping("/customer/refresh")
-    AuthenResponse authenticate(@RequestBody RefreshRequest request)
-            throws ParseException, JOSEException {
+    AuthenResponse authenticate(@RequestBody RefreshRequest request) throws ParseException, JOSEException {
         return authenService.refreshToken(request);
     }
 
     @PostMapping("/log-out")
-    void logout(@RequestBody LogoutRequest request)
-            throws ParseException, JOSEException {
+    void logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
         authenService.logout(request);
     }
 }

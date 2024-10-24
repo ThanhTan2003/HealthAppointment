@@ -2,7 +2,6 @@ package com.programmingtechie.identity_service.config;
 
 import java.text.ParseException;
 import java.util.Objects;
-
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,7 @@ import com.programmingtechie.identity_service.service.AuthenService;
 @Component
 public class CustomJwtDecoder implements JwtDecoder {
 
-    private String signerKey="OVnnQLJzC0dbN8uUTI4UaMMT9/GvZdLjDut9PkafIbDnQz+lMjjJCUTeJp2UCNNM";
+    private String signerKey = "OVnnQLJzC0dbN8uUTI4UaMMT9/GvZdLjDut9PkafIbDnQz+lMjjJCUTeJp2UCNNM";
 
     @Autowired
     private AuthenService authenticationService;
@@ -31,20 +30,17 @@ public class CustomJwtDecoder implements JwtDecoder {
     public Jwt decode(String token) throws JwtException {
 
         try {
-            var response = authenticationService.introspect(IntrospectRequest.builder()
-                            .token(token)
-                    .build());
+            var response = authenticationService.introspect(
+                    IntrospectRequest.builder().token(token).build());
 
-            if (!response.isTokenValid())
-                throw new JwtException("Token invalid");
+            if (!response.isTokenValid()) throw new JwtException("Token invalid");
         } catch (JOSEException | ParseException e) {
             throw new JwtException(e.getMessage());
         }
 
         if (Objects.isNull(nimbusJwtDecoder)) {
             SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
-            nimbusJwtDecoder = NimbusJwtDecoder
-                    .withSecretKey(secretKeySpec)
+            nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(secretKeySpec)
                     .macAlgorithm(MacAlgorithm.HS512)
                     .build();
         }

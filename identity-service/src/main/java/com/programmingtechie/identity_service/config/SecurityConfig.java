@@ -18,15 +18,15 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/identity/auth/log-in",
-            "/api/v1/identity/auth/log-out",
-            "/api/v1/identity/permission",
-            "/api/v1/identity/auth/introspect",
-            "/api/v1/identity/identity/role",
-            "/api/v1/identity/auth/refresh",
-            "/api/v1/identity/auth/customer/log-in",
-            "/api/v1/identity/customer/create",
-            "/api/v1/identity/auth/customer/refresh"
+        "/api/v1/identity/auth/log-in",
+        "/api/v1/identity/auth/log-out",
+        "/api/v1/identity/permission",
+        "/api/v1/identity/auth/introspect",
+        "/api/v1/identity/identity/role",
+        "/api/v1/identity/auth/refresh",
+        "/api/v1/identity/auth/customer/log-in",
+        "/api/v1/identity/customer/create",
+        "/api/v1/identity/auth/customer/refresh"
     };
 
     @Autowired
@@ -34,11 +34,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                .anyRequest().authenticated());
+        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_ENDPOINTS)
+                .permitAll()
+                .anyRequest()
+                .authenticated());
 
-        httpSecurity
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)));
+        httpSecurity.oauth2ResourceServer(
+                oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)));
 
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
@@ -61,8 +63,7 @@ public class SecurityConfig {
         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(
-                jwtGrantedAuthoritiesConverter);
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
 
         return jwtAuthenticationConverter;
     }

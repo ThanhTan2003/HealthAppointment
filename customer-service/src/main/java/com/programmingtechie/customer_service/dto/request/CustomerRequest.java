@@ -24,5 +24,4 @@ public class CustomerRequest {
     private String password;
 
     private LocalDateTime lastUpdated;
-
 }

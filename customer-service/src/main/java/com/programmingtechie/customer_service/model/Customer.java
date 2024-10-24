@@ -5,9 +5,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.persistence.*;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-import jakarta.persistence.*;
 import lombok.*;
 
 @AllArgsConstructor
@@ -47,7 +48,7 @@ public class Customer {
     @Column(name = "last_access_time")
     private LocalDateTime lastAccessTime;
 
-    @Column(name = "last_updated",nullable = true)
+    @Column(name = "last_updated", nullable = true)
     private LocalDateTime lastUpdated;
 
     @OneToMany(mappedBy = "customerId")
@@ -69,5 +70,4 @@ public class Customer {
     private void updateTimestamp() {
         this.lastUpdated = LocalDateTime.now();
     }
-
 }

@@ -1,8 +1,8 @@
 package com.programmingtechie.identity_service.dto.request.Customer;
 
-import lombok.*;
-
 import java.util.Date;
+
+import lombok.*;
 
 @Data
 @AllArgsConstructor

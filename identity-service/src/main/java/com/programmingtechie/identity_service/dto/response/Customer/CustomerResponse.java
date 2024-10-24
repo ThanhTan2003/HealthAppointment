@@ -1,9 +1,9 @@
 package com.programmingtechie.identity_service.dto.response.Customer;
 
-import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.Date;
+
+import lombok.*;
 
 @Data
 @AllArgsConstructor

@@ -1,4 +1,3 @@
 package com.programmingtechie.medical_service.config;
 
-public class test {
-}
+public class test {}

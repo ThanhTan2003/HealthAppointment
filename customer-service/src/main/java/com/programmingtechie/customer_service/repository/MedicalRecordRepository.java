@@ -6,6 +6,4 @@ import org.springframework.stereotype.Repository;
 import com.programmingtechie.customer_service.model.MedicalRecord;
 
 @Repository
-public interface MedicalRecordRepository  extends JpaRepository<MedicalRecord,String>{
-    
-}
+public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, String> {}

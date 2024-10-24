@@ -2,6 +2,9 @@ package com.programmingtechie.customer_service.service;
 
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.stereotype.Service;
 
 import com.programmingtechie.customer_service.dto.request.PatientRequest;
@@ -10,7 +13,6 @@ import com.programmingtechie.customer_service.model.Patient;
 import com.programmingtechie.customer_service.repository.CustomerRepository;
 import com.programmingtechie.customer_service.repository.PatientRepository;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,7 +25,8 @@ public class PatientServiceV1 {
     // Thêm hồ sơ khám bệnh cho bệnh nhân
     public void createPatient(PatientRequest patientRequest, String customerId) {
         validPatient(patientRequest);
-        Customer customer = customerRepository.findById(customerId)
+        Customer customer = customerRepository
+                .findById(customerId)
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
         Patient patient = Patient.builder()
                 .id(generatePatientID())
@@ -54,8 +57,8 @@ public class PatientServiceV1 {
         validPatient(patientRequest);
         Optional<Patient> optionalPatient = patientRepository.findById(id);
         boolean isInsuranceIdExists = patientRepository.existsByInsuranceId(patientRequest.getInsuranceId());
-        boolean isIdentificationCodeOrPassportExists = patientRepository
-                .existsByIdentificationCodeOrPassport(patientRequest.getIdentificationCodeOrPassport());
+        boolean isIdentificationCodeOrPassportExists = patientRepository.existsByIdentificationCodeOrPassport(
+                patientRequest.getIdentificationCodeOrPassport());
         if (isInsuranceIdExists) {
             throw new IllegalArgumentException("Mã bảo hiểm y tế không hợp lệ.");
         }
@@ -86,13 +89,12 @@ public class PatientServiceV1 {
         } else {
             throw new IllegalArgumentException("Patient with ID " + id + " not found");
         }
-
     }
 
     public void deletePatient(String id) {
         // Kiểm tra xem bệnh nhân có tồn tại hay không
-        Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
+        Patient patient =
+                patientRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Patient not found"));
 
         // Kiểm tra các ràng buộc khác (nếu có)
         // Ví dụ: Kiểm tra xem bệnh nhân có liên kết với lịch khám nào không
@@ -113,7 +115,8 @@ public class PatientServiceV1 {
         if (patientRequest.getGender() == null || patientRequest.getGender().isEmpty()) {
             throw new IllegalArgumentException("gender cannot be empty");
         }
-        if (patientRequest.getPhoneNumber() == null || patientRequest.getPhoneNumber().isEmpty()) {
+        if (patientRequest.getPhoneNumber() == null
+                || patientRequest.getPhoneNumber().isEmpty()) {
             throw new IllegalArgumentException("phone number cannot be empty");
         }
         if (patientRequest.getProvince() == null || patientRequest.getProvince().isEmpty()) {
@@ -125,7 +128,8 @@ public class PatientServiceV1 {
         if (patientRequest.getWard() == null || patientRequest.getWard().isEmpty()) {
             throw new IllegalArgumentException("ward cannot be empty");
         }
-        if (patientRequest.getInsuranceId() == null || patientRequest.getInsuranceId().isEmpty()) {
+        if (patientRequest.getInsuranceId() == null
+                || patientRequest.getInsuranceId().isEmpty()) {
             throw new IllegalArgumentException("insurance id cannot be empty");
         }
         if (patientRequest.getIdentificationCodeOrPassport() == null
@@ -135,7 +139,8 @@ public class PatientServiceV1 {
         if (patientRequest.getNation() == null || patientRequest.getNation().isEmpty()) {
             throw new IllegalArgumentException("nation cannot be empty");
         }
-        if (patientRequest.getOccupation() == null || patientRequest.getOccupation().isEmpty()) {
+        if (patientRequest.getOccupation() == null
+                || patientRequest.getOccupation().isEmpty()) {
             throw new IllegalArgumentException("occupation cannot be empty");
         }
 

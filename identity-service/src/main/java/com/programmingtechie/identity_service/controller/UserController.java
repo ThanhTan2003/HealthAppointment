@@ -1,5 +1,9 @@
 package com.programmingtechie.identity_service.controller;
 
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -8,10 +12,10 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
 import com.programmingtechie.identity_service.dto.request.UserRequest;
 import com.programmingtechie.identity_service.dto.request.UserUpdateRequest;
-import com.programmingtechie.identity_service.dto.response.ApiResponse;
 import com.programmingtechie.identity_service.dto.response.PageResponse;
 import com.programmingtechie.identity_service.dto.response.UserResponse;
 import com.programmingtechie.identity_service.service.UserService;
@@ -20,11 +24,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.context.request.WebRequest;
-
-import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/identity/user")

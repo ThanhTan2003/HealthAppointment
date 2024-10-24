@@ -1,8 +1,10 @@
 package com.programmingtechie.customer_service.model;
 
-import jakarta.persistence.*;
-import lombok.*;
 import java.time.*;
+
+import jakarta.persistence.*;
+
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,7 +17,7 @@ public class MedicalRecord {
     @Column(nullable = false, length = 30)
     private String id;
 
-    @Column(name="doctor_name",nullable = false, length = 100)
+    @Column(name = "doctor_name", nullable = false, length = 100)
     private String doctorName;
 
     @Column(name = "date_time")

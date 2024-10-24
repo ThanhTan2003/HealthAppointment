@@ -63,12 +63,11 @@ public class CustomerServiceV1 {
         } else {
             throw new IllegalArgumentException("Customer with ID " + id + " not found");
         }
-
     }
 
     public void deleteCustomer(String id) {
-        Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Can not find user"));
+        Customer customer =
+                customerRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Can not find user"));
 
         if (!customer.getPatients().isEmpty() || customer.getPatients() != null) {
             throw new IllegalStateException("Customer has associated patients. Cannot delete.");
@@ -78,42 +77,48 @@ public class CustomerServiceV1 {
 
     // Tìm khách hàng theo id
     public CustomerResponse getById(String id) {
-        Customer customer = customerRepository.findById(id)
+        Customer customer = customerRepository
+                .findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer not found with id: " + id));
         return mapToCustomerResponse(customer);
     }
 
     // Tìm khách hàng theo tên
     public CustomerResponse getCustomerByFullName(String name) {
-        Customer customer = customerRepository.findByFullName(name)
+        Customer customer = customerRepository
+                .findByFullName(name)
                 .orElseThrow(() -> new RuntimeException("Customer not found with name: " + name));
         return mapToCustomerResponse(customer);
     }
 
     // Tìm khách hàng theo email cơ bản
     public CustomerResponse getCustomerByEmail(String email) {
-        Customer customer = customerRepository.findByEmail(email)
+        Customer customer = customerRepository
+                .findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Customer not found with email: " + email));
         return mapToCustomerResponse(customer);
     }
 
     // Tìm khách hàng theo số điện thoại cơ bản
     public CustomerResponse getCustomerByPhone(String phone) {
-        Customer customer = customerRepository.findByPhoneNumber(phone)
+        Customer customer = customerRepository
+                .findByPhoneNumber(phone)
                 .orElseThrow(() -> new RuntimeException("Customer not found with phone number: " + phone));
         return mapToCustomerResponse(customer);
     }
 
     // Tìm khách hàng theo email với thông tin hồ sơ khám bệnh đầy đủ
     public CustomerResponse getCustomerByEmailWithPatientInfo(String email) {
-        Customer customer = customerRepository.findByEmail(email)
+        Customer customer = customerRepository
+                .findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Customer not found with email: " + email));
         return mapToCustomerResponseWithPatientInfo(customer);
     }
 
     // Tìm khách hàng theo số điện thoại với thông tin hồ sơ khám bệnh đầy đủ
     public CustomerResponse getCustomerByPhoneWithPatientInfo(String phone) {
-        Customer customer = customerRepository.findByPhoneNumber(phone)
+        Customer customer = customerRepository
+                .findByPhoneNumber(phone)
                 .orElseThrow(() -> new RuntimeException("Customer not found with phone: " + phone));
         return mapToCustomerResponseWithPatientInfo(customer);
     }
@@ -134,7 +139,8 @@ public class CustomerServiceV1 {
     }
 
     void validCustomer(CustomerRequest customerRequest) {
-        if (customerRequest.getFullName() == null || customerRequest.getFullName().isEmpty()) {
+        if (customerRequest.getFullName() == null
+                || customerRequest.getFullName().isEmpty()) {
             throw new IllegalArgumentException("Full name cannot be empty");
         }
         if (customerRequest.getEmail() == null || customerRequest.getEmail().isEmpty()) {
@@ -143,7 +149,8 @@ public class CustomerServiceV1 {
         if (customerRequest.getGender() == null || customerRequest.getGender().isEmpty()) {
             throw new IllegalArgumentException("Your gender cannot be empty");
         }
-        if (customerRequest.getPhoneNumber() == null || customerRequest.getPhoneNumber().isEmpty()) {
+        if (customerRequest.getPhoneNumber() == null
+                || customerRequest.getPhoneNumber().isEmpty()) {
             throw new IllegalArgumentException("Your phone number cannot be empty");
         }
 
@@ -178,9 +185,8 @@ public class CustomerServiceV1 {
         Page<Customer> pageData = customerRepository.findAll(pageable);
 
         // Mapping dữ liệu từ entity Customer sang DTO CustomerResponse
-        List<CustomerResponse> customerResponses = pageData.getContent().stream()
-                .map(this::mapToCustomerResponse)
-                .toList();
+        List<CustomerResponse> customerResponses =
+                pageData.getContent().stream().map(this::mapToCustomerResponse).toList();
 
         // Trả về đối tượng PageResponse với các thông tin cần thiết
         return PageResponse.<CustomerResponse>builder()
