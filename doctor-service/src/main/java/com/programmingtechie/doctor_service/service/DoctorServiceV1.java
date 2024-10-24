@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.*;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -69,9 +68,10 @@ public class DoctorServiceV1 {
         return doctor.getDoctorQualifications().stream()
                 .map(doctorQualification ->
                         doctorQualification.getQualification().getAbbreviation())
-                //                .sorted()
+                // .sorted()
                 // Optional: nếu cần sắp xếp theo thứ tự, bạn có thể tùy chỉnh.
-                .collect(Collectors.joining(". ")) // Thay dấu chấm thành ". " để không có dấu chấm cuối cùng
+                .collect(Collectors.joining(". ")) // Thay dấu chấm thành ". " để không có dấu chấm cuối
+                // cùng
                 .trim(); // Loại bỏ khoảng trắng thừa nếu có
     }
 

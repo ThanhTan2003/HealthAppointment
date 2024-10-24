@@ -12,20 +12,19 @@ import com.nimbusds.jwt.SignedJWT;
 @Component
 public class CustomJwtDecoder implements JwtDecoder {
     @Override
-    public Jwt decode(String token) throws JwtException { // Phuong thuc decode de giai ma token JWT
+    public Jwt decode(String token) throws JwtException {
         try {
-            SignedJWT signedJWT = SignedJWT.parse(token); // Parse token de lay SignedJWT
+            SignedJWT signedJWT = SignedJWT.parse(token);
 
             return new Jwt(
-                    token, // Tao doi tuong Jwt
-                    signedJWT.getJWTClaimsSet().getIssueTime().toInstant(), // Lay thoi gian phat hanh token
-                    signedJWT.getJWTClaimsSet().getExpirationTime().toInstant(), // Lay thoi gian het han token
-                    signedJWT.getHeader().toJSONObject(), // Lay header cua token
-                    signedJWT.getJWTClaimsSet().getClaims() // Lay claims cua token
-                    );
+                    token,
+                    signedJWT.getJWTClaimsSet().getIssueTime().toInstant(),
+                    signedJWT.getJWTClaimsSet().getExpirationTime().toInstant(),
+                    signedJWT.getHeader().toJSONObject(),
+                    signedJWT.getJWTClaimsSet().getClaims());
 
-        } catch (ParseException e) { // Xu ly truong hop parse token that bai
-            throw new JwtException("Invalid token"); // Nen exception neu token khong hop le
+        } catch (ParseException e) {
+            throw new JwtException("Invalid token");
         }
     }
 }
