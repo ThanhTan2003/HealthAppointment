@@ -40,12 +40,15 @@ public class CustomerServiceV1 {
                 throw new IllegalArgumentException("Số điện thoại đã có tài khoản!");
             }
         }
-        validCustomer(customerRequest);
+        // validCustomer(customerRequest);
         Optional<Role> role = roleRepository.findById("NguoiDung");
         if (role.isEmpty()) {
             throw new IllegalArgumentException("Vai trò người dùng không tồn tại!");
         }
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+
+       
+
         Customer customer = Customer.builder()
                 .fullName(customerRequest.getFullName())
                 .dateOfBirth(customerRequest.getDateOfBirth())

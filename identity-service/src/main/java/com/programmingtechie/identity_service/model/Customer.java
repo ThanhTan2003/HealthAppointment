@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.*;
 
 import lombok.*;
@@ -25,6 +27,7 @@ public class Customer {
     private String fullName;
 
     @Column(name = "date_of_birth")
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private Date dateOfBirth;
 
     @Column(name = "gender", length = 4)

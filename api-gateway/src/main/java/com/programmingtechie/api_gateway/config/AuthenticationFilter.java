@@ -54,7 +54,8 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         log.info("Enter authentication filter....");
 
-        if (isPublicEndpoint(exchange.getRequest())) return chain.filter(exchange);
+        if (isPublicEndpoint(exchange.getRequest()))
+            return chain.filter(exchange);
 
         // Get token from authorization header
         List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
@@ -89,11 +90,8 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         return -1;
     }
 
-    Mono<Void> unauthenticated(ServerHttpResponse response){
-        ApiResponse<?> apiResponse = ApiResponse.builder()
-                .code(1401)
-                .message("Unauthenticated")
-                .build();
+    Mono<Void> unauthenticated(ServerHttpResponse response) {
+        ApiResponse<?> apiResponse = ApiResponse.builder().code(1401).message("Unauthenticated").build();
 
         String body = null;
         try {
@@ -106,7 +104,6 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
         log.info("Da xac nhan...");
-        return response.writeWith(
-                Mono.just(response.bufferFactory().wrap(body.getBytes())));
+        return response.writeWith(Mono.just(response.bufferFactory().wrap(body.getBytes())));
     }
 }
