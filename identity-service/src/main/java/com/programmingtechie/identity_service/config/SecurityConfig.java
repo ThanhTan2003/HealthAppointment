@@ -24,6 +24,7 @@ public class SecurityConfig {
         "/api/v1/identity/auth/introspect",
         "/api/v1/identity/identity/role",
         "/api/v1/identity/auth/refresh",
+        "/api/v1/identity/auth/log-in",
 
         // For customer
         "/api/v1/identity/auth/customer/log-in",

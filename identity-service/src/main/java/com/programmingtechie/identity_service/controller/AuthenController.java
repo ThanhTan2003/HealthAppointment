@@ -24,8 +24,13 @@ import lombok.RequiredArgsConstructor;
 public class AuthenController {
     final AuthenService authenService;
 
+    @PostMapping("/log-in")
+    public AuthenResponse authenticateUser(@RequestBody AuthenRequest request) {
+        return authenService.authenticate(request);
+    }
+
     @PostMapping("/customer/log-in")
-    public AuthenResponse authenticate(@RequestBody AuthenRequest authenRequest) {
+    public AuthenResponse authenticateCustomer(@RequestBody AuthenRequest authenRequest) {
         return authenService.authenticatedCustomer(authenRequest);
     }
 

@@ -32,6 +32,7 @@ import com.programmingtechie.identity_service.exception.AppException;
 import com.programmingtechie.identity_service.exception.ErrorCode;
 import com.programmingtechie.identity_service.model.Customer;
 import com.programmingtechie.identity_service.model.InvalidatedToken;
+import com.programmingtechie.identity_service.model.User;
 import com.programmingtechie.identity_service.repository.CustomerRepository;
 import com.programmingtechie.identity_service.repository.InvalidatedTokenRepository;
 import com.programmingtechie.identity_service.repository.UserRepository;
@@ -80,6 +81,49 @@ public class AuthenService {
         return IntrospectResponse.builder().isTokenValid(isValid).build();
     }
 
+    private String generateToken(User user) {
+        // Tao phan header cho JWT voi thuat toan ky HS512
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+
+        // Tao cac claims cho JWT, bao gom thong tin nhu ten nguoi dung, thoi gian phat hanh, thoi gian het han
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(user.getUserName()) // Ten nguoi dung
+                .issuer("Health Appointment") // Nguoi phat hanh token
+                .issueTime(new Date()) // Thoi gian phat hanh token
+                .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli())) // Thoi gian het han
+                .jwtID(UUID.randomUUID().toString()) // ID cua JWT
+                .claim("name", user.getAccountName()) // Them thong tin ve ten nguoi dung
+                .claim("scope", buildScope(user)) // Them thong tin ve quyen han cua nguoi dung
+                .build();
+
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject()); // Chuyen doi claims thanh doi tuong Payload
+
+        JWSObject jwsObject = new JWSObject(header, payload); // Tao JWT tu header va payload
+
+        try {
+            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes())); // Ky token bang SIGNER_KEY
+            return jwsObject.serialize(); // Tra ve chuoi JWT
+        } catch (JOSEException e) {
+            log.error("Không thể tạo token!", e); // Ghi log neu xay ra loi
+            throw new RuntimeException(e);
+        }
+    }
+
+    public AuthenResponse authenticate(AuthenRequest request) {
+        var user = userRepository
+                .findByUserName(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("Tai khoan khong ton tai!"));
+
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10); // Ma hoa mat khau
+        boolean result = passwordEncoder.matches(request.getPassword(), user.getPassword());
+
+        if (!result) {
+            throw new IllegalArgumentException("Thông tin đăng nhập không hợp lệ!");
+        }
+
+        return AuthenResponse.builder().token(generateToken(user)).build();
+    }
+
     private String generateToken(Customer customer) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
@@ -91,7 +135,7 @@ public class AuthenService {
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
                 .claim("email", customer.getEmail())
-                .claim("scope", buildScope(customer))
+                .claim("scope", customer.getFullName())
                 .claim("phone", customer.getPhoneNumber())
                 .claim("scope", "NguoiDung")
                 .build();
@@ -169,12 +213,12 @@ public class AuthenService {
         return AuthenResponse.builder().token(token).build();
     }
 
-    private String buildScope(Customer customer) {
+    private String buildScope(User user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
-        if (customer.getRole() != null
-                && !StringUtils.hasLength(customer.getRole().getId())) {
-            stringJoiner.add(customer.getRole().getId());
+        if (user.getRole() != null && !StringUtils.isEmpty(user.getRole().getId())) {
+            stringJoiner.add(user.getRole().getId());
         }
+
         return stringJoiner.toString();
     }
 }
