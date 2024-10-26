@@ -7,5 +7,5 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class IntrospectResponse {
-    boolean isTokenValid;
+    boolean valid;
 }

@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.StringJoiner;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -50,8 +51,8 @@ public class AuthenService {
     final CustomerRepository customerRepository;
 
     @NonFinal
-    protected String SIGNER_KEY =
-            "BpbYzjZCyoHbx8E8AvSPDFxsE0739IlW4YKWheQPHSnIDtl/3jZNcLiKonRqda2DQ1rr72U0EUZ0TksWFBLBzwaS";
+    @Value("${jwt.signerKey}")
+    protected String SIGNER_KEY;
 
     public AuthenResponse authenticatedCustomer(AuthenRequest authenRequest) {
         var customer = customerRepository
@@ -64,7 +65,7 @@ public class AuthenService {
         if (!isValid) {
             throw new IllegalArgumentException("Invalid login");
         }
-        var token = generateToken(customer);
+        var token = generateTokenCustomer(customer);
 
         return AuthenResponse.builder().token(token).build();
     }
@@ -78,14 +79,15 @@ public class AuthenService {
         } catch (AppException e) {
             isValid = false;
         }
-        return IntrospectResponse.builder().isTokenValid(isValid).build();
+        return IntrospectResponse.builder().valid(isValid).build();
     }
 
     private String generateToken(User user) {
         // Tao phan header cho JWT voi thuat toan ky HS512
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
-        // Tao cac claims cho JWT, bao gom thong tin nhu ten nguoi dung, thoi gian phat hanh, thoi gian het han
+        // Tao cac claims cho JWT, bao gom thong tin nhu ten nguoi dung, thoi gian phat
+        // hanh, thoi gian het han
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUserName()) // Ten nguoi dung
                 .issuer("Health Appointment") // Nguoi phat hanh token
@@ -124,19 +126,18 @@ public class AuthenService {
         return AuthenResponse.builder().token(generateToken(user)).build();
     }
 
-    private String generateToken(Customer customer) {
+    private String generateTokenCustomer(Customer customer) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .jwtID(UUID.randomUUID().toString()) // cần thêm id của token để thực hiện kiểm tra ngoại lệ của những
-                // token đã hết hạn
                 .subject(customer.getEmail())
-                .issuer("healthapp.com")
+                .issuer("health.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
+                .jwtID(UUID.randomUUID().toString())
+                .claim("name", customer.getFullName())
+                .claim("phone_number", customer.getPhoneNumber())
                 .claim("email", customer.getEmail())
-                .claim("scope", customer.getFullName())
-                .claim("phone", customer.getPhoneNumber())
                 .claim("scope", "NguoiDung")
                 .build();
 
@@ -208,7 +209,7 @@ public class AuthenService {
         var customer =
                 customerRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
 
-        var token = generateToken(customer);
+        var token = generateTokenCustomer(customer);
 
         return AuthenResponse.builder().token(token).build();
     }
