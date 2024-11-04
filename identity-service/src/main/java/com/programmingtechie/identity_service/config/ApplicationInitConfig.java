@@ -50,7 +50,7 @@ public class ApplicationInitConfig {
             if (userRepository.findByUserName("admin").isEmpty()) {
 
                 // Tìm kiếm role với id là "QuanTriVien"
-                Optional<Role> role = roleRepository.findById("QuanTriVien");
+                Optional<Role> role = roleRepository.findById("QuanTriVienHeThong");
 
                 if (role.isPresent()) {
                     // Tạo user mới với role
@@ -67,7 +67,7 @@ public class ApplicationInitConfig {
                     log.warn("Admin user has been created with default password: admin, please change it");
                 } else {
                     // Xử lý trường hợp không tìm thấy role
-                    log.error("Role QuanTriVien not found, unable to create admin user");
+                    log.error("Role QuanTriVienHeThong not found, unable to create admin user");
                 }
             }
         };

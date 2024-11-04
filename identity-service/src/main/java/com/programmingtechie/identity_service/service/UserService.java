@@ -2,7 +2,10 @@ package com.programmingtechie.identity_service.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.programmingtechie.identity_service.mapper.UserMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -33,6 +36,9 @@ public class UserService {
 
     final UserRepository userRepository;
     final RoleRepository roleRepository;
+
+    final UserMapper userMapper;
+
     final WebClient.Builder webClientBuilder;
 
     private UserResponse userMapToUserResponse(User user) {
@@ -146,5 +152,22 @@ public class UserService {
         }
 
         userRepository.save(user);
+    }
+
+    public PageResponse<UserResponse> searchUsers(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<User> pageData = userRepository.searchServices(keyword, pageable);
+
+        List<UserResponse> userResponses = pageData.getContent().stream()
+                .map(userMapper::toUserResponse)
+                .collect(Collectors.toList());
+
+        return PageResponse.<UserResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(userResponses)
+                .build();
     }
 }

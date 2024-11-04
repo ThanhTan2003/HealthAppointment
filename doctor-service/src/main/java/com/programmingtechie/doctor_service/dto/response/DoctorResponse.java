@@ -21,6 +21,7 @@ public class DoctorResponse {
     private String email;
     private String description;
     private String status;
+    private String image;
     private LocalDateTime lastUpdated;
 
     // Danh sách các chuyên khoa mà bác sĩ thuộc về

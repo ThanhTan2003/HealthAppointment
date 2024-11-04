@@ -16,7 +16,10 @@ public class ServiceTypeController {
     private final ServiceTypeService serviceTypeService;
 
     @GetMapping("/get-all")
-    @PreAuthorize("hasRole('QuanTriVien') or hasRole('NguoiDung')")
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc') or " +
+            "hasRole('NguoiDung')")
     public ResponseEntity<PageResponse<ServiceTypeResponse>> getAllServiceTypes(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
@@ -24,19 +27,26 @@ public class ServiceTypeController {
     }
 
     @GetMapping("/id/{id}")
-    @PreAuthorize("hasRole('QuanTriVien') or hasRole('NguoiDung')")
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc') or " +
+            "hasRole('NguoiDung')")
     public ResponseEntity<ServiceTypeResponse> getServiceTypeById(@PathVariable String id) {
         return ResponseEntity.ok(serviceTypeService.getServiceTypeById(id));
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc')")
     public ResponseEntity<ServiceTypeResponse> createServiceType(@RequestBody ServiceTypeRequest serviceTypeRequest) {
         return ResponseEntity.ok(serviceTypeService.createServiceType(serviceTypeRequest));
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc')")
     public ResponseEntity<ServiceTypeResponse> updateServiceType(
             @PathVariable String id,
             @RequestBody ServiceTypeRequest serviceTypeRequest) {
@@ -44,14 +54,19 @@ public class ServiceTypeController {
     }
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc')")
     public ResponseEntity<Void> deleteServiceType(@PathVariable String id) {
         serviceTypeService.deleteServiceType(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/search")
-    @PreAuthorize("hasRole('QuanTriVien') or hasRole('NguoiDung')")
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc') or " +
+            "hasRole('NguoiDung')")
     public ResponseEntity<PageResponse<ServiceTypeResponse>> searchServiceTypes(
             @RequestParam("keyword") String keyword,
             @RequestParam(value = "page", defaultValue = "1") int page,

@@ -3,6 +3,7 @@ package com.programmingtechie.medical_service.service;
 import com.programmingtechie.medical_service.dto.request.ServiceRequest;
 import com.programmingtechie.medical_service.dto.response.PageResponse;
 import com.programmingtechie.medical_service.dto.response.ServiceResponse;
+import com.programmingtechie.medical_service.mapper.ServiceMapper;
 import com.programmingtechie.medical_service.model.ServiceType;
 import com.programmingtechie.medical_service.repository.ServiceRepository;
 import com.programmingtechie.medical_service.repository.ServiceTypeRepository;
@@ -20,13 +21,14 @@ import java.util.stream.Collectors;
 public class ServiceService {
     private final ServiceRepository serviceRepository;
     private final ServiceTypeRepository serviceTypeRepository;
+    private final ServiceMapper serviceMapper;
 
     public PageResponse<ServiceResponse> getAllServices(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<com.programmingtechie.medical_service.model.Service> pageData = serviceRepository.getAllService(pageable);
 
         List<ServiceResponse> serviceResponses = pageData.getContent().stream()
-                .map(this::mapToServiceResponse)
+                .map(serviceMapper::toServiceResponse)
                 .collect(Collectors.toList());
 
         return PageResponse.<ServiceResponse>builder()
@@ -41,7 +43,7 @@ public class ServiceService {
     public ServiceResponse getServiceById(String id) {
         com.programmingtechie.medical_service.model.Service service = serviceRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Service not found with id: " + id));
-        return mapToServiceResponse(service);
+        return serviceMapper.toServiceResponse(service);
     }
 
     public ServiceResponse createService(ServiceRequest serviceRequest) {
@@ -57,7 +59,7 @@ public class ServiceService {
                 .build();
 
         service = serviceRepository.save(service);
-        return mapToServiceResponse(service);
+        return serviceMapper.toServiceResponse(service);
     }
 
     public ServiceResponse updateService(String id, ServiceRequest serviceRequest) {
@@ -74,7 +76,7 @@ public class ServiceService {
         service.setServiceType(serviceType);
 
         service = serviceRepository.save(service);
-        return mapToServiceResponse(service);
+        return serviceMapper.toServiceResponse(service);
     }
 
     public void deleteService(String id) {
@@ -88,7 +90,7 @@ public class ServiceService {
         Page<com.programmingtechie.medical_service.model.Service> pageData = serviceRepository.searchServices(keyword, pageable);
 
         List<ServiceResponse> serviceResponses = pageData.getContent().stream()
-                .map(this::mapToServiceResponse)
+                .map(serviceMapper::toServiceResponse)
                 .collect(Collectors.toList());
 
         return PageResponse.<ServiceResponse>builder()
@@ -100,23 +102,12 @@ public class ServiceService {
                 .build();
     }
 
-    private ServiceResponse mapToServiceResponse(com.programmingtechie.medical_service.model.Service service) {
-        return ServiceResponse.builder()
-                .id(service.getId())
-                .name(service.getName())
-                .unitPrice(service.getUnitPrice())
-                .description(service.getDescription())
-                .status(service.getStatus())
-                .serviceTypeId(service.getServiceType().getId())
-                .build();
-    }
-
     public PageResponse<ServiceResponse> getServicesByServiceTypeId(String serviceTypeId, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<com.programmingtechie.medical_service.model.Service> pageData = serviceRepository.findByServiceTypeId(serviceTypeId, pageable);
 
         List<ServiceResponse> serviceResponses = pageData.getContent().stream()
-                .map(this::mapToServiceResponse)
+                .map(serviceMapper::toServiceResponse)
                 .collect(Collectors.toList());
 
         return PageResponse.<ServiceResponse>builder()
@@ -133,7 +124,7 @@ public class ServiceService {
         Page<com.programmingtechie.medical_service.model.Service> pageData = serviceRepository.findBySpecialtyId(specialtyId, pageable);
 
         List<ServiceResponse> serviceResponses = pageData.getContent().stream()
-                .map(this::mapToServiceResponse)
+                .map(serviceMapper::toServiceResponse)
                 .collect(Collectors.toList());
 
         return PageResponse.<ServiceResponse>builder()
@@ -145,3 +136,16 @@ public class ServiceService {
                 .build();
     }
 }
+
+//private ServiceResponse mapToServiceResponse(com.programmingtechie.medical_service.model.Service service) {
+//    return ServiceResponse.builder()
+//            .id(service.getId())
+//            .name(service.getName())
+//            .unitPrice(service.getUnitPrice())
+//            .description(service.getDescription())
+//            .status(service.getStatus())
+//            .specialtyId((service.getSpecialtyId()))
+//            .serviceTypeId(service.getServiceType().getId())
+//            .serviceType(service.getServiceType())
+//            .build();
+//}

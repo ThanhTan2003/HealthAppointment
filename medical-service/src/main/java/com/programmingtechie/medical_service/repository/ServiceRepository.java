@@ -14,6 +14,7 @@ public interface ServiceRepository extends JpaRepository<Service, String> {
 
     // Tìm kiếm dịch vụ theo từ khoá với phân trang
     @Query(value = "SELECT * FROM service s WHERE " +
+            "unaccent(LOWER(s.id)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) OR " +
             "unaccent(LOWER(s.name)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) OR " +
             "unaccent(LOWER(s.status)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%')))",
             nativeQuery = true)

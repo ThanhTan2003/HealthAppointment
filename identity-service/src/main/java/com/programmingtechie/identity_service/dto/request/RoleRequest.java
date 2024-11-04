@@ -12,6 +12,4 @@ public class RoleRequest {
     String id;
 
     String name;
-
-    String description;
 }

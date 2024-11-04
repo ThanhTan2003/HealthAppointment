@@ -20,7 +20,7 @@ public class DoctorControllerV1 {
 
     // Lấy danh sách bác sĩ với phân trang
     @GetMapping("/get-all")
-    @PreAuthorize("hasRole('QuanTriVien') or hasRole('NguoiDung')")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc') or hasRole('NguoiDung')")
     public PageResponse<DoctorResponse> getAll(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
@@ -29,35 +29,35 @@ public class DoctorControllerV1 {
 
     // Lấy bác sĩ theo id qua GET
     @GetMapping("/id/{id}")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public DoctorResponse getById(@PathVariable String id) {
         return doctorServiceV1.getById(id);
     }
 
     // Lấy bác sĩ theo id qua POST
     @PostMapping("/id")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public DoctorResponse getByIdPost(@RequestBody String id) {
         return doctorServiceV1.getById(id);
     }
 
     // Lấy bác sĩ theo số điện thoại qua GET
     @GetMapping("/phone/{phoneNumber}")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public DoctorResponse getByPhoneNumber(@PathVariable String phoneNumber) {
         return doctorServiceV1.getByPhoneNumber(phoneNumber);
     }
 
     // Lấy bác sĩ theo số điện thoại qua POST
     @PostMapping("/phone")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public DoctorResponse getByPhoneNumberPost(@RequestBody String phoneNumber) {
         return doctorServiceV1.getByPhoneNumber(phoneNumber);
     }
 
     // Lấy danh sách bác sĩ theo Specialty với phân trang
     @GetMapping("/specialty/{specialtyId}")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public PageResponse<DoctorResponse> getDoctorsBySpecialty(
             @PathVariable String specialtyId,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
@@ -67,7 +67,7 @@ public class DoctorControllerV1 {
 
     // Lấy danh sách bác sĩ theo Qualification với phân trang
     @GetMapping("/qualification/{qualificationAbbreviation}")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public PageResponse<DoctorResponse> getDoctorsByQualification(
             @PathVariable String qualificationAbbreviation,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
@@ -77,7 +77,7 @@ public class DoctorControllerV1 {
 
     // API tìm kiếm bác sĩ theo từ khóa và phân trang
     @GetMapping("/search1")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<DoctorResponse>> searchDoctors1(
             @RequestParam("keyword") String keyword,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
@@ -87,7 +87,7 @@ public class DoctorControllerV1 {
 
     // API tìm kiếm bác sĩ theo từ khóa và phân trang sử dụng extension unaccent
     @GetMapping("/search")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<DoctorResponse>> searchDoctors(
             @RequestParam("keyword") String keyword,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,

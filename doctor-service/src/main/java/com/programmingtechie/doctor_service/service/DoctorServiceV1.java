@@ -86,6 +86,7 @@ public class DoctorServiceV1 {
                 .email(doctor.getEmail())
                 .description(doctor.getDescription())
                 .status(doctor.getStatus())
+                .image(doctor.getImage())
                 .lastUpdated(doctor.getLastUpdated())
                 .specialties(doctor.getSpecialties().stream()
                         .map(this::mapToSpecialtyResponse)

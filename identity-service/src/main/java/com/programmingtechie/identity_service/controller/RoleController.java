@@ -1,7 +1,10 @@
 package com.programmingtechie.identity_service.controller;
 
+import com.programmingtechie.identity_service.dto.response.RoleResponse;
+import com.programmingtechie.identity_service.model.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.programmingtechie.identity_service.service.RoleService;
@@ -14,6 +17,7 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -38,4 +42,23 @@ public class RoleController {
         // Trả về response với mã 500
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    // API lấy tất cả danh sách
+    @GetMapping("/get-all")
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc')")
+    public List<RoleResponse> getAllRoles() {
+        return roleService.getAllRoles();
+    }
+
+    // API lấy tất cả danh sách nhưng trừ id là "NguoiDung"
+    @GetMapping("/get-all-except-nguoi-dung")
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc')")
+    public List<RoleResponse> getAllRolesExceptNguoiDung() {
+        return roleService.getAllRolesExceptNguoiDung();
+    }
+
 }

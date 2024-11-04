@@ -44,7 +44,9 @@ public class CustomerController {
 
     @GetMapping("/get-all")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasRole('QuanTriVien')") // Chp phep nguoi QuanTriVien moi co the su dung
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc')") // Chp phep nguoi QuanTriVien moi co the su dung
     public PageResponse<CustomerResponse> getCustomers(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
@@ -58,39 +60,55 @@ public class CustomerController {
     }
 
     @PutMapping("/update/{id}")
-    @PostAuthorize("hasRole('QuanTriVien') or returnObject.email == authentication.principal.claims['email']")
+    @PostAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc') or " +
+            "returnObject.email == authentication.principal.claims['email']")
     public CustomerResponse updateCustomer(
             @PathVariable("id") String customerId, @RequestBody CustomerRequest request) {
         return customerService.updateCustomer(customerId, request);
     }
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc')")
     public void deleteCustomer(@PathVariable("id") String customerId) {
         customerService.deleteCustomer(customerId);
     }
 
     @GetMapping("/email")
-    @PostAuthorize("hasRole('QuanTriVien') or returnObject.email == authentication.principal.claims['email']")
+    @PostAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc') or " +
+            "returnObject.email == authentication.principal.claims['email']")
     public CustomerResponse findCustomerByEmail(@RequestParam("email") String email) {
         return customerService.findCustomerByEmail(email);
     }
 
     @GetMapping("/phone-number")
-    @PostAuthorize("hasRole('QuanTriVien') or returnObject.result.email == authentication.email")
+    @PostAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc') or " +
+            "returnObject.result.email == authentication.email")
     public CustomerResponse findCustomerByPhoneNumber(@RequestParam("phone") String phoneNumber) {
         return customerService.findCustomerByPhoneNumber(phoneNumber);
     }
 
     @GetMapping("/status")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc')")
     public List<CustomerResponse> findCustomersByStatus(@RequestParam("status") String status) {
         return customerService.findCustomersByStatus(status);
     }
 
     // Lay thong tin dang nhap
     @GetMapping("/get-info")
-    @PostAuthorize("hasRole('QuanTriVien') or returnObject.email == authentication.principal.claims['email']")
+    @PostAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc') or " +
+            "returnObject.email == authentication.principal.claims['email']")
     @ResponseStatus(HttpStatus.OK)
     public CustomerResponse getInfo() {
         return customerService.getMyInfo();

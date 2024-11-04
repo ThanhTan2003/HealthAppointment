@@ -52,7 +52,9 @@ public class UserController {
 
     // Tao user moi
     @PostMapping("/create")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc')")
     @ResponseStatus(HttpStatus.CREATED)
     void createUser(@RequestBody @Valid UserCreationRequest request) {
         userService.createUser(request);
@@ -61,7 +63,9 @@ public class UserController {
     // Lay danh sach user
     @GetMapping("/get-all")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasRole('QuanTriVien')") // Chp phep nguoi QuanTriVien moi co the su dung
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc')")
     public PageResponse<UserResponse> getUsers(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
@@ -77,7 +81,10 @@ public class UserController {
     @GetMapping("user-name/{userName}")
     // @PostAuthorize("hasRole('QuanTriVien') or returnObject.userName == authentication.name") // Cho phep QTV va nguoi
     // dung có cung user co the su dung
-    @PostAuthorize("hasRole('QuanTriVien') or returnObject.result.userName == authentication.name")
+    @PostAuthorize("" +
+            "hasRole('GiamDoc') or " +
+            "hasRole('QuanTriVienHeThong') or " +
+            "returnObject.result.userName == authentication.name")
     @ResponseStatus(HttpStatus.OK)
     public UserResponse getUser(@PathVariable("userName") String userName) {
         return userService.getUserByUserId(userName);
@@ -85,7 +92,9 @@ public class UserController {
 
     // Cap nhat thong tin user
     @PutMapping("update/{userName}")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc')")
     @ResponseStatus(HttpStatus.OK)
     public void updateUser(@Valid @PathVariable String userName, @RequestBody UserUpdateRequest request) {
         userService.updateUser(request);
@@ -101,7 +110,9 @@ public class UserController {
 
     // Xoa thong tin user
     @DeleteMapping("delete/{userName}")
-    @PostAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc')")
     @ResponseStatus(HttpStatus.OK)
     public void deleteUser(@PathVariable String userName) {
         userService.deleteUser(userName);
@@ -113,5 +124,16 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public UserResponse getInfo() {
         return userService.getMyInfo();
+    }
+
+    @GetMapping("/search")
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc')")
+    public ResponseEntity<PageResponse<UserResponse>> searchServices(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        return ResponseEntity.ok(userService.searchUsers(keyword, page, size));
     }
 }
