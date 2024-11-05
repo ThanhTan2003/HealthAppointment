@@ -26,4 +26,6 @@ public class ServiceResponse {
     private String serviceTypeId;
 
     private ServiceTypeResponse serviceType;
+
+    private SpecialtyResponse specialtyResponse;
 }

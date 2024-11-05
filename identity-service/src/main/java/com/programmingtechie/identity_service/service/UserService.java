@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.identity_service.dto.response.Doctor.DoctorResponse;
 import com.programmingtechie.identity_service.mapper.UserMapper;
+import com.programmingtechie.identity_service.repository.httpClient.DoctorClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +43,8 @@ public class UserService {
 
     final WebClient.Builder webClientBuilder;
 
+    final DoctorClient doctorClient;
+
     private UserResponse userMapToUserResponse(User user) {
         return UserResponse.builder()
                 .userName(user.getUserName())
@@ -55,6 +59,22 @@ public class UserService {
     }
 
     public void createUser(UserCreationRequest request) {
+
+        if (request.getUserName() == null || request.getUserName().isEmpty()) {
+            throw new IllegalArgumentException("Tên người dùng không được để trống!");
+        }
+
+        if (request.getPassword() == null || request.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("Mật khẩu không được để trống!");
+        }
+
+        if (request.getAccountName() == null || request.getAccountName().isEmpty()) {
+            throw new IllegalArgumentException("Tên tài khoản không được để trống!");
+        }
+
+        if (request.getRoleId() == null || request.getRoleId().isEmpty()) {
+            throw new IllegalArgumentException("Vui lòng chọn loại tài khoản!");
+        }
 
         if (userRepository.existsByUserName(request.getUserName()))
             throw new IllegalArgumentException("Tài khoản đã tồn tại!");
@@ -98,6 +118,13 @@ public class UserService {
         User user = userRepository
                 .findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tồn tại tài khoản " + userId + "!"));
+        UserResponse userResponse = userMapToUserResponse(user);
+
+//        if(!user.getDoctorId().isEmpty())
+//        {
+//            DoctorResponse doctorResponse = doctorClient.getDoctorById(user.getDoctorId());
+//            userResponse.setDoctorResponse(doctorResponse);
+//        }
         return userMapToUserResponse(user);
     }
 

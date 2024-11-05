@@ -2,6 +2,7 @@ package com.programmingtechie.identity_service.dto.response;
 
 import java.time.LocalDateTime;
 
+import com.programmingtechie.identity_service.dto.response.Doctor.DoctorResponse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -26,4 +27,6 @@ public class UserResponse {
     LocalDateTime lastAccessTime;
 
     String doctorId;
+
+    DoctorResponse doctorResponse;
 }

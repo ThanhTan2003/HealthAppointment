@@ -49,9 +49,11 @@ public class DoctorServiceV1 {
 
     // Lấy bác sĩ theo ID
     public DoctorResponse getById(String id) {
+        if((id == null) || (id.isEmpty()))
+            throw new IllegalArgumentException("Vui lòng cung cấp mã bác sĩ!");
         Doctor doctor = doctorRepository
                 .findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bác sĩ có id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bác sĩ có mã " + id +"!"));
         return mapToDoctorResponse(doctor);
     }
 
