@@ -4,9 +4,11 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,11 +25,12 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.programmingtechie.identity_service.dto.request.AuthenRequest;
+import com.programmingtechie.identity_service.dto.request.AuthenticationRequest;
+import com.programmingtechie.identity_service.dto.request.Customer.CustomerAuthenticationRequest;
 import com.programmingtechie.identity_service.dto.request.IntrospectRequest;
 import com.programmingtechie.identity_service.dto.request.LogoutRequest;
 import com.programmingtechie.identity_service.dto.request.RefreshRequest;
-import com.programmingtechie.identity_service.dto.response.AuthenResponse;
+import com.programmingtechie.identity_service.dto.response.AuthenticationResponse;
 import com.programmingtechie.identity_service.dto.response.IntrospectResponse;
 import com.programmingtechie.identity_service.exception.AppException;
 import com.programmingtechie.identity_service.exception.ErrorCode;
@@ -45,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AuthenService {
+public class AuthenticationService {
     final UserRepository userRepository;
     final InvalidatedTokenRepository invalidatedTokenRepository;
     final CustomerRepository customerRepository;
@@ -54,20 +57,66 @@ public class AuthenService {
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
 
-    public AuthenResponse authenticatedCustomer(AuthenRequest authenRequest) {
-        var customer = customerRepository
-                .findByEmail(authenRequest.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("Tài khoản không tồn tại!"));
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-        boolean isValid = passwordEncoder.matches(authenRequest.getPassword(), customer.getPassword());
+    public AuthenticationResponse authenticatedCustomer(CustomerAuthenticationRequest authenRequest) {
+        Optional<Customer> customer = customerRepository.findByEmail(authenRequest.getUserName());
 
-        if (!isValid) {
-            throw new IllegalArgumentException("Invalid login");
+        // Nếu không tìm thấy theo email, thì tìm theo số điện thoại
+        if (customer.isEmpty()) {
+            customer = customerRepository.findByPhoneNumber(authenRequest.getUserName());
         }
-        var token = generateTokenCustomer(customer);
 
-        return AuthenResponse.builder().token(token).build();
+        // Nếu không tìm thấy cả email và số điện thoại, ném ngoại lệ
+        Customer foundCustomer =
+                customer.orElseThrow(() -> new IllegalArgumentException("Thông tin đăng nhập không hợp lệ!"));
+
+        log.info("check email/phone");
+
+        // Kiểm tra mật khẩu khớp với mật khẩu được mã hóa trong cơ sở dữ liệu
+        boolean passwordMatches = passwordEncoder.matches(authenRequest.getPassword(), foundCustomer.getPassword());
+
+        log.info("check password");
+
+        // Nếu mật khẩu không khớp, ném ngoại lệ
+        if (!passwordMatches) {
+            throw new IllegalArgumentException("Thông tin đăng nhập không hợp lệ!");
+        }
+
+        // Trả về phản hồi sau khi đăng nhập thành công
+        return AuthenticationResponse.builder()
+                .id(foundCustomer.getId())
+                .token(generateTokenCustomer(foundCustomer))
+                .build();
+    }
+
+    private String generateTokenCustomer(Customer customer) {
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(customer.getEmail())
+                .issuer("health.com")
+                .issueTime(new Date())
+                .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
+                .jwtID(UUID.randomUUID().toString())
+                .claim("name", customer.getFullName())
+                .claim("phone_number", customer.getPhoneNumber())
+                .claim("email", customer.getEmail())
+                .claim("scope", "NguoiDung")
+                .build();
+
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
+        JWSObject jwsObject = new JWSObject(header, payload);
+
+        try {
+            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            log.error("Cannot create token", e);
+            throw new RuntimeException(e);
+        }
     }
 
     public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
@@ -111,9 +160,9 @@ public class AuthenService {
         }
     }
 
-    public AuthenResponse authenticate(AuthenRequest request) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
         var user = userRepository
-                .findByUserName(request.getEmail())
+                .findByUserName(request.getUserName())
                 .orElseThrow(() -> new IllegalArgumentException("Tai khoan khong ton tai!"));
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10); // Ma hoa mat khau
@@ -123,35 +172,7 @@ public class AuthenService {
             throw new IllegalArgumentException("Thông tin đăng nhập không hợp lệ!");
         }
 
-        return AuthenResponse.builder().token(generateToken(user)).build();
-    }
-
-    private String generateTokenCustomer(Customer customer) {
-        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
-
-        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(customer.getEmail())
-                .issuer("health.com")
-                .issueTime(new Date())
-                .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
-                .jwtID(UUID.randomUUID().toString())
-                .claim("name", customer.getFullName())
-                .claim("phone_number", customer.getPhoneNumber())
-                .claim("email", customer.getEmail())
-                .claim("scope", "NguoiDung")
-                .build();
-
-        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
-
-        JWSObject jwsObject = new JWSObject(header, payload);
-
-        try {
-            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
-            return jwsObject.serialize();
-        } catch (JOSEException e) {
-            log.error("Cannot create token", e);
-            throw new RuntimeException(e);
-        }
+        return AuthenticationResponse.builder().token(generateToken(user)).build();
     }
 
     public void logout(LogoutRequest request) throws ParseException, JOSEException {
@@ -193,7 +214,7 @@ public class AuthenService {
         return signedJWT;
     }
 
-    public AuthenResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {
+    public AuthenticationResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {
         var signedJWT = verifyToken(request.getToken(), true);
 
         var jit = signedJWT.getJWTClaimsSet().getJWTID();
@@ -211,7 +232,7 @@ public class AuthenService {
 
         var token = generateTokenCustomer(customer);
 
-        return AuthenResponse.builder().token(token).build();
+        return AuthenticationResponse.builder().token(token).build();
     }
 
     private String buildScope(User user) {

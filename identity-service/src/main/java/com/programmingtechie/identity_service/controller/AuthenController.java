@@ -8,13 +8,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nimbusds.jose.JOSEException;
-import com.programmingtechie.identity_service.dto.request.AuthenRequest;
+import com.programmingtechie.identity_service.dto.request.AuthenticationRequest;
+import com.programmingtechie.identity_service.dto.request.Customer.CustomerAuthenticationRequest;
 import com.programmingtechie.identity_service.dto.request.IntrospectRequest;
 import com.programmingtechie.identity_service.dto.request.LogoutRequest;
 import com.programmingtechie.identity_service.dto.request.RefreshRequest;
-import com.programmingtechie.identity_service.dto.response.AuthenResponse;
+import com.programmingtechie.identity_service.dto.response.AuthenticationResponse;
 import com.programmingtechie.identity_service.dto.response.IntrospectResponse;
-import com.programmingtechie.identity_service.service.AuthenService;
+import com.programmingtechie.identity_service.service.AuthenticationService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,16 +23,17 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/identity/auth")
 @RequiredArgsConstructor
 public class AuthenController {
-    final AuthenService authenService;
+    final AuthenticationService authenService;
 
     @PostMapping("/log-in")
-    public AuthenResponse authenticateUser(@RequestBody AuthenRequest request) {
+    public AuthenticationResponse authenticateUser(@RequestBody AuthenticationRequest request) {
         return authenService.authenticate(request);
     }
 
     @PostMapping("/customer/log-in")
-    public AuthenResponse authenticateCustomer(@RequestBody AuthenRequest authenRequest) {
-        return authenService.authenticatedCustomer(authenRequest);
+    public AuthenticationResponse authenticateCustomer(
+            @RequestBody CustomerAuthenticationRequest customerAuthenRequest) {
+        return authenService.authenticatedCustomer(customerAuthenRequest);
     }
 
     @PostMapping("/introspect")
@@ -40,7 +42,7 @@ public class AuthenController {
     }
 
     @PostMapping("/customer/refresh")
-    AuthenResponse refreshToken(@RequestBody RefreshRequest request) throws ParseException, JOSEException {
+    AuthenticationResponse refreshToken(@RequestBody RefreshRequest request) throws ParseException, JOSEException {
         return authenService.refreshToken(request);
     }
 
