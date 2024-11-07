@@ -20,7 +20,7 @@ public class PatientRequest {
 
     private String insuranceId;
 
-    private String identificationCodeOrPassport;
+    private String identificationCode;
 
     private String nation;
 
@@ -45,4 +45,6 @@ public class PatientRequest {
     private String note;
 
     private LocalDateTime lastUpdated;
+
+    private String customerId;
 }

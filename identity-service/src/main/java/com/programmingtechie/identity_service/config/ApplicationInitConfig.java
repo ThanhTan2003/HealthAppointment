@@ -13,15 +13,17 @@ import com.programmingtechie.identity_service.model.User;
 import com.programmingtechie.identity_service.repository.RoleRepository;
 import com.programmingtechie.identity_service.repository.UserRepository;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
-@Slf4j
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class ApplicationInitConfig {
-
-    private final PasswordEncoder passwordEncoder;
+    PasswordEncoder passwordEncoder;
 
     final RoleRepository roleRepository;
 
@@ -48,7 +50,7 @@ public class ApplicationInitConfig {
             if (userRepository.findByUserName("admin").isEmpty()) {
 
                 // Tìm kiếm role với id là "QuanTriVien"
-                Optional<Role> role = roleRepository.findById("QuanTriVien");
+                Optional<Role> role = roleRepository.findById("QuanTriVienHeThong");
 
                 if (role.isPresent()) {
                     // Tạo user mới với role
@@ -65,7 +67,7 @@ public class ApplicationInitConfig {
                     log.warn("Admin user has been created with default password: admin, please change it");
                 } else {
                     // Xử lý trường hợp không tìm thấy role
-                    log.error("Role QuanTriVien not found, unable to create admin user");
+                    log.error("Role QuanTriVienHeThong not found, unable to create admin user");
                 }
             }
         };

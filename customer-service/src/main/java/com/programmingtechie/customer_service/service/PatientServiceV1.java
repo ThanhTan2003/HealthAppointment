@@ -1,18 +1,100 @@
 package com.programmingtechie.customer_service.service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.programmingtechie.customer_service.dto.request.PatientRequest;
+import com.programmingtechie.customer_service.dto.response.PatientResponse;
+import com.programmingtechie.customer_service.model.Patient;
 import com.programmingtechie.customer_service.repository.PatientRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class PatientServiceV1 {
 
     final PatientRepository patientRepository;
+
+    public PatientResponse createPatient(PatientRequest patientRequest) {
+        Patient patient = mapToPatientRequest(patientRequest);
+        patientRepository.save(patient);
+        return mapToPatientResponse(patient);
+    }
+
+    public boolean isValidpatient(PatientRequest patientRequest) {
+        return isValidInsuranceId(patientRequest.getInsuranceId())
+                && isValidIdentificationCode(patientRequest.getIdentificationCode())
+                && isValidPhoneNumber(patientRequest.getPhoneNumber());
+    }
+
+    private boolean isValidInsuranceId(String insuranceId) {
+        return insuranceId != null && insuranceId.length() == 15;
+    }
+
+    private boolean isValidIdentificationCode(String identificationCode) {
+        return identificationCode != null && identificationCode.length() == 12;
+    }
+
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        return phoneNumber != null && phoneNumber.length() == 10;
+    }
+
+    private PatientResponse mapToPatientResponse(Patient patient) {
+        return PatientResponse.builder()
+                .id(patient.getId())
+                .fullName(patient.getFullName())
+                .dateOfBirth(patient.getDateOfBirth())
+                .gender(patient.getGender())
+                .insuranceId(patient.getInsuranceId())
+                .identificationCode(patient.getIdentificationCode())
+                .nation(patient.getNation())
+                .occupation(patient.getOccupation())
+                .phoneNumber(patient.getPhoneNumber())
+                .email(patient.getEmail())
+                .country(patient.getCountry())
+                .province(patient.getProvince())
+                .district(patient.getDistrict())
+                .ward(patient.getWard())
+                .address(patient.getAddress())
+                .relationship(patient.getRelationship())
+                .note(patient.getNote())
+                .lastUpdated(LocalDateTime.now())
+                .customerId(patient.getCustomerId())
+                .build();
+    }
+
+    public Patient mapToPatientRequest(PatientRequest patientRequest) {
+        if (!isValidpatient(patientRequest)) {
+            throw new IllegalArgumentException("Invalid patient request");
+        }
+
+        return Patient.builder()
+                .id(generatePatientID())
+                .fullName(patientRequest.getFullName())
+                .dateOfBirth(patientRequest.getDateOfBirth())
+                .gender(patientRequest.getGender())
+                .insuranceId(patientRequest.getInsuranceId())
+                .identificationCode(patientRequest.getIdentificationCode())
+                .nation(patientRequest.getNation())
+                .occupation(patientRequest.getOccupation())
+                .phoneNumber(patientRequest.getPhoneNumber())
+                .email(patientRequest.getEmail())
+                .country(patientRequest.getCountry())
+                .province(patientRequest.getProvince())
+                .district(patientRequest.getDistrict())
+                .ward(patientRequest.getWard())
+                .address(patientRequest.getAddress())
+                .relationship(patientRequest.getRelationship())
+                .note(patientRequest.getNote())
+                .lastUpdated(LocalDateTime.now())
+                .customerId(patientRequest.getCustomerId())
+                .build();
+    }
 
     // Tạo mã ngẫu nhiên
     private static String generatePatientID() {

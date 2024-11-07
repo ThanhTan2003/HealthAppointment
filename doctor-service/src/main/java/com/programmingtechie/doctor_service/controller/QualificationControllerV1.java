@@ -22,7 +22,7 @@ public class QualificationControllerV1 {
 
     // Lấy tất cả qualifications với phân trang
     @GetMapping("/get-all")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<QualificationResponse>> getAllQualifications(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
@@ -31,7 +31,7 @@ public class QualificationControllerV1 {
 
     // Lấy qualification theo abbreviation
     @GetMapping("/abbreviation/{abbreviation}")
-    @PreAuthorize("hasRole('QuanTriVien')")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public ResponseEntity<QualificationResponse> getQualificationByAbbreviation(@PathVariable String abbreviation) {
         Optional<QualificationResponse> qualification =
                 qualificationServiceV1.getQualificationByAbbreviation(abbreviation);

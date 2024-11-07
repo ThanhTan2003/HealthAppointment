@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.programmingtechie.identity_service.dto.request.Customer.CustomerRequest;
 import com.programmingtechie.identity_service.dto.response.Customer.CustomerResponse;
@@ -25,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CustomerServiceV1 {
     final CustomerRepository customerRepository;
     final InvalidatedTokenRepository invalidatedTokenRepository;

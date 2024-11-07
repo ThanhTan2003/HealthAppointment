@@ -22,7 +22,7 @@ public class SpecialtyControllerV1 {
 
     // Lấy tất cả specialties với phân trang
     @GetMapping("/get-all")
-    @PreAuthorize("hasRole('QuanTriVien') or hasRole('NguoiDung')")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc') or hasRole('NguoiDung')")
     public ResponseEntity<PageResponse<SpecialtyResponse>> getAllSpecialties(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
@@ -31,7 +31,7 @@ public class SpecialtyControllerV1 {
 
     // Lấy specialty theo id
     @GetMapping("/id/{id}")
-    @PreAuthorize("hasRole('QuanTriVien') or hasRole('NguoiDung')")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc') or hasRole('NguoiDung')")
     public ResponseEntity<SpecialtyResponse> getSpecialtyById(@PathVariable String id) {
         Optional<SpecialtyResponse> specialty = specialtyServiceV1.getSpecialtyById(id);
         return specialty.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()
@@ -40,7 +40,7 @@ public class SpecialtyControllerV1 {
 
     // API tìm kiếm chuyên khoa theo từ khóa và phân trang
     @GetMapping("/search")
-    @PreAuthorize("hasRole('QuanTriVien') or hasRole('NguoiDung')")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc') or hasRole('NguoiDung')")
     public ResponseEntity<PageResponse<SpecialtyResponse>> searchSpecialties(
             @RequestParam("keyword") String keyword,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,

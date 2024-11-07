@@ -30,8 +30,8 @@ public class Patient {
     @Column(name = "insurance_id", nullable = false, length = 15)
     private String insuranceId;
 
-    @Column(name = "identification_code_or_passport", nullable = false, length = 12)
-    private String identificationCodeOrPassport;
+    @Column(name = "identification_code", nullable = false, length = 12)
+    private String identificationCode;
 
     @Column(name = "nation", nullable = false, columnDefinition = "TEXT")
     private String nation;
