@@ -1,4 +1,3 @@
 package com.programmingtechie.appointment_service.service;
 
-public class test {
-}
+public class test {}

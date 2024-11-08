@@ -51,8 +51,7 @@ public class SpecialtyControllerV1 {
 
     @PostMapping("/get-by-ids")
     @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
-    public ResponseEntity<List<SpecialtyResponse>> getSpecialtiesByIds(
-            @RequestBody List<String> specialtyIds) {
+    public ResponseEntity<List<SpecialtyResponse>> getSpecialtiesByIds(@RequestBody List<String> specialtyIds) {
         return ResponseEntity.ok(specialtyServiceV1.getSpecialtiesByIds(specialtyIds));
     }
 }

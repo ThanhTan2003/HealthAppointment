@@ -18,5 +18,4 @@ public interface EmailSenderService {
     void sendDoctorReplacementNotification(DoctorReplacementNotification notification);
 
     void sendDoctorReplacementNotification();
-
 }

@@ -83,13 +83,10 @@ public class SpecialtyServiceV1 {
 
     public List<SpecialtyResponse> getSpecialtiesByIds(List<String> specialtyIds) {
         List<Specialty> specialties = specialtyRepository.findByIdIn(specialtyIds);
-        if(specialtyIds.isEmpty())
-        {
+        if (specialtyIds.isEmpty()) {
             log.info("Rỗng ...");
         }
         log.info(specialties.toString());
-        return specialties.stream()
-                .map(this::mapToSpecialtyResponse)
-                .collect(Collectors.toList());
+        return specialties.stream().map(this::mapToSpecialtyResponse).collect(Collectors.toList());
     }
 }

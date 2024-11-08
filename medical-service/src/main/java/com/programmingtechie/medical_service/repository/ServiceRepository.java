@@ -64,9 +64,7 @@ public interface ServiceRepository extends JpaRepository<Service, String> {
                     + "OR unaccent(LOWER(s.name)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))))",
             nativeQuery = true)
     Page<Service> findServicesWithServiceTypeNotNullAndNotAssignedToDoctor(
-            @Param("doctorId") String doctorId,
-            @Param("keyword") String keyword,
-            Pageable pageable);
+            @Param("doctorId") String doctorId, @Param("keyword") String keyword, Pageable pageable);
 
     @Query(
             value = "SELECT * FROM service s WHERE s.service_type_id = :serviceTypeId "
@@ -78,9 +76,7 @@ public interface ServiceRepository extends JpaRepository<Service, String> {
             @Param("doctorId") String doctorId,
             @Param("serviceTypeId") String serviceTypeId,
             @Param("keyword") String keyword,
-            Pageable pageable
-    );
-
+            Pageable pageable);
 
     List<Service> getServicesByIdIn(List<String> serviceIds);
 }

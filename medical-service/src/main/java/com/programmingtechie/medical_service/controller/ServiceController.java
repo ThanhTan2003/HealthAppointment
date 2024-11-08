@@ -122,7 +122,8 @@ public class ServiceController {
             @RequestParam("keyword") String keyword,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
-        return ResponseEntity.ok(serviceService.getServicesWithServiceTypeNotNull(doctorId, serviceTypeId, keyword, page, size));
+        return ResponseEntity.ok(
+                serviceService.getServicesWithServiceTypeNotNull(doctorId, serviceTypeId, keyword, page, size));
     }
 
     @PostMapping("/get-by-ids")
