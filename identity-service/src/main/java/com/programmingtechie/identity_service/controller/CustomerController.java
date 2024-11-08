@@ -80,6 +80,12 @@ public class CustomerController {
         return customerServiceV1.getCustomers(page, size);
     }
 
+    @GetMapping("/id/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
+    public CustomerResponse getById(@PathVariable String id) {
+        return customerServiceV1.getById(id);
+    }
+
     @GetMapping("/full-name")
     @PostAuthorize(
             "hasRole('QuanTriVienHeThong') or hasRole('GiamDoc') or returnObject.email == authentication.principal.claims['email']")
@@ -91,6 +97,13 @@ public class CustomerController {
     @PostAuthorize(
             "hasRole('QuanTriVienHeThong') or hasRole('GiamDoc') or returnObject.email == authentication.principal.claims['email']")
     public CustomerResponse getCustomerByEmail(@RequestParam("email") String email) {
+        return customerServiceV1.getCustomerByEmail(email);
+    }
+
+    @PostMapping("/email")
+    @PostAuthorize(
+            "hasRole('QuanTriVienHeThong') or hasRole('GiamDoc') or returnObject.email == authentication.principal.claims['email']")
+    public CustomerResponse postMethodName(@RequestBody String email) {
         return customerServiceV1.getCustomerByEmail(email);
     }
 

@@ -10,7 +10,7 @@ import com.programmingtechie.medical_service.dto.response.SpecialtyResponse;
 
 @FeignClient(
         name = "specialty-client",
-        url = "${app.services.specialty}",
+        url = "http://localhost:8080/api/v1/doctor",
         configuration = {AuthenticationRequestInterceptor.class})
 public interface DoctorClient {
 

@@ -2,11 +2,14 @@ package com.programmingtechie.customer_service.service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.programmingtechie.customer_service.dto.request.PatientRequest;
+import com.programmingtechie.customer_service.dto.request.PatientCreationRequest;
+import com.programmingtechie.customer_service.dto.response.PageResponse;
 import com.programmingtechie.customer_service.dto.response.PatientResponse;
 import com.programmingtechie.customer_service.model.Patient;
 import com.programmingtechie.customer_service.repository.PatientRepository;
@@ -20,13 +23,13 @@ public class PatientServiceV1 {
 
     final PatientRepository patientRepository;
 
-    public PatientResponse createPatient(PatientRequest patientRequest) {
+    public PatientResponse createPatient(PatientCreationRequest patientRequest) {
         Patient patient = mapToPatientRequest(patientRequest);
         patientRepository.save(patient);
         return mapToPatientResponse(patient);
     }
 
-    public boolean isValidpatient(PatientRequest patientRequest) {
+    public boolean isValidpatient(PatientCreationRequest patientRequest) {
         return isValidInsuranceId(patientRequest.getInsuranceId())
                 && isValidIdentificationCode(patientRequest.getIdentificationCode())
                 && isValidPhoneNumber(patientRequest.getPhoneNumber());
@@ -68,7 +71,7 @@ public class PatientServiceV1 {
                 .build();
     }
 
-    public Patient mapToPatientRequest(PatientRequest patientRequest) {
+    public Patient mapToPatientRequest(PatientCreationRequest patientRequest) {
         if (!isValidpatient(patientRequest)) {
             throw new IllegalArgumentException("Invalid patient request");
         }
@@ -93,6 +96,48 @@ public class PatientServiceV1 {
                 .note(patientRequest.getNote())
                 .lastUpdated(LocalDateTime.now())
                 .customerId(patientRequest.getCustomerId())
+                .build();
+    }
+
+    public PageResponse<PatientResponse> getPatientByCustomerId(String customerId, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Patient> pageData = patientRepository.findPatientByCustomerId(customerId, pageable);
+        return PageResponse.<PatientResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(this::mapToPatientResponse)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    public PageResponse<PatientResponse> getPatientByCustomerEmail(String email, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Patient> pageData = patientRepository.findPatientByCustomerEmail(email, pageable);
+        return PageResponse.<PatientResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(this::mapToPatientResponse)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    public PageResponse<PatientResponse> getPatientByCustomerPhoneNumber(String phoneNumber, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Patient> pageData = patientRepository.findPatientByCustomerPhoneNumber(phoneNumber, pageable);
+        return PageResponse.<PatientResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(this::mapToPatientResponse)
+                        .collect(Collectors.toList()))
                 .build();
     }
 
@@ -122,6 +167,6 @@ public class PatientServiceV1 {
         }
         return result.toString();
     }
-    // Kết thúc hàm tạo mã ngẫu nhiên
+    // Kết thúc tạo mã ngẫu nhiên
 
 }
