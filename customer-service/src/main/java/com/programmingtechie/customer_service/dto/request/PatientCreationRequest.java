@@ -27,6 +27,6 @@ public class PatientCreationRequest {
     private String address;
     private String relationship;
     private String note;
-    private LocalDateTime lastUpdated;
     private String customerId;
+    private LocalDateTime lastUpdated;
 }

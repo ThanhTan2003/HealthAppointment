@@ -62,17 +62,17 @@ public class Patient {
     @Column(name = "address", nullable = false, columnDefinition = "TEXT")
     private String address;
 
-    @Column(name = "relationship", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "relationship", nullable = true, columnDefinition = "TEXT")
     private String relationship;
 
-    @Column(name = "note", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "note", nullable = true, columnDefinition = "TEXT")
     private String note;
+
+    @Column(name = "customer_id", nullable = false)
+    private String customerId;
 
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;
-
-    @JoinColumn(name = "customer_id", nullable = false)
-    private String customerId;
 
     @PreUpdate
     private void updateTimestamp() {

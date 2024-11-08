@@ -2,14 +2,12 @@ package com.programmingtechie.customer_service.service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.programmingtechie.customer_service.dto.request.PatientCreationRequest;
-import com.programmingtechie.customer_service.dto.response.PageResponse;
 import com.programmingtechie.customer_service.dto.response.PatientResponse;
 import com.programmingtechie.customer_service.model.Patient;
 import com.programmingtechie.customer_service.repository.PatientRepository;
@@ -66,16 +64,12 @@ public class PatientServiceV1 {
                 .address(patient.getAddress())
                 .relationship(patient.getRelationship())
                 .note(patient.getNote())
-                .lastUpdated(LocalDateTime.now())
                 .customerId(patient.getCustomerId())
+                .lastUpdated(LocalDateTime.now())
                 .build();
     }
 
     public Patient mapToPatientRequest(PatientCreationRequest patientRequest) {
-        if (!isValidpatient(patientRequest)) {
-            throw new IllegalArgumentException("Invalid patient request");
-        }
-
         return Patient.builder()
                 .id(generatePatientID())
                 .fullName(patientRequest.getFullName())
@@ -94,52 +88,52 @@ public class PatientServiceV1 {
                 .address(patientRequest.getAddress())
                 .relationship(patientRequest.getRelationship())
                 .note(patientRequest.getNote())
-                .lastUpdated(LocalDateTime.now())
                 .customerId(patientRequest.getCustomerId())
+                .lastUpdated(LocalDateTime.now())
                 .build();
     }
 
-    public PageResponse<PatientResponse> getPatientByCustomerId(String customerId, int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Patient> pageData = patientRepository.findPatientByCustomerId(customerId, pageable);
-        return PageResponse.<PatientResponse>builder()
-                .currentPage(page)
-                .pageSize(pageData.getSize())
-                .totalPages(pageData.getTotalPages())
-                .totalElements(pageData.getTotalElements())
-                .data(pageData.getContent().stream()
-                        .map(this::mapToPatientResponse)
-                        .collect(Collectors.toList()))
-                .build();
-    }
+    // public PageResponse<PatientResponse> getPatientByCustomerId(String customerId, int page, int size) {
+    //     Pageable pageable = PageRequest.of(page - 1, size);
+    //     Page<Patient> pageData = patientRepository.findPatientByCustomerId(customerId, pageable);
+    //     return PageResponse.<PatientResponse>builder()
+    //             .currentPage(page)
+    //             .pageSize(pageData.getSize())
+    //             .totalPages(pageData.getTotalPages())
+    //             .totalElements(pageData.getTotalElements())
+    //             .data(pageData.getContent().stream()
+    //                     .map(this::mapToPatientResponse)
+    //                     .collect(Collectors.toList()))
+    //             .build();
+    // }
 
-    public PageResponse<PatientResponse> getPatientByCustomerEmail(String email, int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Patient> pageData = patientRepository.findPatientByCustomerEmail(email, pageable);
-        return PageResponse.<PatientResponse>builder()
-                .currentPage(page)
-                .pageSize(pageData.getSize())
-                .totalPages(pageData.getTotalPages())
-                .totalElements(pageData.getTotalElements())
-                .data(pageData.getContent().stream()
-                        .map(this::mapToPatientResponse)
-                        .collect(Collectors.toList()))
-                .build();
-    }
+    // public PageResponse<PatientResponse> getPatientByCustomerEmail(String email, int page, int size) {
+    //     Pageable pageable = PageRequest.of(page - 1, size);
+    //     Page<Patient> pageData = patientRepository.findPatientByCustomerEmail(email, pageable);
+    //     return PageResponse.<PatientResponse>builder()
+    //             .currentPage(page)
+    //             .pageSize(pageData.getSize())
+    //             .totalPages(pageData.getTotalPages())
+    //             .totalElements(pageData.getTotalElements())
+    //             .data(pageData.getContent().stream()
+    //                     .map(this::mapToPatientResponse)
+    //                     .collect(Collectors.toList()))
+    //             .build();
+    // }
 
-    public PageResponse<PatientResponse> getPatientByCustomerPhoneNumber(String phoneNumber, int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Patient> pageData = patientRepository.findPatientByCustomerPhoneNumber(phoneNumber, pageable);
-        return PageResponse.<PatientResponse>builder()
-                .currentPage(page)
-                .pageSize(pageData.getSize())
-                .totalPages(pageData.getTotalPages())
-                .totalElements(pageData.getTotalElements())
-                .data(pageData.getContent().stream()
-                        .map(this::mapToPatientResponse)
-                        .collect(Collectors.toList()))
-                .build();
-    }
+    // public PageResponse<PatientResponse> getPatientByCustomerPhoneNumber(String phoneNumber, int page, int size) {
+    //     Pageable pageable = PageRequest.of(page - 1, size);
+    //     Page<Patient> pageData = patientRepository.findPatientByCustomerPhoneNumber(phoneNumber, pageable);
+    //     return PageResponse.<PatientResponse>builder()
+    //             .currentPage(page)
+    //             .pageSize(pageData.getSize())
+    //             .totalPages(pageData.getTotalPages())
+    //             .totalElements(pageData.getTotalElements())
+    //             .data(pageData.getContent().stream()
+    //                     .map(this::mapToPatientResponse)
+    //                     .collect(Collectors.toList()))
+    //             .build();
+    // }
 
     // Tạo mã ngẫu nhiên
     private static String generatePatientID() {

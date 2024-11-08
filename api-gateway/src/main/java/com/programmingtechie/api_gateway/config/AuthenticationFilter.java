@@ -1,7 +1,6 @@
 package com.programmingtechie.api_gateway.config;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
