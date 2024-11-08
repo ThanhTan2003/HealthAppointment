@@ -13,7 +13,6 @@ import java.util.List;
 @RequestMapping("/api/v1/customer/vietnam-units/district")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin
 public class DistrictController {
     final DistrictService districtService;
 

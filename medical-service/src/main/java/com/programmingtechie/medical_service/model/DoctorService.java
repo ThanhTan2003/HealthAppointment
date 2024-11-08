@@ -1,9 +1,11 @@
 package com.programmingtechie.medical_service.model;
 
-import jakarta.persistence.*;
-import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import jakarta.persistence.*;
+
+import lombok.*;
 
 @Entity
 @Getter
@@ -18,7 +20,7 @@ public class DoctorService {
     private String id;
 
     @Column(name = "doctor_id", length = 20)
-    private String DoctorId;
+    private String doctorId;
 
     @ManyToOne
     @JoinColumn(name = "service_id", nullable = false)

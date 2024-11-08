@@ -1,4 +1,4 @@
-package com.programmingtechie.medical_service.dto.response;
+package com.programmingtechie.medical_service.dto.response.Doctor;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class SpecialtyResponse {
     private String specialtyId;
-
     private String specialtyName;
-
     private String description;
 }

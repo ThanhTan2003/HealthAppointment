@@ -4,9 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.programmingtechie.identity_service.dto.response.Doctor.DoctorResponse;
-import com.programmingtechie.identity_service.mapper.UserMapper;
-import com.programmingtechie.identity_service.repository.httpClient.DoctorClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,10 +19,12 @@ import com.programmingtechie.identity_service.dto.request.UserCreationRequest;
 import com.programmingtechie.identity_service.dto.request.UserUpdateRequest;
 import com.programmingtechie.identity_service.dto.response.PageResponse;
 import com.programmingtechie.identity_service.dto.response.UserResponse;
+import com.programmingtechie.identity_service.mapper.UserMapper;
 import com.programmingtechie.identity_service.model.Role;
 import com.programmingtechie.identity_service.model.User;
 import com.programmingtechie.identity_service.repository.RoleRepository;
 import com.programmingtechie.identity_service.repository.UserRepository;
+import com.programmingtechie.identity_service.repository.httpClient.DoctorClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -120,11 +119,11 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("Không tồn tại tài khoản " + userId + "!"));
         UserResponse userResponse = userMapToUserResponse(user);
 
-//        if(!user.getDoctorId().isEmpty())
-//        {
-//            DoctorResponse doctorResponse = doctorClient.getDoctorById(user.getDoctorId());
-//            userResponse.setDoctorResponse(doctorResponse);
-//        }
+        //        if(!user.getDoctorId().isEmpty())
+        //        {
+        //            DoctorResponse doctorResponse = doctorClient.getDoctorById(user.getDoctorId());
+        //            userResponse.setDoctorResponse(doctorResponse);
+        //        }
         return userMapToUserResponse(user);
     }
 
@@ -185,9 +184,8 @@ public class UserService {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<User> pageData = userRepository.searchServices(keyword, pageable);
 
-        List<UserResponse> userResponses = pageData.getContent().stream()
-                .map(userMapper::toUserResponse)
-                .collect(Collectors.toList());
+        List<UserResponse> userResponses =
+                pageData.getContent().stream().map(userMapper::toUserResponse).collect(Collectors.toList());
 
         return PageResponse.<UserResponse>builder()
                 .currentPage(page)

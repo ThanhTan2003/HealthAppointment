@@ -1,9 +1,10 @@
 package com.programmingtechie.medical_service.model;
 
-import jakarta.persistence.Embeddable;
-import lombok.*;
-
 import java.io.Serializable;
+
+import jakarta.persistence.Embeddable;
+
+import lombok.*;
 
 @Builder
 @Getter

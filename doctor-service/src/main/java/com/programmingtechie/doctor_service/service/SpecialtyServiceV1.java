@@ -1,5 +1,6 @@
 package com.programmingtechie.doctor_service.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -78,5 +79,17 @@ public class SpecialtyServiceV1 {
                         .map(this::mapToSpecialtyResponse)
                         .collect(Collectors.toList()))
                 .build();
+    }
+
+    public List<SpecialtyResponse> getSpecialtiesByIds(List<String> specialtyIds) {
+        List<Specialty> specialties = specialtyRepository.findByIdIn(specialtyIds);
+        if(specialtyIds.isEmpty())
+        {
+            log.info("Rỗng ...");
+        }
+        log.info(specialties.toString());
+        return specialties.stream()
+                .map(this::mapToSpecialtyResponse)
+                .collect(Collectors.toList());
     }
 }

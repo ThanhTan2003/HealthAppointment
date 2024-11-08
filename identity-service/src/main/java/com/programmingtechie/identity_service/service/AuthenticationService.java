@@ -8,9 +8,6 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.UUID;
 
-import com.programmingtechie.identity_service.dto.request.Customer.CustomerAuthenticationRequest;
-import com.programmingtechie.identity_service.model.Customer;
-import com.programmingtechie.identity_service.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,6 +24,7 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.programmingtechie.identity_service.dto.request.AuthenticationRequest;
+import com.programmingtechie.identity_service.dto.request.Customer.CustomerAuthenticationRequest;
 import com.programmingtechie.identity_service.dto.request.IntrospectRequest;
 import com.programmingtechie.identity_service.dto.request.LogOutRequest;
 import com.programmingtechie.identity_service.dto.request.RefreshRequest;
@@ -34,8 +32,10 @@ import com.programmingtechie.identity_service.dto.response.AuthenticationRespons
 import com.programmingtechie.identity_service.dto.response.IntrospectResponse;
 import com.programmingtechie.identity_service.exception.AppException;
 import com.programmingtechie.identity_service.exception.ErrorCode;
+import com.programmingtechie.identity_service.model.Customer;
 import com.programmingtechie.identity_service.model.InvalidatedToken;
 import com.programmingtechie.identity_service.model.User;
+import com.programmingtechie.identity_service.repository.CustomerRepository;
 import com.programmingtechie.identity_service.repository.InvalidatedTokenRepository;
 import com.programmingtechie.identity_service.repository.UserRepository;
 
@@ -157,7 +157,8 @@ public class AuthenticationService {
         }
 
         // Nếu không tìm thấy cả email và số điện thoại, ném ngoại lệ
-        Customer foundCustomer = customer.orElseThrow(() -> new IllegalArgumentException("Thông tin đăng nhập không hợp lệ!"));
+        Customer foundCustomer =
+                customer.orElseThrow(() -> new IllegalArgumentException("Thông tin đăng nhập không hợp lệ!"));
 
         log.info("check email/phone");
 
@@ -238,10 +239,7 @@ public class AuthenticationService {
 
             // Luu token vao danh sach cac token da vo hieu hoa
             InvalidatedToken invalidatedToken =
-                    InvalidatedToken.builder()
-                            .id(jit)
-                            .expiryTime(expiryTime)
-                            .build();
+                    InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
 
             invalidatedTokenRepository.save(invalidatedToken); // Luu vao co so du lieu
         } catch (AppException exception) {

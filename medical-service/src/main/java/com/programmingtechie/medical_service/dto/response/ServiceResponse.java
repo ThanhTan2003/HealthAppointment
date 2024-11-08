@@ -1,6 +1,7 @@
 package com.programmingtechie.medical_service.dto.response;
 
-import com.programmingtechie.medical_service.model.ServiceType;
+import com.programmingtechie.medical_service.dto.response.Doctor.SpecialtyResponse;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

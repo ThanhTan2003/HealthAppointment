@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
 import com.nimbusds.jose.JOSEException;
 import com.programmingtechie.identity_service.dto.request.AuthenticationRequest;
@@ -23,7 +24,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.context.request.WebRequest;
 
 @RestController
 @RequestMapping("/api/v1/identity/auth")
@@ -61,7 +61,8 @@ public class AuthenticationController {
 
     // Kiem tra token
     @PostMapping("/introspect")
-    public IntrospectResponse authenticate(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
+    public IntrospectResponse authenticate(@RequestBody IntrospectRequest request)
+            throws ParseException, JOSEException {
         return authenticationService.introspect(request);
     }
 
@@ -71,12 +72,14 @@ public class AuthenticationController {
     }
 
     @PostMapping("/refresh")
-    public AuthenticationResponse authenticate(@RequestBody RefreshRequest request) throws ParseException, JOSEException {
+    public AuthenticationResponse authenticate(@RequestBody RefreshRequest request)
+            throws ParseException, JOSEException {
         return authenticationService.refreshToken(request);
     }
 
     @PostMapping("/customer/refresh")
-    public AuthenticationResponse customerAuthenticate(@RequestBody RefreshRequest request) throws ParseException, JOSEException {
+    public AuthenticationResponse customerAuthenticate(@RequestBody RefreshRequest request)
+            throws ParseException, JOSEException {
         return authenticationService.customerRefreshToken(request);
     }
 }

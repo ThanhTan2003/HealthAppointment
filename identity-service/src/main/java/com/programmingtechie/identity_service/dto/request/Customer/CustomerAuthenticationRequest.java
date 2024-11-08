@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class CustomerAuthenticationRequest {
-    private String userName;  // userName có thể là email hoặc số điện thoại
+    private String userName; // userName có thể là email hoặc số điện thoại
     private String password;
 }

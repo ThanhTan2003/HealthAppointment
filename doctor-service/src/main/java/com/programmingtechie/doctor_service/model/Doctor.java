@@ -38,7 +38,7 @@ public class Doctor {
     @Column(name = "phone_number", length = 10, unique = true)
     private String phoneNumber;
 
-    @Column(name = "email", length = 10, unique = true)
+    @Column(name = "email", unique = true, columnDefinition = "TEXT")
     private String email;
 
     @Column(name = "description", columnDefinition = "TEXT")

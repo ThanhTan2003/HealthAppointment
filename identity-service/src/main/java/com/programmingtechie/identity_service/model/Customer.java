@@ -2,7 +2,6 @@ package com.programmingtechie.identity_service.model;
 
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.List;
 
 import jakarta.persistence.*;
 
@@ -28,7 +27,7 @@ public class Customer {
     private Date dateOfBirth;
 
     @Column(name = "gender", length = 4)
-    private String gender;  // Giới tính: nam/nữ
+    private String gender; // Giới tính: nam/nữ
 
     @Column(name = "phone_number", unique = true, length = 10)
     private String phoneNumber;
@@ -44,7 +43,7 @@ public class Customer {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_type_id", nullable = false)
-    private Role role;  // Liên kết với bảng `AccountType`
+    private Role role; // Liên kết với bảng `AccountType`
 
     @Column(name = "last_access_time")
     private LocalDateTime lastAccessTime;

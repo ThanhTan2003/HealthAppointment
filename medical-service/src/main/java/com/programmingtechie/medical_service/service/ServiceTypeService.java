@@ -1,18 +1,20 @@
 package com.programmingtechie.medical_service.service;
 
-import com.programmingtechie.medical_service.dto.request.ServiceTypeRequest;
-import com.programmingtechie.medical_service.dto.response.PageResponse;
-import com.programmingtechie.medical_service.dto.response.ServiceTypeResponse;
-import com.programmingtechie.medical_service.model.ServiceType;
-import com.programmingtechie.medical_service.repository.ServiceTypeRepository;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import com.programmingtechie.medical_service.dto.request.ServiceTypeRequest;
+import com.programmingtechie.medical_service.dto.response.PageResponse;
+import com.programmingtechie.medical_service.dto.response.ServiceTypeResponse;
+import com.programmingtechie.medical_service.model.ServiceType;
+import com.programmingtechie.medical_service.repository.ServiceTypeRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +39,8 @@ public class ServiceTypeService {
     }
 
     public ServiceTypeResponse getServiceTypeById(String id) {
-        ServiceType serviceType = serviceTypeRepository.findById(id)
+        ServiceType serviceType = serviceTypeRepository
+                .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy loại dịch vụ với id: " + id));
         return mapToServiceTypeResponse(serviceType);
     }
@@ -54,7 +57,8 @@ public class ServiceTypeService {
     }
 
     public ServiceTypeResponse updateServiceType(String id, ServiceTypeRequest serviceTypeRequest) {
-        ServiceType serviceType = serviceTypeRepository.findById(id)
+        ServiceType serviceType = serviceTypeRepository
+                .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy loại dịch vụ với id: " + id));
 
         serviceType.setName(serviceTypeRequest.getName());
@@ -65,7 +69,8 @@ public class ServiceTypeService {
     }
 
     public void deleteServiceType(String id) {
-        ServiceType serviceType = serviceTypeRepository.findById(id)
+        ServiceType serviceType = serviceTypeRepository
+                .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy loại dịch vụ với id: " + id));
         serviceTypeRepository.delete(serviceType);
     }

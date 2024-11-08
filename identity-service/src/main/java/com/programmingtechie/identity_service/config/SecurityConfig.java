@@ -12,9 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 @Configuration // Dinh nghia lop cau hinh
 @EnableWebSecurity // Kich hoat bao mat web
@@ -27,25 +24,24 @@ public class SecurityConfig {
         "/api/v1/identity/auth/introspect",
         "/api/v1/identity/identity/role",
         "/api/v1/identity/auth/refresh",
-
         "/api/v1/identity/auth/customer/log-in",
         "/api/v1/identity/customer/create",
         "/api/v1/identity/auth/customer/refresh"
     };
 
-//    @Bean
-//    public CorsFilter corsFilter(){
-//        CorsConfiguration corsConfiguration = new CorsConfiguration();
-//
-//        corsConfiguration.addAllowedOrigin("*");
-//        corsConfiguration.addAllowedMethod("*");
-//        corsConfiguration.addAllowedHeader("*");
-//
-//        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
-//        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
-//
-//        return new CorsFilter(urlBasedCorsConfigurationSource);
-//    }
+    //    @Bean
+    //    public CorsFilter corsFilter(){
+    //        CorsConfiguration corsConfiguration = new CorsConfiguration();
+    //
+    //        corsConfiguration.addAllowedOrigin("*");
+    //        corsConfiguration.addAllowedMethod("*");
+    //        corsConfiguration.addAllowedHeader("*");
+    //
+    //        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+    //        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
+    //
+    //        return new CorsFilter(urlBasedCorsConfigurationSource);
+    //    }
 
     @Autowired // Tiem CustomJwtDecoder tu Spring
     private CustomJwtDecoder customJwtDecoder; // Bien de su dung trong cau hinh JWT

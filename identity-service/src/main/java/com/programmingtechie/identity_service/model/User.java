@@ -41,6 +41,5 @@ public class User {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_type_id", nullable = false)
-    private Role role;  // Liên kết với bảng `AccountType`
-
+    private Role role; // Liên kết với bảng `AccountType`
 }

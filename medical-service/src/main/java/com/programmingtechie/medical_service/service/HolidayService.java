@@ -1,18 +1,19 @@
 package com.programmingtechie.medical_service.service;
 
-import com.programmingtechie.medical_service.model.Holiday;
-import com.programmingtechie.medical_service.repository.HolidayRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.programmingtechie.medical_service.model.Holiday;
+import com.programmingtechie.medical_service.repository.HolidayRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class HolidayService {
     private final HolidayRepository holidayRepository;
-
 
     public List<Holiday> getAllHolidays() {
         return holidayRepository.findAll();
@@ -27,7 +28,8 @@ public class HolidayService {
         validateHolidayDay(holidayDay);
 
         // Kiểm tra xem ngày nghỉ đã tồn tại chưa
-        Optional<Holiday> existingHoliday = holidayRepository.findByDayAndMonth(holidayDay.getDay(), holidayDay.getMonth());
+        Optional<Holiday> existingHoliday =
+                holidayRepository.findByDayAndMonth(holidayDay.getDay(), holidayDay.getMonth());
         if (existingHoliday.isPresent()) {
             throw new IllegalArgumentException("Ngày nghỉ này đã tồn tại!");
         }
@@ -40,7 +42,8 @@ public class HolidayService {
         validateHolidayDay(holidayDay);
 
         // Kiểm tra xem ngày nghỉ có tồn tại để cập nhật không
-        Optional<Holiday> existingHoliday = holidayRepository.findByDayAndMonth(holidayDay.getDay(), holidayDay.getMonth());
+        Optional<Holiday> existingHoliday =
+                holidayRepository.findByDayAndMonth(holidayDay.getDay(), holidayDay.getMonth());
         if (existingHoliday.isEmpty()) {
             throw new IllegalArgumentException("Không tìm thấy ngày nghỉ để cập nhật!");
         }
@@ -53,13 +56,11 @@ public class HolidayService {
     }
 
     public void deleteHolidayDay(Integer day, Integer month) {
-        Holiday holidayDay = Holiday.builder()
-                .day(day)
-                .month(month)
-                .build();
+        Holiday holidayDay = Holiday.builder().day(day).month(month).build();
         validateHolidayDay(holidayDay);
 
-        Optional<Holiday> existingHoliday = holidayRepository.findByDayAndMonth(holidayDay.getDay(), holidayDay.getMonth());
+        Optional<Holiday> existingHoliday =
+                holidayRepository.findByDayAndMonth(holidayDay.getDay(), holidayDay.getMonth());
 
         if (existingHoliday.isEmpty()) {
             throw new IllegalArgumentException("Không tìm thấy ngày nghỉ để xóa!");
@@ -78,11 +79,12 @@ public class HolidayService {
             throw new IllegalArgumentException("Tháng không hợp lệ!");
         }
 
-        int maxDays = switch (month) {
-            case 4, 6, 9, 11 -> 30;
-            case 2 -> 28;
-            default -> 31;
-        };
+        int maxDays =
+                switch (month) {
+                    case 4, 6, 9, 11 -> 30;
+                    case 2 -> 28;
+                    default -> 31;
+                };
 
         if (day < 1 || day > maxDays) {
             throw new IllegalArgumentException("Ngày không hợp lệ cho tháng " + month + "!");

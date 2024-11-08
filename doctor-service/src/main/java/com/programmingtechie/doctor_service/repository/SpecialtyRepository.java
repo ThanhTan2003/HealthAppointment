@@ -8,6 +8,8 @@ import org.springframework.data.repository.query.Param;
 
 import com.programmingtechie.doctor_service.model.Specialty;
 
+import java.util.List;
+
 public interface SpecialtyRepository extends JpaRepository<Specialty, String> {
 
     @Query(
@@ -15,4 +17,6 @@ public interface SpecialtyRepository extends JpaRepository<Specialty, String> {
                     + "unaccent(LOWER(name)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%')))",
             nativeQuery = true)
     Page<Specialty> searchSpecialties(@Param("keyword") String keyword, Pageable pageable);
+
+    List<Specialty> findByIdIn(List<String> specialtyIds);
 }

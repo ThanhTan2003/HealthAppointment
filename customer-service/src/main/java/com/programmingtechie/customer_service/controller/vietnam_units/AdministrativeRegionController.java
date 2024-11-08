@@ -1,6 +1,5 @@
 package com.programmingtechie.customer_service.controller.vietnam_units;
 
-
 import com.programmingtechie.customer_service.model.vietnam_units.AdministrativeRegion;
 import com.programmingtechie.customer_service.service.vietnam_units.AdministrativeRegionService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/customer/vietnam-units/administrative-region")
 @RequiredArgsConstructor
+
 @Slf4j
 public class AdministrativeRegionController {
     final AdministrativeRegionService administrativeRegionService;

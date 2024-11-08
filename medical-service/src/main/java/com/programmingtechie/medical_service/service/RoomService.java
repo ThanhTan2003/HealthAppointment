@@ -1,21 +1,20 @@
 package com.programmingtechie.medical_service.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import com.programmingtechie.medical_service.dto.request.RoomRequest;
 import com.programmingtechie.medical_service.dto.response.PageResponse;
 import com.programmingtechie.medical_service.dto.response.RoomResponse;
 import com.programmingtechie.medical_service.model.Room;
 import com.programmingtechie.medical_service.repository.RoomRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -25,9 +24,8 @@ public class RoomService {
     public PageResponse<RoomResponse> getAllRooms(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Room> pageData = roomRepository.getAllRooms(pageable);
-        List<RoomResponse> roomResponses = pageData.getContent().stream()
-                .map(this::mapToRoomResponse)
-                .collect(Collectors.toList());
+        List<RoomResponse> roomResponses =
+                pageData.getContent().stream().map(this::mapToRoomResponse).collect(Collectors.toList());
 
         return PageResponse.<RoomResponse>builder()
                 .currentPage(page)
@@ -39,7 +37,8 @@ public class RoomService {
     }
 
     public RoomResponse getRoomById(String id) {
-        Room room = roomRepository.findById(id)
+        Room room = roomRepository
+                .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phòng với mã: " + id));
         return mapToRoomResponse(room);
     }
@@ -58,7 +57,8 @@ public class RoomService {
     }
 
     public RoomResponse updateRoom(String id, RoomRequest roomRequest) {
-        Room room = roomRepository.findById(id)
+        Room room = roomRepository
+                .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phòng với mã: " + id));
 
         room.setName(roomRequest.getName());
@@ -71,7 +71,8 @@ public class RoomService {
     }
 
     public void deleteRoom(String id) {
-        Room room = roomRepository.findById(id)
+        Room room = roomRepository
+                .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phòng với mã: " + id));
         roomRepository.delete(room);
     }
@@ -79,9 +80,8 @@ public class RoomService {
     public PageResponse<RoomResponse> searchRooms(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Room> pageData = roomRepository.searchRooms(keyword, pageable);
-        List<RoomResponse> roomResponses = pageData.getContent().stream()
-                .map(this::mapToRoomResponse)
-                .collect(Collectors.toList());
+        List<RoomResponse> roomResponses =
+                pageData.getContent().stream().map(this::mapToRoomResponse).collect(Collectors.toList());
 
         return PageResponse.<RoomResponse>builder()
                 .currentPage(page)
