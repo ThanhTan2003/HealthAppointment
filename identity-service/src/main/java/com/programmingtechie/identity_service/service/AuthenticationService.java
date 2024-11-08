@@ -127,7 +127,7 @@ public class AuthenticationService {
             jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes())); // Ky token bang SIGNER_KEY
             return jwsObject.serialize(); // Tra ve chuoi JWT
         } catch (JOSEException e) {
-            log.error("Không thể tạo token cho người dùng!", e); // Ghi log neu xay ra loi
+            log.error("Không thể tạo token cho người dùng!", e);
             throw new RuntimeException(e);
         }
     }
