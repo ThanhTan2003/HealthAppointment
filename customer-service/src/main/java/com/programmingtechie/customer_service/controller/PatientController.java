@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.programmingtechie.customer_service.dto.request.PatientCreationRequest;
+import com.programmingtechie.customer_service.dto.response.CustomerWithPatientDetailsResponse;
 import com.programmingtechie.customer_service.dto.response.PageResponse;
 import com.programmingtechie.customer_service.dto.response.PatientAndCustomerInfoResponse;
 import com.programmingtechie.customer_service.dto.response.PatientResponse;
@@ -38,6 +39,16 @@ public class PatientController {
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         return patientServiceV1.getPatientByCustomerId(customerId, page, size);
+    }
+
+    @GetMapping("/customer/patient-details/{customerId}")
+    @PreAuthorize(
+            "hasRole('QuanTriVienHeThong') or hasRole('NguoiDung') or returnObject.email == authentication.principal.claims['email']")
+    public CustomerWithPatientDetailsResponse getCustomerWithPatientDetails(
+            @PathVariable("customerId") String customerId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return patientServiceV1.getCustomerWithPatientDetails(customerId, page, size);
     }
 
     @GetMapping("/customer/info/{customerId}")
