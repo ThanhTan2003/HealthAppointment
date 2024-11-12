@@ -1,13 +1,17 @@
-package com.programmingtechie.identity_service.repository.httpClient;
+package com.programmingtechie.identity_service.repository.httpClient.Doctor;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import com.programmingtechie.identity_service.config.AuthenticationRequestInterceptor;
 import com.programmingtechie.identity_service.dto.response.Doctor.DoctorResponse;
 
-@FeignClient(name = "doctor-client", url = "http://localhost:8080/api/v1/doctor")
+@FeignClient(
+        name = "doctor-client",
+        url = "http://localhost:8080/api/v1/doctor",
+        configuration = {AuthenticationRequestInterceptor.class})
 public interface DoctorClient {
 
     @PostMapping(value = "/id/{doctorId}", produces = MediaType.APPLICATION_JSON_VALUE)

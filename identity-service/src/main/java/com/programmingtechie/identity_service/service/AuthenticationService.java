@@ -175,6 +175,7 @@ public class AuthenticationService {
         // Trả về phản hồi sau khi đăng nhập thành công
         return AuthenticationResponse.builder()
                 .authenticated(true)
+                .id(foundCustomer.getId())
                 .token(generateCustomerToken(foundCustomer))
                 .build();
     }

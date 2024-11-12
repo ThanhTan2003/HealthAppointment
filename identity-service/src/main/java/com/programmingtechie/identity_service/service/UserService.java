@@ -24,7 +24,7 @@ import com.programmingtechie.identity_service.model.Role;
 import com.programmingtechie.identity_service.model.User;
 import com.programmingtechie.identity_service.repository.RoleRepository;
 import com.programmingtechie.identity_service.repository.UserRepository;
-import com.programmingtechie.identity_service.repository.httpClient.DoctorClient;
+import com.programmingtechie.identity_service.repository.httpClient.Doctor.DoctorClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

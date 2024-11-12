@@ -1,6 +1,7 @@
-package com.programmingtechie.customer_service.dto.request;
+package com.programmingtechie.customer_service.dto.response;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import lombok.*;
 
@@ -8,7 +9,8 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PatientCreationRequest {
+public class PatientAndCustomerInfoResponse {
+    private String id;
     private String fullName;
     private LocalDate dateOfBirth;
     private String gender;
@@ -25,5 +27,7 @@ public class PatientCreationRequest {
     private String address;
     private String relationship;
     private String note;
+    private LocalDateTime lastUpdated;
     private String customerId;
+    private CustomerIdentityResponse customerIdentityResponse;
 }

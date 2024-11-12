@@ -2,7 +2,11 @@ package com.programmingtechie.customer_service.repository;
 
 import java.util.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.programmingtechie.customer_service.model.Patient;
@@ -13,12 +17,14 @@ public interface PatientRepository extends JpaRepository<Patient, String> {
 
     boolean existsByIdentificationCode(String identificationCode);
 
-    // @Query("SELECT patient FROM Patient patient WHERE patient.customerId = :customerId")
-    // Page<Patient> findPatientByCustomerId(@Param("customerId") String customerId, Pageable pageable);
+    @Query("SELECT p FROM Patient p WHERE p.customerId = :customerId")
+    Page<Patient> findPatientByCustomerId(@Param("customerId") String customerId, Pageable pageable);
 
-    // @Query("SELECT patient FROM Patient patient WHERE patient.email = :email")
-    // Page<Patient> findPatientByCustomerEmail(@Param("email") String email, Pageable pageable);
+    @Query("SELECT p FROM Patient p WHERE p.email = :email")
+    Page<Patient> findPatientByEmail(@Param("email") String email, Pageable pageable);
 
-    // @Query("SELECT patient FROM Patient patient WHERE patient.phoneNumber = :phoneNumber")
-    // Page<Patient> findPatientByCustomerPhoneNumber(@Param("email") String email, Pageable pageable);
+    @Query("SELECT p FROM Patient p WHERE p.phoneNumber = :phoneNumber")
+    Page<Patient> findPatientByPhoneNumber(@Param("phoneNumber") String phoneNumber, Pageable pageable);
+
+    Page<Patient> findByCustomerId(String customerId, Pageable pageable);
 }

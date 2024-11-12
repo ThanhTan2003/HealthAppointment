@@ -3,6 +3,7 @@ package com.programmingtechie.customer_service.controller.vietnam_units;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.programmingtechie.customer_service.model.vietnam_units.Ward;
@@ -27,11 +28,13 @@ public class WardController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('NguoiDung')")
     public List<Ward> getAllWards() {
         return wardService.getAllWards();
     }
 
     @GetMapping("/district-code/{code}")
+    @PreAuthorize("hasRole('NguoiDung')")
     public List<Ward> getByDistrict_Code(@PathVariable String code) {
         return wardService.getByDistrict_Code(code);
     }

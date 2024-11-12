@@ -95,6 +95,13 @@ public class CustomerService {
         customerRepository.deleteById(customerId);
     }
 
+    public CustomerResponse getCustomerById(String id) {
+        Customer customer = customerRepository
+                .findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin với id: " + id));
+        return mapToResponse(customer);
+    }
+
     public CustomerResponse findCustomerByEmail(String email) {
         Customer customer = customerRepository
                 .findByEmail(email)

@@ -3,6 +3,7 @@ package com.programmingtechie.customer_service.controller.vietnam_units;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.programmingtechie.customer_service.model.vietnam_units.District;
@@ -27,11 +28,13 @@ public class DistrictController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('NguoiDung')")
     public List<District> getAllDistricts() {
         return districtService.getAllDistricts();
     }
 
     @GetMapping("/province-code/{code}")
+    @PreAuthorize("hasRole('NguoiDung')")
     public List<District> getByProvince_Code(@PathVariable String code) {
         return districtService.getByProvince_Code(code);
     }

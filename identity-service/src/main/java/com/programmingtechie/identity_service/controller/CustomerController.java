@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 
 import com.programmingtechie.identity_service.dto.request.Customer.CustomerRequest;
@@ -58,24 +60,28 @@ public class CustomerController {
     }
 
     @PutMapping("/update/{id}")
-    @PostAuthorize("" + "hasRole('QuanTriVienHeThong') or "
-            + "hasRole('GiamDoc') or "
-            + "returnObject.email == authentication.principal.claims['email']")
+    @PostAuthorize(
+            "hasRole('QuanTriVienHeThong') or hasRole('GiamDoc') or returnObject.email == authentication.principal.claims['email']")
     public CustomerResponse updateCustomer(
             @PathVariable("id") String customerId, @RequestBody CustomerRequest request) {
         return customerService.updateCustomer(customerId, request);
     }
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public void deleteCustomer(@PathVariable("id") String customerId) {
         customerService.deleteCustomer(customerId);
     }
 
+    @GetMapping("/id/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('NguoiDung')")
+    public CustomerResponse getCustomerById(@PathVariable String id) {
+        return customerService.getCustomerById(id);
+    }
+
     @GetMapping("/email")
-    @PostAuthorize("" + "hasRole('QuanTriVienHeThong') or "
-            + "hasRole('GiamDoc') or "
-            + "returnObject.email == authentication.principal.claims['email']")
+    @PostAuthorize(
+            "hasRole('QuanTriVienHeThong') or hasRole('GiamDoc') or returnObject.email == authentication.principal.claims['email']")
     public CustomerResponse findCustomerByEmail(@RequestParam("email") String email) {
         return customerService.findCustomerByEmail(email);
     }
