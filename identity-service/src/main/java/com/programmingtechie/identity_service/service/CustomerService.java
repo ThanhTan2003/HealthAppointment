@@ -17,7 +17,7 @@ import com.programmingtechie.identity_service.dto.request.Customer.CustomerReque
 import com.programmingtechie.identity_service.dto.response.Customer.CustomerPatientResponse;
 import com.programmingtechie.identity_service.dto.response.Customer.CustomerResponse;
 import com.programmingtechie.identity_service.dto.response.PageResponse;
-import com.programmingtechie.identity_service.dto.response.Patient.PatientDetailsResponse;
+import com.programmingtechie.identity_service.mapper.Patient.PatientDetailsMapper;
 import com.programmingtechie.identity_service.model.Customer;
 import com.programmingtechie.identity_service.model.Role;
 import com.programmingtechie.identity_service.repository.CustomerRepository;
@@ -36,6 +36,7 @@ public class CustomerService {
     final RoleRepository roleRepository;
     final PasswordEncoder passwordEncoder;
     final PatientClient patientClient;
+    final PatientDetailsMapper patientDetailsMapper;
 
     public CustomerResponse createCustomer(CustomerRequest request) {
         if (customerRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -157,23 +158,10 @@ public class CustomerService {
         Customer customer = customerRepository
                 .findById(customerId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin với id: " + customerId));
-        CustomerResponse customerResponse = mapToCustomerResponse(customer);
 
-        PageResponse<PatientDetailsResponse> patientDetailsResponse =
-                patientClient.getPatientDetailsByCustomerId(customerId, page, size);
-
-        return CustomerPatientResponse.builder()
-                .id(customerResponse.getId())
-                .fullName(customerResponse.getFullName())
-                .dateOfBirth(customerResponse.getDateOfBirth())
-                .gender(customerResponse.getGender())
-                .phoneNumber(customerResponse.getPhoneNumber())
-                .email(customerResponse.getEmail())
-                .status(customerResponse.getStatus())
-                .lastAccessTime(customerResponse.getLastAccessTime())
-                .lastUpdated(customerResponse.getLastUpdated())
-                .patientDetails(patientDetailsResponse)
-                .build();
+        CustomerPatientResponse customerPatientResponse =
+                patientDetailsMapper.mapToCustomerPatientResponse(customer, page, size);
+        return customerPatientResponse;
     }
 
     private CustomerResponse mapToCustomerResponse(Customer customer) {
@@ -186,7 +174,7 @@ public class CustomerService {
                 .email(customer.getEmail())
                 .status(customer.getStatus())
                 .lastAccessTime(customer.getLastAccessTime())
-                .lastUpdated(customer.getLastUpdated())
+                .lastUpdated(LocalDateTime.now())
                 .build();
     }
 }
