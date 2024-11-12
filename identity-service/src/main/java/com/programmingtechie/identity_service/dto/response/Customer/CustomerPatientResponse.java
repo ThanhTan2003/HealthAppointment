@@ -3,6 +3,7 @@ package com.programmingtechie.identity_service.dto.response.Customer;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import com.programmingtechie.identity_service.dto.response.PageResponse;
 import com.programmingtechie.identity_service.dto.response.Patient.PatientDetailsResponse;
 
 import lombok.AllArgsConstructor;
@@ -24,5 +25,5 @@ public class CustomerPatientResponse {
     private String status;
     private LocalDateTime lastAccessTime;
     private LocalDateTime lastUpdated;
-    private List<PatientDetailsResponse> customerDetail;
+    private PageResponse<PatientDetailsResponse> patientDetails;
 }

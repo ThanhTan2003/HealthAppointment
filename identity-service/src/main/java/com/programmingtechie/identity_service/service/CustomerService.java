@@ -14,12 +14,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.programmingtechie.identity_service.dto.request.Customer.CustomerRequest;
+import com.programmingtechie.identity_service.dto.response.Customer.CustomerPatientResponse;
 import com.programmingtechie.identity_service.dto.response.Customer.CustomerResponse;
 import com.programmingtechie.identity_service.dto.response.PageResponse;
+import com.programmingtechie.identity_service.dto.response.Patient.PatientDetailsResponse;
 import com.programmingtechie.identity_service.model.Customer;
 import com.programmingtechie.identity_service.model.Role;
 import com.programmingtechie.identity_service.repository.CustomerRepository;
 import com.programmingtechie.identity_service.repository.RoleRepository;
+import com.programmingtechie.identity_service.repository.httpClient.Patient.PatientClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +35,7 @@ public class CustomerService {
     final CustomerRepository customerRepository;
     final RoleRepository roleRepository;
     final PasswordEncoder passwordEncoder;
+    final PatientClient patientClient;
 
     public CustomerResponse createCustomer(CustomerRequest request) {
         if (customerRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -64,7 +68,7 @@ public class CustomerService {
 
         customerRepository.save(customer);
 
-        return mapToResponse(customer);
+        return mapToCustomerResponse(customer);
     }
 
     public CustomerResponse updateCustomer(String customerId, CustomerRequest request) {
@@ -85,7 +89,7 @@ public class CustomerService {
 
         customerRepository.save(customer);
 
-        return mapToResponse(customer);
+        return mapToCustomerResponse(customer);
     }
 
     public void deleteCustomer(String customerId) {
@@ -99,14 +103,14 @@ public class CustomerService {
         Customer customer = customerRepository
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin với id: " + id));
-        return mapToResponse(customer);
+        return mapToCustomerResponse(customer);
     }
 
     public CustomerResponse findCustomerByEmail(String email) {
         Customer customer = customerRepository
                 .findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin với email: " + email));
-        return mapToResponse(customer);
+        return mapToCustomerResponse(customer);
     }
 
     public CustomerResponse findCustomerByPhoneNumber(String phoneNumber) {
@@ -114,26 +118,12 @@ public class CustomerService {
                 .findByPhoneNumber(phoneNumber)
                 .orElseThrow(() ->
                         new IllegalArgumentException("Không tìm thấy thông tin với số điện thoại: " + phoneNumber));
-        return mapToResponse(customer);
+        return mapToCustomerResponse(customer);
     }
 
     public List<CustomerResponse> findCustomersByStatus(String status) {
         List<Customer> customers = customerRepository.findByStatus(status);
-        return customers.stream().map(this::mapToResponse).toList();
-    }
-
-    private CustomerResponse mapToResponse(Customer customer) {
-        return CustomerResponse.builder()
-                .id(customer.getId())
-                .fullName(customer.getFullName())
-                .dateOfBirth(customer.getDateOfBirth())
-                .gender(customer.getGender())
-                .phoneNumber(customer.getPhoneNumber())
-                .email(customer.getEmail())
-                .status(customer.getStatus())
-                .lastAccessTime(customer.getLastAccessTime())
-                .lastUpdated(customer.getLastUpdated())
-                .build();
+        return customers.stream().map(this::mapToCustomerResponse).toList();
     }
 
     public CustomerResponse getMyInfo() {
@@ -144,7 +134,7 @@ public class CustomerService {
                 .findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Không xác định được thông tin!"));
 
-        return mapToResponse(customer);
+        return mapToCustomerResponse(customer);
     }
 
     public PageResponse<CustomerResponse> getCustomers(int page, int size) {
@@ -152,7 +142,7 @@ public class CustomerService {
         var pageData = customerRepository.getAllCustomers(pageable);
 
         List<CustomerResponse> customerResponses =
-                pageData.getContent().stream().map(this::mapToResponse).toList();
+                pageData.getContent().stream().map(this::mapToCustomerResponse).toList();
 
         return PageResponse.<CustomerResponse>builder()
                 .currentPage(page)
@@ -160,6 +150,43 @@ public class CustomerService {
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(customerResponses)
+                .build();
+    }
+
+    public CustomerPatientResponse getCustomerPatientDetails(String customerId, int page, int size) {
+        Customer customer = customerRepository
+                .findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin với id: " + customerId));
+        CustomerResponse customerResponse = mapToCustomerResponse(customer);
+
+        PageResponse<PatientDetailsResponse> patientDetailsResponse =
+                patientClient.getPatientDetailsByCustomerId(customerId, page, size);
+
+        return CustomerPatientResponse.builder()
+                .id(customerResponse.getId())
+                .fullName(customerResponse.getFullName())
+                .dateOfBirth(customerResponse.getDateOfBirth())
+                .gender(customerResponse.getGender())
+                .phoneNumber(customerResponse.getPhoneNumber())
+                .email(customerResponse.getEmail())
+                .status(customerResponse.getStatus())
+                .lastAccessTime(customerResponse.getLastAccessTime())
+                .lastUpdated(customerResponse.getLastUpdated())
+                .patientDetails(patientDetailsResponse)
+                .build();
+    }
+
+    private CustomerResponse mapToCustomerResponse(Customer customer) {
+        return CustomerResponse.builder()
+                .id(customer.getId())
+                .fullName(customer.getFullName())
+                .dateOfBirth(customer.getDateOfBirth())
+                .gender(customer.getGender())
+                .phoneNumber(customer.getPhoneNumber())
+                .email(customer.getEmail())
+                .status(customer.getStatus())
+                .lastAccessTime(customer.getLastAccessTime())
+                .lastUpdated(customer.getLastUpdated())
                 .build();
     }
 }

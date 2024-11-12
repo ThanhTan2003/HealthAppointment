@@ -10,11 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 
 import com.programmingtechie.identity_service.dto.request.Customer.CustomerRequest;
+import com.programmingtechie.identity_service.dto.response.Customer.CustomerPatientResponse;
 import com.programmingtechie.identity_service.dto.response.Customer.CustomerResponse;
 import com.programmingtechie.identity_service.dto.response.PageResponse;
 import com.programmingtechie.identity_service.service.CustomerService;
@@ -100,7 +99,6 @@ public class CustomerController {
         return customerService.findCustomersByStatus(status);
     }
 
-    // Lay thong tin dang nhap
     @GetMapping("/get-info")
     @PostAuthorize("" + "hasRole('QuanTriVienHeThong') or "
             + "hasRole('GiamDoc') or "
@@ -108,5 +106,15 @@ public class CustomerController {
     @ResponseStatus(HttpStatus.OK)
     public CustomerResponse getInfo() {
         return customerService.getMyInfo();
+    }
+
+    @GetMapping("/patient-details/{customerId}")
+    @PreAuthorize(
+            "hasRole('QuanTriVienHeThong') or hasRole('NguoiDung') or returnObject.email == authentication.principal.claims['email']")
+    public CustomerPatientResponse getCustomerWithPatientDetails(
+            @PathVariable("customerId") String customerId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return customerService.getCustomerPatientDetails(customerId, page, size);
     }
 }
