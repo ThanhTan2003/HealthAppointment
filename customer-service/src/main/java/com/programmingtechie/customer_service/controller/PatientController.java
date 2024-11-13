@@ -1,15 +1,19 @@
 package com.programmingtechie.customer_service.controller;
 
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.programmingtechie.customer_service.dto.request.PatientCreationRequest;
+import com.programmingtechie.customer_service.dto.request.PatientUpdateRequest;
 import com.programmingtechie.customer_service.dto.response.CustomerWithPatientDetailsResponse;
 import com.programmingtechie.customer_service.dto.response.PageResponse;
 import com.programmingtechie.customer_service.dto.response.PatientAndCustomerInfoResponse;
@@ -29,6 +33,22 @@ public class PatientController {
     @PreAuthorize("hasRole('NguoiDung')")
     public PatientResponse createPatient(@RequestBody PatientCreationRequest patientRequest) {
         return patientServiceV1.createPatient(patientRequest);
+    }
+
+    @PutMapping("update-patient/{id}")
+    @PostAuthorize(
+            "hasRole('NguoiDung') or hasRole('GiamDoc') or returnObject.email == authentication.principal.claims['email']")
+    public PatientResponse updatePatient(
+            @PathVariable("id") String patientId, @RequestBody PatientUpdateRequest patientUpdateRequest) {
+        return patientServiceV1.updatePatient(patientId, patientUpdateRequest);
+    }
+
+    @DeleteMapping
+    @PostAuthorize(
+            "hasRole('NguoiDung') or hasRole('GiamDoc') or returnObject.email == authentication.principal.claims['email']")
+    public String deletePatient(String patientID) {
+        patientServiceV1.deletePatient(patientID);
+        return "Xóa hồ sơ thành công";
     }
 
     @GetMapping("/customer/{customerId}")
@@ -52,65 +72,65 @@ public class PatientController {
     }
     // Out put example:
     // {
-    //     "id": "80d053c3-8821-4119-a6b9-460ea2b6dba5",
-    //     "fullName": "tgt",
-    //     "dateOfBirth": "2024-11-08T00:00:00.000+00:00",
-    //     "gender": "Nam",
-    //     "phoneNumber": "555",
-    //     "email": "tgt",
-    //     "status": "Đang hoạt động",
-    //     "lastAccessTime": null,
-    //     "lastUpdated": "2024-11-08T14:37:34.111006",
-    //     "patientDetails": {
-    //         "totalPages": 1,
-    //         "currentPage": 1,
-    //         "pageSize": 2,
-    //         "totalElements": 2,
-    //         "data": [
-    //             {
-    //                 "id": "BN-3297434125CDHXD4C4KR",
-    //                 "fullName": "thinh",
-    //                 "dateOfBirth": "2000-02-02",
-    //                 "gender": "Nam",
-    //                 "insuranceId": "1222",
-    //                 "identificationCode": "22222",
-    //                 "nation": "VietNam",
-    //                 "occupation": "SinhVien",
-    //                 "phoneNumber": "5552",
-    //                 "email": "tgt",
-    //                 "country": "VietNam",
-    //                 "province": "BenTre",
-    //                 "district": "TP.BenTre",
-    //                 "ward": "PK",
-    //                 "address": "BenTre",
-    //                 "relationship": "Me",
-    //                 "note": "none",
-    //                 "lastUpdated": "2024-11-12T16:12:09.9692267",
-    //                 "customerId": "80d053c3-8821-4119-a6b9-460ea2b6dba5"
-    //             },
-    //             {
-    //                 "id": "BN-7525982749XYLH2O5X0N",
-    //                 "fullName": "thinh",
-    //                 "dateOfBirth": "2000-02-02",
-    //                 "gender": "Nam",
-    //                 "insuranceId": "1222",
-    //                 "identificationCode": "22222",
-    //                 "nation": "VietNam",
-    //                 "occupation": "SinhVien",
-    //                 "phoneNumber": "5555",
-    //                 "email": "tgt",
-    //                 "country": "VietNam",
-    //                 "province": "BenTre",
-    //                 "district": "TP.BenTre",
-    //                 "ward": "PK",
-    //                 "address": "BenTre",
-    //                 "relationship": "Me",
-    //                 "note": "none",
-    //                 "lastUpdated": "2024-11-12T16:12:09.9692267",
-    //                 "customerId": "80d053c3-8821-4119-a6b9-460ea2b6dba5"
-    //             }
-    //         ]
-    //     }
+    // "id": "80d053c3-8821-4119-a6b9-460ea2b6dba5",
+    // "fullName": "tgt",
+    // "dateOfBirth": "2024-11-08T00:00:00.000+00:00",
+    // "gender": "Nam",
+    // "phoneNumber": "555",
+    // "email": "tgt",
+    // "status": "Đang hoạt động",
+    // "lastAccessTime": null,
+    // "lastUpdated": "2024-11-08T14:37:34.111006",
+    // "patientDetails": {
+    // "totalPages": 1,
+    // "currentPage": 1,
+    // "pageSize": 2,
+    // "totalElements": 2,
+    // "data": [
+    // {
+    // "id": "BN-3297434125CDHXD4C4KR",
+    // "fullName": "thinh",
+    // "dateOfBirth": "2000-02-02",
+    // "gender": "Nam",
+    // "insuranceId": "1222",
+    // "identificationCode": "22222",
+    // "nation": "VietNam",
+    // "occupation": "SinhVien",
+    // "phoneNumber": "5552",
+    // "email": "tgt",
+    // "country": "VietNam",
+    // "province": "BenTre",
+    // "district": "TP.BenTre",
+    // "ward": "PK",
+    // "address": "BenTre",
+    // "relationship": "Me",
+    // "note": "none",
+    // "lastUpdated": "2024-11-12T16:12:09.9692267",
+    // "customerId": "80d053c3-8821-4119-a6b9-460ea2b6dba5"
+    // },
+    // {
+    // "id": "BN-7525982749XYLH2O5X0N",
+    // "fullName": "thinh",
+    // "dateOfBirth": "2000-02-02",
+    // "gender": "Nam",
+    // "insuranceId": "1222",
+    // "identificationCode": "22222",
+    // "nation": "VietNam",
+    // "occupation": "SinhVien",
+    // "phoneNumber": "5555",
+    // "email": "tgt",
+    // "country": "VietNam",
+    // "province": "BenTre",
+    // "district": "TP.BenTre",
+    // "ward": "PK",
+    // "address": "BenTre",
+    // "relationship": "Me",
+    // "note": "none",
+    // "lastUpdated": "2024-11-12T16:12:09.9692267",
+    // "customerId": "80d053c3-8821-4119-a6b9-460ea2b6dba5"
+    // }
+    // ]
+    // }
     // }
 
     @GetMapping("/customer/info/{customerId}")
@@ -123,76 +143,76 @@ public class PatientController {
     }
     // Out put example:
     // {
-    //     "totalPages": 1,
-    //     "currentPage": 1,
-    //     "pageSize": 4,
-    //     "totalElements": 2,
-    //     "data": [
-    //         {
-    //             "id": "BN-3297434125CDHXD4C4KR",
-    //             "fullName": "thinh",
-    //             "dateOfBirth": "2000-02-02",
-    //             "gender": "Nam",
-    //             "insuranceId": "1222",
-    //             "identificationCode": "22222",
-    //             "nation": "VietNam",
-    //             "occupation": "SinhVien",
-    //             "phoneNumber": "5552",
-    //             "email": "tgt",
-    //             "country": "VietNam",
-    //             "province": "BenTre",
-    //             "district": "TP.BenTre",
-    //             "ward": "PK",
-    //             "address": "BenTre",
-    //             "relationship": "Me",
-    //             "note": "none",
-    //             "lastUpdated": "2024-11-12T16:04:15.6161553",
-    //             "customerId": "80d053c3-8821-4119-a6b9-460ea2b6dba5",
-    //             "customerIdentityResponse": {
-    //                 "id": "80d053c3-8821-4119-a6b9-460ea2b6dba5",
-    //                 "fullName": "tgt",
-    //                 "dateOfBirth": "2024-11-08T00:00:00.000+00:00",
-    //                 "gender": "Nam",
-    //                 "phoneNumber": "555",
-    //                 "email": "tgt",
-    //                 "status": "Đang hoạt động",
-    //                 "lastAccessTime": null,
-    //                 "lastUpdated": "2024-11-08T14:37:34.111006"
-    //             }
-    //         },
-    //         {
-    //             "id": "BN-7525982749XYLH2O5X0N",
-    //             "fullName": "thinh",
-    //             "dateOfBirth": "2000-02-02",
-    //             "gender": "Nam",
-    //             "insuranceId": "1222",
-    //             "identificationCode": "22222",
-    //             "nation": "VietNam",
-    //             "occupation": "SinhVien",
-    //             "phoneNumber": "5555",
-    //             "email": "tgt",
-    //             "country": "VietNam",
-    //             "province": "BenTre",
-    //             "district": "TP.BenTre",
-    //             "ward": "PK",
-    //             "address": "BenTre",
-    //             "relationship": "Me",
-    //             "note": "none",
-    //             "lastUpdated": "2024-11-12T16:04:15.8081545",
-    //             "customerId": "80d053c3-8821-4119-a6b9-460ea2b6dba5",
-    //             "customerIdentityResponse": {
-    //                 "id": "80d053c3-8821-4119-a6b9-460ea2b6dba5",
-    //                 "fullName": "tgt",
-    //                 "dateOfBirth": "2024-11-08T00:00:00.000+00:00",
-    //                 "gender": "Nam",
-    //                 "phoneNumber": "555",
-    //                 "email": "tgt",
-    //                 "status": "Đang hoạt động",
-    //                 "lastAccessTime": null,
-    //                 "lastUpdated": "2024-11-08T14:37:34.111006"
-    //             }
-    //         }
-    //     ]
+    // "totalPages": 1,
+    // "currentPage": 1,
+    // "pageSize": 4,
+    // "totalElements": 2,
+    // "data": [
+    // {
+    // "id": "BN-3297434125CDHXD4C4KR",
+    // "fullName": "thinh",
+    // "dateOfBirth": "2000-02-02",
+    // "gender": "Nam",
+    // "insuranceId": "1222",
+    // "identificationCode": "22222",
+    // "nation": "VietNam",
+    // "occupation": "SinhVien",
+    // "phoneNumber": "5552",
+    // "email": "tgt",
+    // "country": "VietNam",
+    // "province": "BenTre",
+    // "district": "TP.BenTre",
+    // "ward": "PK",
+    // "address": "BenTre",
+    // "relationship": "Me",
+    // "note": "none",
+    // "lastUpdated": "2024-11-12T16:04:15.6161553",
+    // "customerId": "80d053c3-8821-4119-a6b9-460ea2b6dba5",
+    // "customerIdentityResponse": {
+    // "id": "80d053c3-8821-4119-a6b9-460ea2b6dba5",
+    // "fullName": "tgt",
+    // "dateOfBirth": "2024-11-08T00:00:00.000+00:00",
+    // "gender": "Nam",
+    // "phoneNumber": "555",
+    // "email": "tgt",
+    // "status": "Đang hoạt động",
+    // "lastAccessTime": null,
+    // "lastUpdated": "2024-11-08T14:37:34.111006"
+    // }
+    // },
+    // {
+    // "id": "BN-7525982749XYLH2O5X0N",
+    // "fullName": "thinh",
+    // "dateOfBirth": "2000-02-02",
+    // "gender": "Nam",
+    // "insuranceId": "1222",
+    // "identificationCode": "22222",
+    // "nation": "VietNam",
+    // "occupation": "SinhVien",
+    // "phoneNumber": "5555",
+    // "email": "tgt",
+    // "country": "VietNam",
+    // "province": "BenTre",
+    // "district": "TP.BenTre",
+    // "ward": "PK",
+    // "address": "BenTre",
+    // "relationship": "Me",
+    // "note": "none",
+    // "lastUpdated": "2024-11-12T16:04:15.8081545",
+    // "customerId": "80d053c3-8821-4119-a6b9-460ea2b6dba5",
+    // "customerIdentityResponse": {
+    // "id": "80d053c3-8821-4119-a6b9-460ea2b6dba5",
+    // "fullName": "tgt",
+    // "dateOfBirth": "2024-11-08T00:00:00.000+00:00",
+    // "gender": "Nam",
+    // "phoneNumber": "555",
+    // "email": "tgt",
+    // "status": "Đang hoạt động",
+    // "lastAccessTime": null,
+    // "lastUpdated": "2024-11-08T14:37:34.111006"
+    // }
+    // }
+    // ]
     // }
 
     @PostMapping("/customer/email")

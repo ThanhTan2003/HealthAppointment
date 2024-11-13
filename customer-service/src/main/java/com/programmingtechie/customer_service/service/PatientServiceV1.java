@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.programmingtechie.customer_service.dto.request.PatientCreationRequest;
+import com.programmingtechie.customer_service.dto.request.PatientUpdateRequest;
 import com.programmingtechie.customer_service.dto.response.CustomerIdentityResponse;
 import com.programmingtechie.customer_service.dto.response.CustomerWithPatientDetailsResponse;
 import com.programmingtechie.customer_service.dto.response.PageResponse;
@@ -36,6 +37,42 @@ public class PatientServiceV1 {
         Patient patient = mapToPatientRequest(patientRequest);
         patientRepository.save(patient);
         return mapToPatientResponse(patient);
+    }
+
+    public PatientResponse updatePatient(String patientId, PatientUpdateRequest patientUpdateRequest) {
+        Patient patient = patientRepository
+                .findById(patientId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin!"));
+
+        patient = Patient.builder()
+                .fullName(patientUpdateRequest.getFullName())
+                .dateOfBirth(patientUpdateRequest.getDateOfBirth())
+                .gender(patientUpdateRequest.getGender())
+                .insuranceId(patientUpdateRequest.getInsuranceId())
+                .identificationCode(patientUpdateRequest.getIdentificationCode())
+                .nation(patientUpdateRequest.getNation())
+                .occupation(patientUpdateRequest.getOccupation())
+                .phoneNumber(patientUpdateRequest.getPhoneNumber())
+                .email(patientUpdateRequest.getEmail())
+                .country(patientUpdateRequest.getCountry())
+                .province(patientUpdateRequest.getProvince())
+                .district(patientUpdateRequest.getDistrict())
+                .ward(patientUpdateRequest.getWard())
+                .address(patientUpdateRequest.getAddress())
+                .relationship(patientUpdateRequest.getRelationship())
+                .note(patientUpdateRequest.getNote())
+                .build();
+
+        patientRepository.save(patient);
+
+        return mapToPatientResponse(patient);
+    }
+
+    public void deletePatient(String patientId) {
+        if (!patientRepository.existsById(patientId)) {
+            throw new IllegalArgumentException("Không tìm thấy thông tin!");
+        }
+        patientRepository.deleteById(patientId);
     }
 
     public boolean isValidpatient(PatientCreationRequest patientRequest) {
