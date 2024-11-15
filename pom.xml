@@ -25,7 +25,7 @@
 		<module>api-gateway</module>
 
 		<module>doctor-service</module>
-		<module>customer-service</module>
+		<module>patient-service</module>
 		<module>medical-service</module>
 		<module>appointment-service</module>
 
