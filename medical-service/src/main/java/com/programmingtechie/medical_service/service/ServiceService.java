@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +20,7 @@ import com.programmingtechie.medical_service.repository.ServiceTypeRepository;
 import com.programmingtechie.medical_service.repository.httpClient.DoctorClient;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -192,16 +192,18 @@ public class ServiceService {
                 .build();
     }
 
-    public PageResponse<ServiceResponse> getServicesWithServiceTypeNotNull(String doctorId, String serviceTypeId, String keyword, int page, int size) {
+    public PageResponse<ServiceResponse> getServicesWithServiceTypeNotNull(
+            String doctorId, String serviceTypeId, String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<com.programmingtechie.medical_service.model.Service> pageData;
         log.info("serviceTypeId: " + serviceTypeId);
-        if(serviceTypeId == null || serviceTypeId.isEmpty())
-            pageData = serviceRepository.findServicesWithServiceTypeNotNullAndNotAssignedToDoctor(doctorId, keyword, pageable);
-        else
-        {
+        if (serviceTypeId == null || serviceTypeId.isEmpty())
+            pageData = serviceRepository.findServicesWithServiceTypeNotNullAndNotAssignedToDoctor(
+                    doctorId, keyword, pageable);
+        else {
             log.info("Chay.........");
-            pageData = serviceRepository.findServicesWithServiceTypeIdNotNullAndNotAssignedToDoctor(doctorId, serviceTypeId, keyword, pageable);
+            pageData = serviceRepository.findServicesWithServiceTypeIdNotNullAndNotAssignedToDoctor(
+                    doctorId, serviceTypeId, keyword, pageable);
         }
 
         List<ServiceResponse> serviceResponses = pageData.getContent().stream()

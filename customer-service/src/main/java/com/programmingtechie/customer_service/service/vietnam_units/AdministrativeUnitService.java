@@ -1,13 +1,15 @@
 package com.programmingtechie.customer_service.service.vietnam_units;
 
-import com.programmingtechie.customer_service.model.vietnam_units.AdministrativeUnit;
-import com.programmingtechie.customer_service.repository.vietnam_units.AdministrativeUnitRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.programmingtechie.customer_service.model.vietnam_units.AdministrativeUnit;
+import com.programmingtechie.customer_service.repository.vietnam_units.AdministrativeUnitRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
