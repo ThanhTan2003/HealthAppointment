@@ -44,7 +44,6 @@ public class UserService {
 
     final DoctorClient doctorClient;
 
-
     public void createUser(UserCreationRequest request) {
 
         if (request.getUserName() == null || request.getUserName().isEmpty()) {

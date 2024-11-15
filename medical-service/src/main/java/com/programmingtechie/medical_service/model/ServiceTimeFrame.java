@@ -1,6 +1,5 @@
 package com.programmingtechie.medical_service.model;
 
-import java.sql.Time;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

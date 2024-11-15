@@ -87,6 +87,4 @@ public interface DoctorRepository extends JpaRepository<Doctor, String> {
             @Param("specialty") String specialty,
             @Param("status") String status,
             Pageable pageable);
-
-
 }

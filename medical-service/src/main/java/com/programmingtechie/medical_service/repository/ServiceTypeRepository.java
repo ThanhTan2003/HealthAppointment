@@ -18,6 +18,7 @@ public interface ServiceTypeRepository extends JpaRepository<ServiceType, String
             nativeQuery = true)
     Page<ServiceType> searchServiceTypes(@Param("keyword") String keyword, Pageable pageable);
 
-    @Query("SELECT s FROM ServiceType s where EXISTS (SELECT 1 FROM ServiceTimeFrame stf WHERE stf.doctorService.service.serviceType.id = s.id)")
+    @Query(
+            "SELECT s FROM ServiceType s where EXISTS (SELECT 1 FROM ServiceTimeFrame stf WHERE stf.doctorService.service.serviceType.id = s.id)")
     Page<ServiceType> findDistinctServiceTypeIds(Pageable pageable);
 }

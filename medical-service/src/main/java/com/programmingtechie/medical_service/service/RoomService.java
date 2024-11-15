@@ -3,17 +3,16 @@ package com.programmingtechie.medical_service.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.programmingtechie.medical_service.dto.request.Room.RoomAvailabilityRequest;
-import com.programmingtechie.medical_service.dto.response.ServiceResponse;
-import com.programmingtechie.medical_service.mapper.RoomMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.programmingtechie.medical_service.dto.request.Room.RoomAvailabilityRequest;
 import com.programmingtechie.medical_service.dto.request.Room.RoomRequest;
 import com.programmingtechie.medical_service.dto.response.PageResponse;
 import com.programmingtechie.medical_service.dto.response.RoomResponse;
+import com.programmingtechie.medical_service.mapper.RoomMapper;
 import com.programmingtechie.medical_service.model.Room;
 import com.programmingtechie.medical_service.repository.RoomRepository;
 
@@ -116,9 +115,11 @@ public class RoomService {
 
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        Page<Room> pageData = roomRepository.getListOfAvailableRooms(dayOfWeek, startTime, endTime, function, keyword, pageable);
+        Page<Room> pageData =
+                roomRepository.getListOfAvailableRooms(dayOfWeek, startTime, endTime, function, keyword, pageable);
 
-        List<RoomResponse> roomResponses = pageData.getContent().stream().map(roomMapper::toRoomResponse).toList();
+        List<RoomResponse> roomResponses =
+                pageData.getContent().stream().map(roomMapper::toRoomResponse).toList();
 
         return PageResponse.<RoomResponse>builder()
                 .currentPage(page)

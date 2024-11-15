@@ -1,7 +1,5 @@
 package com.programmingtechie.medical_service.dto.response;
 
-import java.sql.Time;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,5 +23,4 @@ public class ServiceTimeFrameResponse {
     private String roomId;
     private DoctorServiceResponse doctorServiceResponse;
     private RoomResponse roomResponse;
-
 }

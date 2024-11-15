@@ -1,7 +1,5 @@
 package com.programmingtechie.medical_service.dto.request;
 
-import java.sql.Time;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

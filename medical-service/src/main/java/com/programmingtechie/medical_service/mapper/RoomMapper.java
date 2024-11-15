@@ -1,8 +1,9 @@
 package com.programmingtechie.medical_service.mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.programmingtechie.medical_service.dto.response.RoomResponse;
 import com.programmingtechie.medical_service.model.Room;
-import org.springframework.stereotype.Component;
 
 @Component
 public class RoomMapper {

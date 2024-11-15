@@ -1,13 +1,14 @@
 package com.programmingtechie.medical_service.mapper;
 
-import com.programmingtechie.medical_service.dto.response.DoctorServiceResponse;
-import com.programmingtechie.medical_service.dto.response.RoomResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import com.programmingtechie.medical_service.dto.response.DoctorServiceResponse;
+import com.programmingtechie.medical_service.dto.response.RoomResponse;
 import com.programmingtechie.medical_service.dto.response.ServiceTimeFrameResponse;
 import com.programmingtechie.medical_service.model.ServiceTimeFrame;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
@@ -17,7 +18,8 @@ public class ServiceTimeFrameMapper {
     private final RoomMapper roomMapper;
 
     public ServiceTimeFrameResponse toServiceTimeFrameResponse(ServiceTimeFrame serviceTimeFrame) {
-        DoctorServiceResponse doctorServiceResponse = doctorServiceMapper.toDoctorServiceResponse(serviceTimeFrame.getDoctorService());
+        DoctorServiceResponse doctorServiceResponse =
+                doctorServiceMapper.toDoctorServiceResponse(serviceTimeFrame.getDoctorService());
         RoomResponse roomResponse = roomMapper.toRoomResponse(serviceTimeFrame.getRoom());
 
         return ServiceTimeFrameResponse.builder()

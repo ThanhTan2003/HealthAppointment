@@ -42,15 +42,15 @@ public class PatientMapper {
                 .lastUpdated(LocalDateTime.now())
                 .build();
 
-//        try {
-//            log.info("chay......");
-            CustomerIdentityResponse customerIdentityResponse =
-                    customerIdentityClient.getByCustomerId(patientResponse.getCustomerId());
-            patientResponse.setCustomerIdentityResponse(customerIdentityResponse);
-            log.info(customerIdentityResponse.toString());
-//        } catch (Exception e) {
-//            log.error("Connect error to Customer service: " + e.toString());
-//        }
+        //        try {
+        //            log.info("chay......");
+        CustomerIdentityResponse customerIdentityResponse =
+                customerIdentityClient.getByCustomerId(patientResponse.getCustomerId());
+        patientResponse.setCustomerIdentityResponse(customerIdentityResponse);
+        log.info(customerIdentityResponse.toString());
+        //        } catch (Exception e) {
+        //            log.error("Connect error to Customer service: " + e.toString());
+        //        }
         return patientResponse;
     }
 }

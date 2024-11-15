@@ -48,7 +48,8 @@ public class QualificationControllerV1 {
 
     // Lấy qualification theo abbreviation
     @GetMapping("/public/abbreviation/{abbreviation}")
-    public ResponseEntity<QualificationResponse> getQualificationByAbbreviationByCustomer(@PathVariable String abbreviation) {
+    public ResponseEntity<QualificationResponse> getQualificationByAbbreviationByCustomer(
+            @PathVariable String abbreviation) {
         Optional<QualificationResponse> qualification =
                 qualificationServiceV1.getQualificationByAbbreviation(abbreviation);
         return qualification.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()

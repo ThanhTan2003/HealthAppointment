@@ -1,14 +1,14 @@
 package com.programmingtechie.identity_service.mapper;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Component;
 
 import com.programmingtechie.identity_service.dto.response.UserResponse;
 import com.programmingtechie.identity_service.model.User;
 
 import lombok.RequiredArgsConstructor;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -27,8 +27,7 @@ public class UserMapper {
     }
 
     private String getTimeSinceLastAccess(LocalDateTime lastAccessTime) {
-        if(lastAccessTime == null)
-            return "Chưa sử dụng";
+        if (lastAccessTime == null) return "Chưa sử dụng";
         LocalDateTime now = LocalDateTime.now();
         Duration duration = Duration.between(lastAccessTime, now);
 

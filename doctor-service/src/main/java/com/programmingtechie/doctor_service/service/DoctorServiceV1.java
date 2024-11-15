@@ -1,10 +1,8 @@
 package com.programmingtechie.doctor_service.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.programmingtechie.doctor_service.repository.httpClient.MedicalClient;
 import org.springframework.data.domain.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -20,6 +18,7 @@ import com.programmingtechie.doctor_service.model.DoctorSpecialty;
 import com.programmingtechie.doctor_service.model.Qualification;
 import com.programmingtechie.doctor_service.model.Specialty;
 import com.programmingtechie.doctor_service.repository.DoctorRepository;
+import com.programmingtechie.doctor_service.repository.httpClient.MedicalClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -195,9 +194,8 @@ public class DoctorServiceV1 {
         // Tìm danh sách bác sĩ dựa trên danh sách doctorId đã có
         List<Doctor> doctors = doctorRepository.findByIdIn(doctorIdsWithService);
 
-        List<DoctorResponse> doctorResponses = doctors.stream()
-                .map(this::mapToDoctorResponse)
-                .collect(Collectors.toList());
+        List<DoctorResponse> doctorResponses =
+                doctors.stream().map(this::mapToDoctorResponse).collect(Collectors.toList());
 
         return PageResponse.<DoctorResponse>builder()
                 .currentPage(response.getCurrentPage())
@@ -207,5 +205,4 @@ public class DoctorServiceV1 {
                 .data(doctorResponses)
                 .build();
     }
-
 }

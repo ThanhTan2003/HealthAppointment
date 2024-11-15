@@ -64,10 +64,9 @@ public class CustomerController {
     }
 
     @PutMapping("/update/{id}")
-    @PostAuthorize("" +
-            "hasRole('QuanTriVienHeThong') or " +
-            "hasRole('GiamDoc') or " +
-            "returnObject.id == authentication.principal.claims['id']")
+    @PostAuthorize("" + "hasRole('QuanTriVienHeThong') or "
+            + "hasRole('GiamDoc') or "
+            + "returnObject.id == authentication.principal.claims['id']")
     public CustomerResponse updateCustomer(
             @PathVariable("id") String customerId, @RequestBody CustomerRequest request) {
         return customerService.updateCustomer(customerId, request);
@@ -80,19 +79,17 @@ public class CustomerController {
     }
 
     @GetMapping("/email")
-    @PostAuthorize("" +
-            "hasRole('QuanTriVienHeThong') or " +
-            "hasRole('GiamDoc') or " +
-            "returnObject.email == authentication.principal.claims['email']")
+    @PostAuthorize("" + "hasRole('QuanTriVienHeThong') or "
+            + "hasRole('GiamDoc') or "
+            + "returnObject.email == authentication.principal.claims['email']")
     public CustomerResponse findCustomerByEmail(@RequestParam("email") String email) {
         return customerService.findCustomerByEmail(email);
     }
 
     @GetMapping("/phone-number")
-    @PostAuthorize("" +
-            "hasRole('QuanTriVienHeThong') or " +
-            "hasRole('GiamDoc') or " +
-            "returnObject.email == authentication.principal.claims['email']")
+    @PostAuthorize("" + "hasRole('QuanTriVienHeThong') or "
+            + "hasRole('GiamDoc') or "
+            + "returnObject.email == authentication.principal.claims['email']")
     public CustomerResponse findCustomerByPhoneNumber(@RequestParam("phone") String phoneNumber) {
         return customerService.findCustomerByPhoneNumber(phoneNumber);
     }
@@ -109,5 +106,4 @@ public class CustomerController {
     public CustomerResponse getInfo() {
         return customerService.getMyInfo();
     }
-
 }

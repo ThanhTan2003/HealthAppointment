@@ -16,11 +16,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/medical/service-time-frame/public/**",
-            "/api/v1/medical/service-type/public/**",
-            "/api/v1/medical/service/public/**",
-            "/api/v1/medical/service-time-frame/public/**",
-            "/api/v1/medical/doctor-service/public/**"
+        "/api/v1/medical/service-time-frame/public/**",
+        "/api/v1/medical/service-type/public/**",
+        "/api/v1/medical/service/public/**",
+        "/api/v1/medical/service-time-frame/public/**",
+        "/api/v1/medical/doctor-service/public/**"
     };
 
     @Autowired

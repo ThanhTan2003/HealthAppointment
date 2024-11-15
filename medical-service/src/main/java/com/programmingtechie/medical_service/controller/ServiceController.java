@@ -40,10 +40,7 @@ public class ServiceController {
     }
 
     @GetMapping("/get-all")
-    @PreAuthorize("" +
-            "hasRole('QuanTriVienHeThong') or " +
-            "hasRole('GiamDoc') or " +
-            "hasRole('NguoiDung')")
+    @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc') or " + "hasRole('NguoiDung')")
     public ResponseEntity<PageResponse<ServiceResponse>> getAllServices(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
@@ -79,10 +76,7 @@ public class ServiceController {
     }
 
     @GetMapping("/specialty/{specialtyId}")
-    @PreAuthorize("" +
-            "hasRole('QuanTriVienHeThong') or " +
-            "hasRole('GiamDoc') or " +
-            "hasRole('NguoiDung')")
+    @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc') or " + "hasRole('NguoiDung')")
     public ResponseEntity<PageResponse<ServiceResponse>> getServicesBySpecialtyId(
             @PathVariable String specialtyId,
             @RequestParam(value = "page", defaultValue = "1") int page,

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -61,7 +60,8 @@ public class ServiceTimeFrameController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
-    public ResponseEntity<ServiceTimeFrameResponse> createServiceTimeFrame(@RequestBody ServiceTimeFrameRequest serviceTimeFrameRequest) {
+    public ResponseEntity<ServiceTimeFrameResponse> createServiceTimeFrame(
+            @RequestBody ServiceTimeFrameRequest serviceTimeFrameRequest) {
         return ResponseEntity.ok(serviceTimeFrameService.createServiceTimeFrame(serviceTimeFrameRequest));
     }
 
@@ -82,25 +82,23 @@ public class ServiceTimeFrameController {
     @GetMapping("/get-by-doctor-and-day")
     @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc') or hasRole('NguoiDung')")
     public ResponseEntity<List<ServiceTimeFrameResponse>> getServiceTimeFramesByDoctorIdAndDayOfWeek(
-            @RequestParam(value = "doctorId") String doctorId,
-            @RequestParam(value = "dayOfWeek") String dayOfWeek) {
-        return ResponseEntity.ok(serviceTimeFrameService.getServiceTimeFramesByDoctorIdAndDayOfWeek(doctorId, dayOfWeek));
+            @RequestParam(value = "doctorId") String doctorId, @RequestParam(value = "dayOfWeek") String dayOfWeek) {
+        return ResponseEntity.ok(
+                serviceTimeFrameService.getServiceTimeFramesByDoctorIdAndDayOfWeek(doctorId, dayOfWeek));
     }
 
     @GetMapping("/public/get-doctor-ids")
     public PageResponse<String> getDoctorsWithServiceTimeFrames(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
-        return  serviceTimeFrameService.getDoctorsAllServiceTimeFrames(page, size);
+        return serviceTimeFrameService.getDoctorsAllServiceTimeFrames(page, size);
     }
 
     @GetMapping("/public/get-specialty-ids")
     PageResponse<String> getListSpecialtyWithServiceTimeFrames(
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size
-    )
-    {
-        return  serviceTimeFrameService.getListSpecialtyWithServiceTimeFrames(page, size);
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        return serviceTimeFrameService.getListSpecialtyWithServiceTimeFrames(page, size);
     }
 
     @GetMapping("/public/available-days")
@@ -112,13 +110,12 @@ public class ServiceTimeFrameController {
     // API nhận doctorServiceId và dayOfWeek, trả về danh sách các ServiceTimeFrame
     @GetMapping("/public/get-by-doctor-and-day")
     public ResponseEntity<List<ServiceTimeFrameResponse>> getServiceTimeFramesByDoctorIdAndDayOfWeekByCustomer(
-            @RequestParam(value = "doctorId") String doctorId,
-            @RequestParam(value = "dayOfWeek") String dayOfWeek) {
+            @RequestParam(value = "doctorId") String doctorId, @RequestParam(value = "dayOfWeek") String dayOfWeek) {
         // Gọi service để lấy dữ liệu
-        List<ServiceTimeFrameResponse> response = serviceTimeFrameService.getServiceTimeFramesByDoctorIdAndDayOfWeek(doctorId, dayOfWeek);
+        List<ServiceTimeFrameResponse> response =
+                serviceTimeFrameService.getServiceTimeFramesByDoctorIdAndDayOfWeek(doctorId, dayOfWeek);
 
         // Trả về kết quả dưới dạng ResponseEntity
         return ResponseEntity.ok(response);
     }
 }
-

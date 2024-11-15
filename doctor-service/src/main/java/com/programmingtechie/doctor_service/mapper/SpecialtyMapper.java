@@ -1,8 +1,9 @@
 package com.programmingtechie.doctor_service.mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.programmingtechie.doctor_service.dto.response.SpecialtyResponse;
 import com.programmingtechie.doctor_service.model.Specialty;
-import org.springframework.stereotype.Component;
 
 @Component
 public class SpecialtyMapper {
