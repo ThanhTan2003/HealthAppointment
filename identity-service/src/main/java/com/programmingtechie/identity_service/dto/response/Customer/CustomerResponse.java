@@ -20,6 +20,6 @@ public class CustomerResponse {
     private String phoneNumber;
     private String email;
     private String status;
-    private LocalDateTime lastAccessTime;
+    private String lastAccessTime;
     private LocalDateTime lastUpdated;
 }

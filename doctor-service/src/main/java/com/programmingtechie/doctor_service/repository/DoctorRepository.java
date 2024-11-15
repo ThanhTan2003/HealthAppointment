@@ -1,5 +1,6 @@
 package com.programmingtechie.doctor_service.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -18,6 +19,8 @@ public interface DoctorRepository extends JpaRepository<Doctor, String> {
     Optional<Doctor> findByPhoneNumber(String phoneNumber);
 
     Optional<Doctor> findByGender(String gender);
+
+    List<Doctor> findByIdIn(List<String> ids);
 
     // Tìm danh sách bác sĩ theo Specialty với phân trang
     @Query("SELECT d FROM Doctor d JOIN d.specialties ds WHERE ds.specialty.id = :specialtyId")
@@ -84,4 +87,6 @@ public interface DoctorRepository extends JpaRepository<Doctor, String> {
             @Param("specialty") String specialty,
             @Param("status") String status,
             Pageable pageable);
+
+
 }

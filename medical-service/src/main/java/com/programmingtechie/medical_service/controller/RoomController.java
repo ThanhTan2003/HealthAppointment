@@ -2,15 +2,18 @@ package com.programmingtechie.medical_service.controller;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.programmingtechie.medical_service.dto.request.Room.RoomAvailabilityRequest;
+import com.programmingtechie.medical_service.dto.response.ServiceResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
-import com.programmingtechie.medical_service.dto.request.RoomRequest;
+import com.programmingtechie.medical_service.dto.request.Room.RoomRequest;
 import com.programmingtechie.medical_service.dto.response.PageResponse;
 import com.programmingtechie.medical_service.dto.response.RoomResponse;
 import com.programmingtechie.medical_service.service.RoomService;
@@ -39,44 +42,91 @@ public class RoomController {
     }
 
     @GetMapping("/get-all")
-    @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
+    @PreAuthorize(""
+            + "hasRole('QuanTriVienHeThong') or "
+            + "hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<RoomResponse>> getAllRooms(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
         return ResponseEntity.ok(roomService.getAllRooms(page, size));
     }
 
+    @GetMapping("/get-functions")
+    @PreAuthorize(""
+            + "hasRole('QuanLyLichKhamBenh') or "
+            + "hasRole('GiamDoc')")
+    public ResponseEntity<List<String>> getRoomFunctions() {
+        List<String> functions = roomService.getDistinctFunctions();
+        return ResponseEntity.ok(functions);
+    }
+
     @GetMapping("/id/{id}")
-    @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
+    @PreAuthorize(""
+            + "hasRole('QuanTriVienHeThong') or "
+            + "hasRole('GiamDoc')")
     public ResponseEntity<RoomResponse> getRoomById(@PathVariable String id) {
         return ResponseEntity.ok(roomService.getRoomById(id));
     }
 
     @PostMapping("/create")
-    @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
+    @PreAuthorize(""
+            + "hasRole('QuanTriVienHeThong') or "
+            + "hasRole('GiamDoc')")
     public ResponseEntity<RoomResponse> createRoom(@RequestBody RoomRequest roomRequest) {
         return ResponseEntity.ok(roomService.createRoom(roomRequest));
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
+    @PreAuthorize(""
+            + "hasRole('QuanTriVienHeThong') or "
+            + "hasRole('GiamDoc')")
     public ResponseEntity<RoomResponse> updateRoom(@PathVariable String id, @RequestBody RoomRequest roomRequest) {
         return ResponseEntity.ok(roomService.updateRoom(id, roomRequest));
     }
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
+    @PreAuthorize(""
+            + "hasRole('QuanTriVienHeThong') or "
+            + "hasRole('GiamDoc')")
     public ResponseEntity<Void> deleteRoom(@PathVariable String id) {
         roomService.deleteRoom(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/search")
-    @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
+    @PreAuthorize(""
+            + "hasRole('QuanTriVienHeThong') or "
+            + "hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<RoomResponse>> searchRooms(
             @RequestParam("keyword") String keyword,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
         return ResponseEntity.ok(roomService.searchRooms(keyword, page, size));
+    }
+
+//    // lấy danh sách các phòng có sẵn
+//    @GetMapping("/get-list-of-available-rooms")
+//    @PreAuthorize(""
+//            + "hasRole('GiamDoc') or "
+//            + "hasRole('QuanLyLichKhamBenh')")
+//    public ResponseEntity<PageResponse<ServiceResponse>> getListOfAvailableRooms(
+//            @RequestParam("day-of-week") Integer dayOfWeek,
+//            @RequestParam("start-time") Integer startTime,
+//            @RequestParam("end-time") Integer endTime,
+//            @RequestParam("function") String function,
+//            @RequestParam("keyword") String keyword,
+//            @RequestParam(value = "page", defaultValue = "1") int page,
+//            @RequestParam(value = "size", defaultValue = "10") int size) {
+//        return ResponseEntity.ok(roomService.getListOfAvailableRooms(page, size));
+//    }
+
+    @GetMapping("/get-list-of-available-rooms")
+    @PreAuthorize("hasRole('GiamDoc') or hasRole('QuanLyLichKhamBenh')")
+    public ResponseEntity<PageResponse<RoomResponse>> getListOfAvailableRooms(
+            @ModelAttribute RoomAvailabilityRequest request,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        return ResponseEntity.ok(roomService.getListOfAvailableRooms(request, page, size));
     }
 }

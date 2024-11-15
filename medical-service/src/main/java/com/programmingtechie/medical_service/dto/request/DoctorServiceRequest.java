@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class DoctorServiceRequest {
     private String doctorId;
     private String serviceId;
-    private String status;
+    private Boolean isActive;
 }

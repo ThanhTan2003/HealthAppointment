@@ -39,16 +39,34 @@ public class ServiceTypeController {
     }
 
     @GetMapping("/get-all")
-    @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc') or " + "hasRole('NguoiDung')")
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc') or " +
+            "hasRole('NguoiDung')")
     public ResponseEntity<PageResponse<ServiceTypeResponse>> getAllServiceTypes(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
         return ResponseEntity.ok(serviceTypeService.getAllServiceTypes(page, size));
     }
 
+    @GetMapping("/public/get-all")
+    public ResponseEntity<PageResponse<ServiceTypeResponse>> getAllServiceTypesByCustomer(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        return ResponseEntity.ok(serviceTypeService.getAllServiceTypes(page, size));
+    }
+
     @GetMapping("/id/{id}")
-    @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc') or " + "hasRole('NguoiDung')")
+    @PreAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc') or " +
+            "hasRole('NguoiDung')")
     public ResponseEntity<ServiceTypeResponse> getServiceTypeById(@PathVariable String id) {
+        return ResponseEntity.ok(serviceTypeService.getServiceTypeById(id));
+    }
+
+    @GetMapping("/public/id/{id}")
+    public ResponseEntity<ServiceTypeResponse> getServiceTypeByIdByCustomer(@PathVariable String id) {
         return ResponseEntity.ok(serviceTypeService.getServiceTypeById(id));
     }
 

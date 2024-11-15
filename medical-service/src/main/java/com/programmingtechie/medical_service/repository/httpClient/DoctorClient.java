@@ -25,6 +25,6 @@ public interface DoctorClient {
     @GetMapping(value = "/id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public DoctorResponse getById(@PathVariable String id);
 
-    @PostMapping(value = "/specialty/get-by-ids", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/specialty/public/get-by-ids", produces = MediaType.APPLICATION_JSON_VALUE)
     List<SpecialtyResponse> getSpecialtiesByIds(@RequestBody List<String> specialtyIds);
 }

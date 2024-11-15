@@ -35,7 +35,7 @@ public interface ServiceRepository extends JpaRepository<Service, String> {
 
     @Query(
             value = "SELECT * FROM service s WHERE s.specialty_id IN :specialtyIds "
-                    + "AND s.id NOT IN (SELECT ds.service_id FROM doctor_service ds WHERE ds.doctor_id = :doctorId) "
+                    + "AND NOT EXISTS (SELECT 1 FROM doctor_service ds WHERE ds.service_id = s.id AND ds.doctor_id = :doctorId) "
                     + "AND (unaccent(LOWER(s.id)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) "
                     + "OR unaccent(LOWER(s.name)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))))",
             nativeQuery = true)
@@ -47,7 +47,7 @@ public interface ServiceRepository extends JpaRepository<Service, String> {
 
     @Query(
             value = "SELECT * FROM service s WHERE s.specialty_id = :specialtyId "
-                    + "AND s.id NOT IN (SELECT ds.service_id FROM doctor_service ds WHERE ds.doctor_id = :doctorId) "
+                    + "AND s.id NOT EXISTS (SELECT 1 FROM doctor_service ds WHERE ds.doctor_id = :doctorId) "
                     + "AND (unaccent(LOWER(s.id)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) "
                     + "OR unaccent(LOWER(s.name)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))))",
             nativeQuery = true)
@@ -59,7 +59,7 @@ public interface ServiceRepository extends JpaRepository<Service, String> {
 
     @Query(
             value = "SELECT * FROM service s WHERE "
-                    + "s.id NOT IN (SELECT ds.service_id FROM doctor_service ds WHERE ds.doctor_id = :doctorId) "
+                    + "NOT EXISTS (SELECT 1 FROM doctor_service ds WHERE ds.service_id = s.id AND ds.doctor_id = :doctorId) "
                     + "AND (unaccent(LOWER(s.id)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) "
                     + "OR unaccent(LOWER(s.name)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))))",
             nativeQuery = true)
@@ -70,7 +70,7 @@ public interface ServiceRepository extends JpaRepository<Service, String> {
 
     @Query(
             value = "SELECT * FROM service s WHERE s.service_type_id = :serviceTypeId "
-                    + "AND s.id NOT IN (SELECT ds.service_id FROM doctor_service ds WHERE ds.doctor_id = :doctorId) "
+                    + "AND NOT EXISTS (SELECT 1 FROM doctor_service ds WHERE ds.service_id = s.id AND ds.doctor_id = :doctorId) "
                     + "AND (unaccent(LOWER(s.id)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) "
                     + "OR unaccent(LOWER(s.name)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))))",
             nativeQuery = true)

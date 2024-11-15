@@ -31,6 +31,9 @@ public class Room {
     @Column(name = "status", length = 20)
     private String status;
 
+    @Column(name = "note", columnDefinition = "TEXT")
+    private String note;
+
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;
 

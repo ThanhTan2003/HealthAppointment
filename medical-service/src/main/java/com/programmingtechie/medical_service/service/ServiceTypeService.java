@@ -23,7 +23,7 @@ public class ServiceTypeService {
 
     public PageResponse<ServiceTypeResponse> getAllServiceTypes(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<ServiceType> pageData = serviceTypeRepository.getAllServiceTypes(pageable);
+        Page<ServiceType> pageData = serviceTypeRepository.findDistinctServiceTypeIds(pageable);
 
         List<ServiceTypeResponse> serviceTypeResponses = pageData.getContent().stream()
                 .map(this::mapToServiceTypeResponse)

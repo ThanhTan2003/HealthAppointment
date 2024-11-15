@@ -76,7 +76,7 @@ public class DoctorServiceService {
         DoctorService doctorService = DoctorService.builder()
                 .doctorId(doctorServiceRequest.getDoctorId())
                 .service(service)
-                .status(doctorServiceRequest.getStatus())
+                .isActive(doctorServiceRequest.getIsActive())
                 .build();
 
         doctorService = doctorServiceRepository.save(doctorService);
@@ -89,7 +89,7 @@ public class DoctorServiceService {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy dịch vụ bác sĩ với id: " + id));
 
         doctorService.setDoctorId(doctorServiceRequest.getDoctorId());
-        doctorService.setStatus(doctorServiceRequest.getStatus());
+        doctorService.setIsActive(doctorServiceRequest.getIsActive());
 
         doctorService = doctorServiceRepository.save(doctorService);
         return doctorServiceMapper.toDoctorServiceResponse(doctorService);

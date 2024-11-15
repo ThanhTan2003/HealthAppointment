@@ -27,10 +27,23 @@ public class DoctorControllerV1 {
         return doctorServiceV1.getAll(page, size);
     }
 
+    @GetMapping("/public/get-all")
+    public PageResponse<DoctorResponse> getAllByCustomer(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return doctorServiceV1.getAllDoctorsWithServiceTimeFrame(page, size);
+    }
+
     // Lấy bác sĩ theo id qua GET
     @GetMapping("/id/{id}")
     @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public DoctorResponse getById(@PathVariable String id) {
+        return doctorServiceV1.getById(id);
+    }
+
+    // Lấy bác sĩ theo id qua GET
+    @GetMapping("/public/id/{id}")
+    public DoctorResponse getByIdByCustomer(@PathVariable String id) {
         return doctorServiceV1.getById(id);
     }
 

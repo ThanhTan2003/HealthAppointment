@@ -30,10 +30,24 @@ public class SpecialtyControllerV1 {
         return ResponseEntity.ok(specialtyServiceV1.getAllSpecialties(page, size));
     }
 
+    @GetMapping("/public/get-all")
+    public ResponseEntity<PageResponse<SpecialtyResponse>> getAllSpecialtiesByCustomer(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return ResponseEntity.ok(specialtyServiceV1.getAllSpecialtiesByCustomer(page, size));
+    }
+
     // Lấy specialty theo id
     @GetMapping("/id/{id}")
     @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc') or " + "hasRole('NguoiDung')")
     public ResponseEntity<SpecialtyResponse> getSpecialtyById(@PathVariable String id) {
+        Optional<SpecialtyResponse> specialty = specialtyServiceV1.getSpecialtyById(id);
+        return specialty.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()
+                .build());
+    }
+
+    @GetMapping("/public/id/{id}")
+    public ResponseEntity<SpecialtyResponse> getSpecialtyByIdByCustomer(@PathVariable String id) {
         Optional<SpecialtyResponse> specialty = specialtyServiceV1.getSpecialtyById(id);
         return specialty.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()
                 .build());
@@ -49,8 +63,7 @@ public class SpecialtyControllerV1 {
         return ResponseEntity.ok(specialtyServiceV1.searchSpecialties(keyword, page, size));
     }
 
-    @PostMapping("/get-by-ids")
-    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
+    @PostMapping("/public/get-by-ids")
     public ResponseEntity<List<SpecialtyResponse>> getSpecialtiesByIds(
             @RequestBody List<String> specialtyIds) {
         return ResponseEntity.ok(specialtyServiceV1.getSpecialtiesByIds(specialtyIds));

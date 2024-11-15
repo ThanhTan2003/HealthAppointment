@@ -1,4 +1,4 @@
-package com.programmingtechie.medical_service.dto.request;
+package com.programmingtechie.medical_service.dto.request.Room;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

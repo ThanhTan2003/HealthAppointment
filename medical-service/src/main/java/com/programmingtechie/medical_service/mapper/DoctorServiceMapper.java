@@ -12,11 +12,8 @@ public class DoctorServiceMapper {
                 .id(doctorService.getId())
                 .doctorId(doctorService.getDoctorId())
                 .serviceId(doctorService.getService().getId())
-                .roomId(
-                        doctorService.getRoom() != null
-                                ? doctorService.getRoom().getId()
-                                : null)
-                .status(doctorService.getStatus())
+                .isActive(doctorService.getIsActive())
+                .service(doctorService.getService())
                 .build();
     }
 }

@@ -1,8 +1,10 @@
 package com.programmingtechie.doctor_service.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.doctor_service.repository.httpClient.MedicalClient;
 import org.springframework.data.domain.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,8 @@ import lombok.extern.slf4j.Slf4j;
 public class DoctorServiceV1 {
     final DoctorRepository doctorRepository;
     final WebClient.Builder webClientBuilder;
+
+    final MedicalClient medicalClient;
 
     // Lấy tất cả danh sách bác sĩ với phân trang
     public PageResponse<DoctorResponse> getAll(int page, int size) {
@@ -181,4 +185,27 @@ public class DoctorServiceV1 {
                         .collect(Collectors.toList()))
                 .build();
     }
+
+    public PageResponse<DoctorResponse> getAllDoctorsWithServiceTimeFrame(int page, int size) {
+        // Gọi Medical Service để lấy danh sách các doctorId có ServiceTimeFrame
+        PageResponse<String> response = medicalClient.getDoctorsWithServiceTimeFrames(page, size);
+
+        List<String> doctorIdsWithService = response.getData();
+
+        // Tìm danh sách bác sĩ dựa trên danh sách doctorId đã có
+        List<Doctor> doctors = doctorRepository.findByIdIn(doctorIdsWithService);
+
+        List<DoctorResponse> doctorResponses = doctors.stream()
+                .map(this::mapToDoctorResponse)
+                .collect(Collectors.toList());
+
+        return PageResponse.<DoctorResponse>builder()
+                .currentPage(response.getCurrentPage())
+                .pageSize(response.getPageSize())
+                .totalPages(response.getTotalPages())
+                .totalElements(response.getTotalElements())
+                .data(doctorResponses)
+                .build();
+    }
+
 }

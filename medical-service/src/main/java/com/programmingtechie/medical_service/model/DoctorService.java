@@ -26,12 +26,8 @@ public class DoctorService {
     @JoinColumn(name = "service_id", nullable = false)
     private Service service;
 
-    @ManyToOne
-    @JoinColumn(name = "room_id")
-    private Room room;
-
-    @Column(name = "status", length = 20)
-    private String status;
+    @Column(name = "is_active")
+    private Boolean isActive;
 
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;

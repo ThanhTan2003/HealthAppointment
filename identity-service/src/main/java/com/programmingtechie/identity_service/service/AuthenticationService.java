@@ -1,7 +1,9 @@
 package com.programmingtechie.identity_service.service;
 
 import java.text.ParseException;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Optional;
@@ -114,8 +116,7 @@ public class AuthenticationService {
                         Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli())) // Thoi gian het han
                 .jwtID(UUID.randomUUID().toString()) // ID cua JWT
                 .claim("name", customer.getFullName())
-                .claim("phone_number", customer.getPhoneNumber())
-                .claim("email", customer.getEmail())
+                .claim("id", customer.getId())
                 .claim("scope", "NguoiDung") // Quyen han duoc gan co dinh la "NguoiDung"
                 .build();
 
@@ -141,6 +142,8 @@ public class AuthenticationService {
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10); // Ma hoa mat khau
         boolean result = passwordEncoder.matches(request.getPassword(), user.getPassword()); // Kiem tra mat khau
+        if(result)
+            updatelastAccessTime(user);
         return AuthenticationResponse.builder()
                 .authenticated(result) // Tra ve ket qua dang nhap
                 .token(generateToken(user)) // Tra ve token neu dang nhap thanh cong
@@ -172,10 +175,13 @@ public class AuthenticationService {
             throw new IllegalArgumentException("Thông tin đăng nhập không hợp lệ!");
         }
 
+        updatelastAccessTime(customer.get());
+
         // Trả về phản hồi sau khi đăng nhập thành công
         return AuthenticationResponse.builder()
                 .authenticated(true)
                 .token(generateCustomerToken(foundCustomer))
+                .id(customer.get().getId())
                 .build();
     }
 
@@ -298,5 +304,17 @@ public class AuthenticationService {
                 .token(token)
                 .authenticated(true)
                 .build(); // Tra ve token moi va ket qua xac thuc
+    }
+
+    private void updatelastAccessTime(User user)
+    {
+        user.setLastAccessTime(LocalDateTime.now());
+        userRepository.save(user);
+    }
+
+    private void updatelastAccessTime(Customer customer)
+    {
+        customer.setLastAccessTime(LocalDateTime.now());
+        customerRepository.save(customer);
     }
 }

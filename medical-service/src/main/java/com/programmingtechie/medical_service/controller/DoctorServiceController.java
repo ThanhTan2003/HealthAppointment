@@ -81,4 +81,12 @@ public class DoctorServiceController {
             @RequestParam(value = "size", defaultValue = "10") int size) {
         return ResponseEntity.ok(doctorServiceService.getDoctorServicesByDoctorId(doctorId, page, size));
     }
+
+    @GetMapping("/public/doctor-id/{doctorId}")
+    public ResponseEntity<PageResponse<DoctorServiceResponse>> getDoctorServicesByDoctorIdPublic(
+            @PathVariable String doctorId,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        return ResponseEntity.ok(doctorServiceService.getDoctorServicesByDoctorId(doctorId, page, size));
+    }
 }

@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.doctor_service.dto.response.DoctorResponse;
+import com.programmingtechie.doctor_service.mapper.SpecialtyMapper;
+import com.programmingtechie.doctor_service.model.Doctor;
+import com.programmingtechie.doctor_service.repository.httpClient.MedicalClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +31,10 @@ public class SpecialtyServiceV1 {
     final SpecialtyRepository specialtyRepository;
     final WebClient.Builder webClientBuilder;
 
+    final SpecialtyMapper specialtyMapper;
+
+    final MedicalClient medicalClient;
+
     // Lấy tất cả specialties với phân trang
     public PageResponse<SpecialtyResponse> getAllSpecialties(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -38,33 +46,17 @@ public class SpecialtyServiceV1 {
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(pageData.getContent().stream()
-                        .map(this::mapToSpecialtyResponse)
+                        .map(specialtyMapper::toSpecialtyResponse)
                         .collect(Collectors.toList()))
                 .build();
     }
 
     // Lấy specialty theo id
     public Optional<SpecialtyResponse> getSpecialtyById(String id) {
-        return specialtyRepository.findById(id).map(this::mapToSpecialtyResponse);
+        return specialtyRepository.findById(id).map(specialtyMapper::toSpecialtyResponse);
     }
 
-    // Chuyển đổi từ Specialty sang SpecialtyResponse
-    private SpecialtyResponse mapToSpecialtyResponse(Specialty specialty) {
-        return SpecialtyResponse.builder()
-                .specialtyId(specialty.getId())
-                .specialtyName(specialty.getName())
-                .description(specialty.getDescription())
-                .build();
-    }
 
-    // Chuyển đổi từ DTO SpecialtyResponse sang Entity Specialty
-    private Specialty mapToSpecialtyEntity(SpecialtyResponse specialtyResponse) {
-        return Specialty.builder()
-                .id(specialtyResponse.getSpecialtyId())
-                .name(specialtyResponse.getSpecialtyName())
-                .description(specialtyResponse.getDescription())
-                .build();
-    }
 
     public PageResponse<SpecialtyResponse> searchSpecialties(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -76,7 +68,7 @@ public class SpecialtyServiceV1 {
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(pageData.getContent().stream()
-                        .map(this::mapToSpecialtyResponse)
+                        .map(specialtyMapper::toSpecialtyResponse)
                         .collect(Collectors.toList()))
                 .build();
     }
@@ -89,7 +81,29 @@ public class SpecialtyServiceV1 {
         }
         log.info(specialties.toString());
         return specialties.stream()
-                .map(this::mapToSpecialtyResponse)
+                .map(specialtyMapper::toSpecialtyResponse)
                 .collect(Collectors.toList());
+    }
+
+    public PageResponse<SpecialtyResponse> getAllSpecialtiesByCustomer(int page, int size) {
+        // Gọi Medical Service
+        PageResponse<String> response = medicalClient.getListSpecialtyWithServiceTimeFrames(page, size);
+
+        List<String> specialtyIdsWithService = response.getData();
+
+        // Tìm danh sách bác sĩ dựa trên danh sách doctorId đã có
+        List<Specialty> specialtyList = specialtyRepository.findByIdIn(specialtyIdsWithService);
+
+        List<SpecialtyResponse> specialtyResponses = specialtyList.stream()
+                .map(specialtyMapper::toSpecialtyResponse)
+                .collect(Collectors.toList());
+
+        return PageResponse.<SpecialtyResponse>builder()
+                .currentPage(response.getCurrentPage())
+                .pageSize(response.getPageSize())
+                .totalPages(response.getTotalPages())
+                .totalElements(response.getTotalElements())
+                .data(specialtyResponses)
+                .build();
     }
 }

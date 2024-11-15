@@ -44,18 +44,6 @@ public class UserService {
 
     final DoctorClient doctorClient;
 
-    private UserResponse userMapToUserResponse(User user) {
-        return UserResponse.builder()
-                .userName(user.getUserName())
-                .password(user.getPassword())
-                .accountName(user.getAccountName())
-                .status(user.getStatus())
-                .lastAccessTime(user.getLastAccessTime())
-                .doctorId(user.getDoctorId())
-                .roleId(user.getRole().getId())
-                .roleName(user.getRole().getName())
-                .build();
-    }
 
     public void createUser(UserCreationRequest request) {
 
@@ -102,7 +90,7 @@ public class UserService {
         var pageData = userRepository.getAllUser(pageable);
 
         List<UserResponse> userResponses =
-                pageData.getContent().stream().map(this::userMapToUserResponse).toList();
+                pageData.getContent().stream().map(userMapper::toUserResponse).toList();
 
         return PageResponse.<UserResponse>builder()
                 .currentPage(page)
@@ -117,14 +105,13 @@ public class UserService {
         User user = userRepository
                 .findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tồn tại tài khoản " + userId + "!"));
-        UserResponse userResponse = userMapToUserResponse(user);
 
         //        if(!user.getDoctorId().isEmpty())
         //        {
         //            DoctorResponse doctorResponse = doctorClient.getDoctorById(user.getDoctorId());
         //            userResponse.setDoctorResponse(doctorResponse);
         //        }
-        return userMapToUserResponse(user);
+        return userMapper.toUserResponse(user);
     }
 
     public void updateUser(UserUpdateRequest request) {
@@ -161,7 +148,7 @@ public class UserService {
                 .findByUserName(name)
                 .orElseThrow(() -> new IllegalArgumentException("Không xác định được thông tin!"));
 
-        return userMapToUserResponse(user);
+        return userMapper.toUserResponse(user);
     }
 
     public void updatePassword(UserUpdateRequest request) {

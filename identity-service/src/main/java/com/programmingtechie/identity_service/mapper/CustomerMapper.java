@@ -1,28 +1,28 @@
 package com.programmingtechie.identity_service.mapper;
 
-import org.springframework.stereotype.Component;
-
-import com.programmingtechie.identity_service.dto.response.UserResponse;
-import com.programmingtechie.identity_service.model.User;
-
+import com.programmingtechie.identity_service.dto.response.Customer.CustomerResponse;
+import com.programmingtechie.identity_service.model.Customer;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
-public class UserMapper {
-    public UserResponse toUserResponse(User user) {
-        return UserResponse.builder()
-                .userName(user.getUserName())
-                .password(user.getPassword())
-                .accountName(user.getAccountName())
-                .status(user.getStatus())
-                .lastAccessTime(getTimeSinceLastAccess(user.getLastAccessTime()))
-                .doctorId(user.getDoctorId())
-                .roleId(user.getRole().getId())
-                .roleName(user.getRole().getName())
+public class CustomerMapper {
+    public CustomerResponse toCustomerResponse(Customer customer)
+    {
+        return CustomerResponse.builder()
+                .id(customer.getId())
+                .fullName(customer.getFullName())
+                .dateOfBirth(customer.getDateOfBirth())
+                .gender(customer.getGender())
+                .phoneNumber(customer.getPhoneNumber())
+                .email(customer.getEmail())
+                .status(customer.getStatus())
+                .lastAccessTime(getTimeSinceLastAccess(customer.getLastAccessTime()))
+                .lastUpdated(customer.getLastUpdated())
                 .build();
     }
 

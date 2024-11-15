@@ -24,17 +24,33 @@ public class ServiceTimeFrame {
     private String dayOfWeek;
 
     @Column(name = "start_time")
-    private Time startTime;
+    private Integer startTime;
 
     @Column(name = "end_time")
-    private Time endTime;
+    private Integer endTime;
 
     @Column(name = "maximum_quantity")
     private Integer maximumQuantity;
 
+    @Column(name = "start_number")
+    private Integer startNumber;
+
+    @Column(name = "end_number")
+    private Integer endNumber;
+
+    @Column(name = "is_active")
+    private Boolean isActive;
+
+    @Column(name = "status", length = 20)
+    private String status;
+
     @ManyToOne
     @JoinColumn(name = "doctor_service_id")
     private DoctorService doctorService;
+
+    @ManyToOne
+    @JoinColumn(name = "room_id")
+    private Room room;
 
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;

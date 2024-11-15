@@ -58,9 +58,10 @@ public class CustomerController {
     }
 
     @PutMapping("/update/{id}")
-    @PostAuthorize("" + "hasRole('QuanTriVienHeThong') or "
-            + "hasRole('GiamDoc') or "
-            + "returnObject.email == authentication.principal.claims['email']")
+    @PostAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc') or " +
+            "returnObject.id == authentication.principal.claims['id']")
     public CustomerResponse updateCustomer(
             @PathVariable("id") String customerId, @RequestBody CustomerRequest request) {
         return customerService.updateCustomer(customerId, request);
@@ -73,17 +74,19 @@ public class CustomerController {
     }
 
     @GetMapping("/email")
-    @PostAuthorize("" + "hasRole('QuanTriVienHeThong') or "
-            + "hasRole('GiamDoc') or "
-            + "returnObject.email == authentication.principal.claims['email']")
+    @PostAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc') or " +
+            "returnObject.email == authentication.principal.claims['email']")
     public CustomerResponse findCustomerByEmail(@RequestParam("email") String email) {
         return customerService.findCustomerByEmail(email);
     }
 
     @GetMapping("/phone-number")
-    @PostAuthorize("" + "hasRole('QuanTriVienHeThong') or "
-            + "hasRole('GiamDoc') or "
-            + "returnObject.result.email == authentication.email")
+    @PostAuthorize("" +
+            "hasRole('QuanTriVienHeThong') or " +
+            "hasRole('GiamDoc') or " +
+            "returnObject.email == authentication.principal.claims['email']")
     public CustomerResponse findCustomerByPhoneNumber(@RequestParam("phone") String phoneNumber) {
         return customerService.findCustomerByPhoneNumber(phoneNumber);
     }
@@ -94,13 +97,11 @@ public class CustomerController {
         return customerService.findCustomersByStatus(status);
     }
 
-    // Lay thong tin dang nhap
     @GetMapping("/get-info")
-    @PostAuthorize("" + "hasRole('QuanTriVienHeThong') or "
-            + "hasRole('GiamDoc') or "
-            + "returnObject.email == authentication.principal.claims['email']")
+    @PostAuthorize("returnObject.id == authentication.principal.claims['id']")
     @ResponseStatus(HttpStatus.OK)
     public CustomerResponse getInfo() {
         return customerService.getMyInfo();
     }
+
 }

@@ -17,8 +17,7 @@ public class DoctorServiceResponse {
     private String doctorId;
     private String serviceId;
     private String roomId;
-    private String status;
-
+    private Boolean isActive;
     private Service service;
     private SpecialtyResponse specialtyResponse;
 }

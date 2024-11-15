@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.programmingtechie.identity_service.mapper.CustomerMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,8 @@ public class CustomerService {
     final CustomerRepository customerRepository;
     final RoleRepository roleRepository;
     final PasswordEncoder passwordEncoder;
+
+    final CustomerMapper customerMapper;
 
     public CustomerResponse createCustomer(CustomerRequest request) {
         if (customerRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -64,7 +68,7 @@ public class CustomerService {
 
         customerRepository.save(customer);
 
-        return mapToResponse(customer);
+        return customerMapper.toCustomerResponse(customer);
     }
 
     public CustomerResponse updateCustomer(String customerId, CustomerRequest request) {
@@ -85,7 +89,7 @@ public class CustomerService {
 
         customerRepository.save(customer);
 
-        return mapToResponse(customer);
+        return customerMapper.toCustomerResponse(customer);
     }
 
     public void deleteCustomer(String customerId) {
@@ -99,7 +103,7 @@ public class CustomerService {
         Customer customer = customerRepository
                 .findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin với email: " + email));
-        return mapToResponse(customer);
+        return customerMapper.toCustomerResponse(customer);
     }
 
     public CustomerResponse findCustomerByPhoneNumber(String phoneNumber) {
@@ -107,45 +111,48 @@ public class CustomerService {
                 .findByPhoneNumber(phoneNumber)
                 .orElseThrow(() ->
                         new IllegalArgumentException("Không tìm thấy thông tin với số điện thoại: " + phoneNumber));
-        return mapToResponse(customer);
+        return customerMapper.toCustomerResponse(customer);
     }
 
     public List<CustomerResponse> findCustomersByStatus(String status) {
         List<Customer> customers = customerRepository.findByStatus(status);
-        return customers.stream().map(this::mapToResponse).toList();
+        return customers.stream().map(customerMapper::toCustomerResponse).toList();
     }
 
-    private CustomerResponse mapToResponse(Customer customer) {
-        return CustomerResponse.builder()
-                .id(customer.getId())
-                .fullName(customer.getFullName())
-                .dateOfBirth(customer.getDateOfBirth())
-                .gender(customer.getGender())
-                .phoneNumber(customer.getPhoneNumber())
-                .email(customer.getEmail())
-                .status(customer.getStatus())
-                .lastAccessTime(customer.getLastAccessTime())
-                .lastUpdated(customer.getLastUpdated())
-                .build();
-    }
 
     public CustomerResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();
-        String email = context.getAuthentication().getName();
+        Authentication authentication = context.getAuthentication();
 
-        Customer customer = customerRepository
-                .findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Không xác định được thông tin!"));
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("Người dùng chưa được xác thực");
+        }
 
-        return mapToResponse(customer);
+        if (authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+            // Lấy thông tin từ Jwt
+            String id = jwt.getClaim("id");
+            if (id == null) {
+                throw new IllegalArgumentException("Không tìm thấy ID trong token!");
+            }
+
+            // Tìm người dùng trong cơ sở dữ liệu
+            Customer customer = customerRepository
+                    .findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Không xác định được thông tin người dùng!"));
+
+            return customerMapper.toCustomerResponse(customer);
+        }
+
+        throw new IllegalArgumentException("Principal không hợp lệ hoặc không phải là JWT");
     }
+
 
     public PageResponse<CustomerResponse> getCustomers(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("fullName").ascending());
         var pageData = customerRepository.getAllCustomers(pageable);
 
         List<CustomerResponse> customerResponses =
-                pageData.getContent().stream().map(this::mapToResponse).toList();
+                pageData.getContent().stream().map(customerMapper::toCustomerResponse).toList();
 
         return PageResponse.<CustomerResponse>builder()
                 .currentPage(page)

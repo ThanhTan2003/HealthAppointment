@@ -1,6 +1,5 @@
 package com.programmingtechie.doctor_service.config;
 
-// import com.programmingtechie.identity_service.enums.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +15,11 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final String[] PUBLIC_ENDPOINTS = {};
+    private final String[] PUBLIC_ENDPOINTS = {
+            "/api/v1/doctor/public/**",
+            "/api/v1/doctor/qualification/public/**",
+            "/api/v1/doctor/specialty/public/**"
+    };
 
     @Autowired
     private CustomJwtDecoder customJwtDecoder;

@@ -29,10 +29,26 @@ public class QualificationControllerV1 {
         return ResponseEntity.ok(qualificationServiceV1.getAllQualifications(page, size));
     }
 
+    @GetMapping("/public/get-all")
+    public ResponseEntity<PageResponse<QualificationResponse>> getAllQualificationsByCustomer(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return ResponseEntity.ok(qualificationServiceV1.getAllQualifications(page, size));
+    }
+
     // Lấy qualification theo abbreviation
     @GetMapping("/abbreviation/{abbreviation}")
     @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public ResponseEntity<QualificationResponse> getQualificationByAbbreviation(@PathVariable String abbreviation) {
+        Optional<QualificationResponse> qualification =
+                qualificationServiceV1.getQualificationByAbbreviation(abbreviation);
+        return qualification.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()
+                .build());
+    }
+
+    // Lấy qualification theo abbreviation
+    @GetMapping("/public/abbreviation/{abbreviation}")
+    public ResponseEntity<QualificationResponse> getQualificationByAbbreviationByCustomer(@PathVariable String abbreviation) {
         Optional<QualificationResponse> qualification =
                 qualificationServiceV1.getQualificationByAbbreviation(abbreviation);
         return qualification.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound()

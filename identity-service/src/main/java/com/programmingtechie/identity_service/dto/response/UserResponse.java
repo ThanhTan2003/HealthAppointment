@@ -25,7 +25,7 @@ public class UserResponse {
 
     String status;
 
-    LocalDateTime lastAccessTime;
+    String lastAccessTime;
 
     String doctorId;
 
