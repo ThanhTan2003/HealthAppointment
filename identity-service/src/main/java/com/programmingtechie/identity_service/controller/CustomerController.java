@@ -52,6 +52,12 @@ public class CustomerController {
         return customerService.getCustomers(page, size);
     }
 
+    @GetMapping("/id/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('NguoiDung')")
+    public CustomerResponse getCustomerById(@PathVariable String id) {
+        return customerService.getCustomerById(id);
+    }
+
     @PostMapping("/create")
     public CustomerResponse createCustomer(@RequestBody CustomerRequest request) {
         return customerService.createCustomer(request);

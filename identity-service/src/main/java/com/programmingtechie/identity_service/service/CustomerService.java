@@ -162,4 +162,11 @@ public class CustomerService {
                 .data(customerResponses)
                 .build();
     }
+
+    public CustomerResponse getCustomerById(String id) {
+        Customer customer = customerRepository
+                .findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin với id: " + id));
+        return customerMapper.toCustomerResponse(customer);
+    }
 }

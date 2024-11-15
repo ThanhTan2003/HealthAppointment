@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PatientResponse {
+public class PatientAndCustomerInfoResponse {
     private String id;
     private String fullName;
     private LocalDate dateOfBirth;
@@ -29,4 +29,5 @@ public class PatientResponse {
     private String note;
     private LocalDateTime lastUpdated;
     private String customerId;
+    private CustomerIdentityResponse customerIdentityResponse;
 }

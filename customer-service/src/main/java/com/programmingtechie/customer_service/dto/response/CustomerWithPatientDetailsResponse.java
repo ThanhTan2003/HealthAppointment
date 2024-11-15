@@ -1,15 +1,15 @@
 package com.programmingtechie.customer_service.dto.response;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.*;
 
 import lombok.*;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class CustomerIdentityResponse {
+public class CustomerWithPatientDetailsResponse {
     private String id;
     private String fullName;
     private Date dateOfBirth;
@@ -19,4 +19,5 @@ public class CustomerIdentityResponse {
     private String status;
     private String lastAccessTime;
     private LocalDateTime lastUpdated;
+    private PageResponse<PatientResponse> patientDetails;
 }

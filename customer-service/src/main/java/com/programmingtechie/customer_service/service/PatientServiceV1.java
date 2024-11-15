@@ -2,29 +2,77 @@ package com.programmingtechie.customer_service.service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.programmingtechie.customer_service.dto.request.PatientCreationRequest;
+import com.programmingtechie.customer_service.dto.request.PatientUpdateRequest;
+import com.programmingtechie.customer_service.dto.response.CustomerIdentityResponse;
+import com.programmingtechie.customer_service.dto.response.CustomerWithPatientDetailsResponse;
+import com.programmingtechie.customer_service.dto.response.PageResponse;
+import com.programmingtechie.customer_service.dto.response.PatientAndCustomerInfoResponse;
 import com.programmingtechie.customer_service.dto.response.PatientResponse;
+import com.programmingtechie.customer_service.mapper.PatientMapper;
 import com.programmingtechie.customer_service.model.Patient;
 import com.programmingtechie.customer_service.repository.PatientRepository;
+import com.programmingtechie.customer_service.repository.httpClient.CustomerIdentityClient;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class PatientServiceV1 {
 
     final PatientRepository patientRepository;
+    final PatientMapper patientMapper;
+    final CustomerIdentityClient customerIdentityClient;
 
     public PatientResponse createPatient(PatientCreationRequest patientRequest) {
         Patient patient = mapToPatientRequest(patientRequest);
         patientRepository.save(patient);
         return mapToPatientResponse(patient);
+    }
+
+    public PatientResponse updatePatient(String patientId, PatientUpdateRequest patientUpdateRequest) {
+        Patient patient = patientRepository
+                .findById(patientId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin!"));
+
+        patient = Patient.builder()
+                .fullName(patientUpdateRequest.getFullName())
+                .dateOfBirth(patientUpdateRequest.getDateOfBirth())
+                .gender(patientUpdateRequest.getGender())
+                .insuranceId(patientUpdateRequest.getInsuranceId())
+                .identificationCode(patientUpdateRequest.getIdentificationCode())
+                .nation(patientUpdateRequest.getNation())
+                .occupation(patientUpdateRequest.getOccupation())
+                .phoneNumber(patientUpdateRequest.getPhoneNumber())
+                .email(patientUpdateRequest.getEmail())
+                .country(patientUpdateRequest.getCountry())
+                .province(patientUpdateRequest.getProvince())
+                .district(patientUpdateRequest.getDistrict())
+                .ward(patientUpdateRequest.getWard())
+                .address(patientUpdateRequest.getAddress())
+                .relationship(patientUpdateRequest.getRelationship())
+                .note(patientUpdateRequest.getNote())
+                .build();
+
+        patientRepository.save(patient);
+
+        return mapToPatientResponse(patient);
+    }
+
+    public void deletePatient(String patientId) {
+        if (!patientRepository.existsById(patientId)) {
+            throw new IllegalArgumentException("Không tìm thấy thông tin!");
+        }
+        patientRepository.deleteById(patientId);
     }
 
     public boolean isValidpatient(PatientCreationRequest patientRequest) {
@@ -93,47 +141,107 @@ public class PatientServiceV1 {
                 .build();
     }
 
-    // public PageResponse<PatientResponse> getPatientByCustomerId(String customerId, int page, int size) {
-    //     Pageable pageable = PageRequest.of(page - 1, size);
-    //     Page<Patient> pageData = patientRepository.findPatientByCustomerId(customerId, pageable);
-    //     return PageResponse.<PatientResponse>builder()
-    //             .currentPage(page)
-    //             .pageSize(pageData.getSize())
-    //             .totalPages(pageData.getTotalPages())
-    //             .totalElements(pageData.getTotalElements())
-    //             .data(pageData.getContent().stream()
-    //                     .map(this::mapToPatientResponse)
-    //                     .collect(Collectors.toList()))
-    //             .build();
-    // }
+    public PageResponse<PatientResponse> getPatientByCustomerId(String customerId, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Patient> pageData = patientRepository.findPatientByCustomerId(customerId, pageable);
+        return PageResponse.<PatientResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(this::mapToPatientResponse)
+                        .collect(Collectors.toList()))
+                .build();
+    }
 
-    // public PageResponse<PatientResponse> getPatientByCustomerEmail(String email, int page, int size) {
-    //     Pageable pageable = PageRequest.of(page - 1, size);
-    //     Page<Patient> pageData = patientRepository.findPatientByCustomerEmail(email, pageable);
-    //     return PageResponse.<PatientResponse>builder()
-    //             .currentPage(page)
-    //             .pageSize(pageData.getSize())
-    //             .totalPages(pageData.getTotalPages())
-    //             .totalElements(pageData.getTotalElements())
-    //             .data(pageData.getContent().stream()
-    //                     .map(this::mapToPatientResponse)
-    //                     .collect(Collectors.toList()))
-    //             .build();
-    // }
+    public PageResponse<PatientResponse> getPatientByCustomerEmail(String email, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Patient> pageData = patientRepository.findPatientByEmail(email, pageable);
+        return PageResponse.<PatientResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(this::mapToPatientResponse)
+                        .collect(Collectors.toList()))
+                .build();
+    }
 
-    // public PageResponse<PatientResponse> getPatientByCustomerPhoneNumber(String phoneNumber, int page, int size) {
-    //     Pageable pageable = PageRequest.of(page - 1, size);
-    //     Page<Patient> pageData = patientRepository.findPatientByCustomerPhoneNumber(phoneNumber, pageable);
-    //     return PageResponse.<PatientResponse>builder()
-    //             .currentPage(page)
-    //             .pageSize(pageData.getSize())
-    //             .totalPages(pageData.getTotalPages())
-    //             .totalElements(pageData.getTotalElements())
-    //             .data(pageData.getContent().stream()
-    //                     .map(this::mapToPatientResponse)
-    //                     .collect(Collectors.toList()))
-    //             .build();
-    // }
+    public PageResponse<PatientResponse> getPatientByCustomerPhoneNumber(String phoneNumber, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Patient> pageData = patientRepository.findPatientByPhoneNumber(phoneNumber, pageable);
+        return PageResponse.<PatientResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(this::mapToPatientResponse)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    public PageResponse<PatientAndCustomerInfoResponse> getPatientWithCustomerInfo(
+            String customerId, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Patient> pageData = patientRepository.findPatientByCustomerId(customerId, pageable);
+
+        List<PatientAndCustomerInfoResponse> patientResponses = pageData.getContent().stream()
+                .map(patientMapper::toPatientResponse)
+                .collect(Collectors.toList());
+
+        return PageResponse.<PatientAndCustomerInfoResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(patientResponses)
+                .build();
+    }
+
+    public CustomerWithPatientDetailsResponse getCustomerWithPatientDetails(String customerId, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        // Lấy danh sách bệnh nhân phân trang từ repository
+        Page<Patient> pageData = patientRepository.findByCustomerId(customerId, pageable);
+
+        List<PatientResponse> patientResponses =
+                pageData.getContent().stream().map(this::mapToPatientResponse).collect(Collectors.toList());
+
+        PageResponse<PatientResponse> pageResponse = PageResponse.<PatientResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(patientResponses)
+                .build();
+
+        // Lấy thông tin khách hàng từ service
+        CustomerIdentityResponse customerIdentityResponse;
+        try {
+            customerIdentityResponse = customerIdentityClient.getByCustomerId(customerId);
+        } catch (Exception e) {
+            log.error("Error fetching customer info: " + e.getMessage());
+            throw new RuntimeException("Unable to fetch customer details");
+        }
+
+        // Tạo response cuối cùng với dữ liệu phân trang
+        return CustomerWithPatientDetailsResponse.builder()
+                .id(customerIdentityResponse.getId())
+                .fullName(customerIdentityResponse.getFullName())
+                .dateOfBirth(customerIdentityResponse.getDateOfBirth())
+                .gender(customerIdentityResponse.getGender())
+                .phoneNumber(customerIdentityResponse.getPhoneNumber())
+                .email(customerIdentityResponse.getEmail())
+                .status(customerIdentityResponse.getStatus())
+                .lastAccessTime(customerIdentityResponse.getLastAccessTime())
+                .lastUpdated(customerIdentityResponse.getLastUpdated())
+                .patientDetails(pageResponse)
+                .build();
+    }
 
     // Tạo mã ngẫu nhiên
     private static String generatePatientID() {
@@ -162,5 +270,4 @@ public class PatientServiceV1 {
         return result.toString();
     }
     // Kết thúc tạo mã ngẫu nhiên
-
 }
