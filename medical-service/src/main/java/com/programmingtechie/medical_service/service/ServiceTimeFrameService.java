@@ -1,9 +1,11 @@
 package com.programmingtechie.medical_service.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.medical_service.dto.request.ServiceTimeFrameUpdate;
 import com.programmingtechie.medical_service.mapper.ServiceTimeFrameMapper;
 import com.programmingtechie.medical_service.model.DoctorService;
 import com.programmingtechie.medical_service.model.Room;
@@ -84,17 +86,19 @@ public class ServiceTimeFrameService {
         return serviceTimeFrameMapper.toServiceTimeFrameResponse(serviceTimeFrame);
     }
 
-    public ServiceTimeFrameResponse updateServiceTimeFrame(String id, ServiceTimeFrameRequest serviceTimeFrameRequest) {
+    public ServiceTimeFrameResponse updateServiceTimeFrame(String id, ServiceTimeFrameUpdate serviceTimeFrameRequest) {
         ServiceTimeFrame serviceTimeFrame = serviceTimeFrameRepository
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khung thời gian dịch vụ với id: " + id));
 
-        serviceTimeFrame.setDayOfWeek(serviceTimeFrameRequest.getDayOfWeek());
+        Room room = roomRepository.findById(serviceTimeFrameRequest.getRoomId()).get();
+
         serviceTimeFrame.setStartTime(serviceTimeFrameRequest.getStartTime());
         serviceTimeFrame.setEndTime(serviceTimeFrameRequest.getEndTime());
         serviceTimeFrame.setMaximumQuantity(serviceTimeFrameRequest.getMaximumQuantity());
         serviceTimeFrame.setStartNumber(serviceTimeFrameRequest.getStartNumber());
         serviceTimeFrame.setEndNumber(serviceTimeFrameRequest.getEndNumber());
+        serviceTimeFrame.setRoom(room);
 
         serviceTimeFrame = serviceTimeFrameRepository.save(serviceTimeFrame);
         return serviceTimeFrameMapper.toServiceTimeFrameResponse(serviceTimeFrame);
@@ -144,5 +148,13 @@ public class ServiceTimeFrameService {
     public List<String> getAvailableDaysForDoctorService(String doctorServiceId) {
 
         return serviceTimeFrameRepository.findListDayOfWeekByDoctorServiceId(doctorServiceId);
+    }
+
+    public List<ServiceTimeFrameResponse> getServiceTimeFramesByDoctorServiceIdAndDayOfWeek(String doctorServiceId, String dayOfWeek, Date day) {
+        List<ServiceTimeFrame> serviceTimeFrameList = serviceTimeFrameRepository.findByDoctorServiceIdAndDayOfWeek(doctorServiceId, dayOfWeek);
+
+        List<ServiceTimeFrameResponse> serviceTimeFrameResponseList = serviceTimeFrameList.stream().map(serviceTimeFrameMapper::toServiceTimeFrameResponse).toList();
+
+        return serviceTimeFrameResponseList;
     }
 }

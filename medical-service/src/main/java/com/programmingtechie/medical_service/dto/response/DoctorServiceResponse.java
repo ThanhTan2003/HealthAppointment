@@ -1,5 +1,6 @@
 package com.programmingtechie.medical_service.dto.response;
 
+import com.programmingtechie.medical_service.dto.response.Doctor.DoctorResponse;
 import com.programmingtechie.medical_service.dto.response.Doctor.SpecialtyResponse;
 import com.programmingtechie.medical_service.model.Service;
 
@@ -20,4 +21,6 @@ public class DoctorServiceResponse {
     private Boolean isActive;
     private Service service;
     private SpecialtyResponse specialtyResponse;
+
+    private DoctorResponse doctorResponse;
 }

@@ -29,5 +29,10 @@ public interface ServiceTimeFrameRepository extends JpaRepository<ServiceTimeFra
     List<String> findListDayOfWeekByDoctorServiceId(@Param("doctorServiceId") String doctorServiceId);
 
     // Truy vấn tìm các ServiceTimeFrame theo doctorServiceId và dayOfWeek
+    @Query("SELECT stf FROM ServiceTimeFrame stf " +
+            "WHERE stf.doctorService.id = :doctorServiceId " +
+                "AND stf.dayOfWeek = :dayOfWeek " +
+                "AND stf.isActive = true " +
+                "AND unaccent(LOWER(stf.status)) = unaccent(LOWER('nhan dang ky'))")
     List<ServiceTimeFrame> findByDoctorServiceIdAndDayOfWeek(String doctorServiceId, String dayOfWeek);
 }

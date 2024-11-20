@@ -2,6 +2,7 @@ package com.programmingtechie.medical_service.controller;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -87,6 +88,15 @@ public class DoctorServiceController {
             @PathVariable String doctorId,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
-        return ResponseEntity.ok(doctorServiceService.getDoctorServicesByDoctorId(doctorId, page, size));
+        return ResponseEntity.ok(doctorServiceService.getDoctorServicesByDoctorIdPublic(doctorId, page, size));
+    }
+
+    @GetMapping("/public/get-doctor-services-by-service-id")
+    public ResponseEntity<PageResponse<DoctorServiceResponse>> getDoctorServicesByServiceIdByCustomer(
+            @RequestParam String serviceId,
+            @RequestParam int page,
+            @RequestParam int size) {
+        PageResponse<DoctorServiceResponse> response = doctorServiceService.getDoctorServicesByServiceId(serviceId, page, size);
+        return ResponseEntity.ok(response);
     }
 }

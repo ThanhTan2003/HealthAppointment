@@ -1,10 +1,14 @@
 package com.programmingtechie.medical_service.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.programmingtechie.medical_service.dto.request.ServiceTimeFrameUpdate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -68,7 +72,7 @@ public class ServiceTimeFrameController {
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public ResponseEntity<ServiceTimeFrameResponse> updateServiceTimeFrame(
-            @PathVariable String id, @RequestBody ServiceTimeFrameRequest serviceTimeFrameRequest) {
+            @PathVariable String id, @RequestBody ServiceTimeFrameUpdate serviceTimeFrameRequest) {
         return ResponseEntity.ok(serviceTimeFrameService.updateServiceTimeFrame(id, serviceTimeFrameRequest));
     }
 
@@ -114,11 +118,20 @@ public class ServiceTimeFrameController {
     public ResponseEntity<List<ServiceTimeFrameResponse>> getServiceTimeFramesByDoctorIdAndDayOfWeekByCustomer(
             @RequestParam(value = "doctorId") String doctorId,
             @RequestParam(value = "dayOfWeek") String dayOfWeek) {
-        // Gọi service để lấy dữ liệu
         List<ServiceTimeFrameResponse> response = serviceTimeFrameService.getServiceTimeFramesByDoctorIdAndDayOfWeek(doctorId, dayOfWeek);
 
-        // Trả về kết quả dưới dạng ResponseEntity
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/public/get-by-doctor-service-and-day")
+    public ResponseEntity<List<ServiceTimeFrameResponse>> getServiceTimeFramesByDoctorServiceIdAndDayOfWeekByCustomer(
+            @RequestParam(value = "doctorServiceId") String doctorServiceId,
+            @RequestParam(value = "dayOfWeek") String dayOfWeek,
+            @RequestParam(value = "day") String day) throws ParseException {
+        Date parsedDate = new SimpleDateFormat("yyyy-M-d").parse(day);
+        List<ServiceTimeFrameResponse> response = serviceTimeFrameService.getServiceTimeFramesByDoctorServiceIdAndDayOfWeek(doctorServiceId, dayOfWeek, parsedDate);
+        return ResponseEntity.ok(response);
+    }
+
 }
 

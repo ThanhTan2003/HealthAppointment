@@ -1,5 +1,6 @@
 package com.programmingtechie.medical_service.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -132,4 +133,30 @@ public class RoomService {
     public List<String> getDistinctFunctions() {
         return roomRepository.findDistinctFunctions();
     }
+
+    public PageResponse<RoomResponse> getRoomsWithInUse(String roomId, String dayOfWeek, Integer startTime, Integer endTime, String function, String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        // Gọi truy vấn mới từ repository
+        Page<Room> pageData = roomRepository.getRoomsWithInUse(roomId, dayOfWeek, startTime, endTime, function, "%" + keyword + "%", pageable);
+
+        List<RoomResponse> roomResponses = pageData.getContent().stream()
+                .map(room -> RoomResponse.builder()
+                        .id(room.getId())
+                        .name(room.getName())
+                        .location(room.getLocation())
+                        .function(room.getFunction())
+                        .status(room.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+
+        return PageResponse.<RoomResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(roomResponses)
+                .build();
+    }
+
 }

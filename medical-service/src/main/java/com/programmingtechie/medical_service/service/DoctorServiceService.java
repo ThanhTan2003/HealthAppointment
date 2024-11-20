@@ -157,66 +157,80 @@ public class DoctorServiceService {
                 .build();
     }
 
-    //    public PageResponse<DoctorServiceResponse> getDoctorServicesByDoctorId(String doctorId, int page, int size) {
-    //        // PageRequest có page index bắt đầu từ 0, nên cần trừ đi 1
-    //        Pageable pageable = PageRequest.of(page - 1, size);
-    //        Page<DoctorService> doctorServices = doctorServiceRepository.findByDoctorId(doctorId, pageable);
-    //
-    //        List<DoctorServiceResponse> doctorServiceResponses = doctorServices.getContent()
-    //                .stream()
-    //                .map(doctorServiceMapper::toDoctorServiceResponse)
-    //                .collect(Collectors.toList());
-    //
-    //        // Lấy danh sách serviceIds
-    //        List<String> serviceIds = new ArrayList<>();
-    //        for (DoctorServiceResponse response : doctorServiceResponses) {
-    //            serviceIds.add(response.getServiceId());
-    //        }
-    //
-    //        List<com.programmingtechie.medical_service.model.Service> services =
-    // serviceRepository.getServicesByIdIn(serviceIds);
-    //
-    //        // Lấy danh sách specialtyIds
-    //        List<String> specialtyIds = new ArrayList<>();
-    //        for (DoctorServiceResponse doctorServiceResponse : doctorServiceResponses) {
-    //            for(com.programmingtechie.medical_service.model.Service service: services)
-    //            {
-    //                if(service.getId().equals(doctorServiceResponse.getServiceId()))
-    //                {
-    //                    doctorServiceResponse.setService(service);
-    //                    break;
-    //                }
-    //            }
-    //            if (doctorServiceResponse.getService() != null) { // Kiểm tra nếu service không null
-    //                String specialtyId = doctorServiceResponse.getService().getSpecialtyId();
-    //                if (specialtyId != null && !specialtyId.isEmpty()) {
-    //                    specialtyIds.add(specialtyId);
-    //                }
-    //            }
-    //        }
-    //
-    //        // Lấy danh sách SpecialtyResponse từ DoctorClient
-    //        List<SpecialtyResponse> specialtyResponses = doctorClient.getSpecialtiesByIds(specialtyIds);
-    //
-    //        for(DoctorServiceResponse doctorServiceResponse: doctorServiceResponses)
-    //        {
-    //            for(SpecialtyResponse specialtyResponse: specialtyResponses)
-    //            {
-    //                if(specialtyResponse.getSpecialtyId().equals(doctorServiceResponse.getService().getSpecialtyId()))
-    //                {
-    //                    doctorServiceResponse.setSpecialtyResponse(specialtyResponse);
-    //                    break;
-    //                }
-    //            }
-    //        }
-    //
-    //        // Trả về PageResponse cho người dùng
-    //        return PageResponse.<DoctorServiceResponse>builder()
-    //                .totalPages(doctorServices.getTotalPages())
-    //                .currentPage(doctorServices.getNumber() + 1) // Trả lại số trang bắt đầu từ 1 cho người dùng
-    //                .pageSize(doctorServices.getSize())
-    //                .totalElements(doctorServices.getTotalElements())
-    //                .data(doctorServiceResponses)
-    //                .build();
-    //    }
+    public PageResponse<DoctorServiceResponse> getDoctorServicesByServiceId(String serviceId, int page, int size) {
+        // Tạo Pageable để phân trang
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        // Lấy danh sách DoctorService theo serviceId và phân trang
+        Page<DoctorService> doctorServices = doctorServiceRepository.findByServiceId(serviceId, pageable);
+
+        // Chuyển đổi danh sách DoctorService thành DoctorServiceResponse thông qua mapper
+        List<DoctorServiceResponse> doctorServiceResponses = doctorServiceMapper.toListDoctorServiceResponse(doctorServices.getContent());
+
+        // Lấy danh sách doctorIds từ DoctorServiceResponse
+        List<String> doctorIds = doctorServiceResponses.stream()
+                .map(DoctorServiceResponse::getDoctorId)
+                .toList();
+
+//        // Lấy danh sách serviceIds từ DoctorServiceResponse
+//        List<String> specialtyIds = new ArrayList<>();
+//        for (DoctorServiceResponse doctorServiceResponse : doctorServiceResponses) {
+//            if (doctorServiceResponse.getService() != null) {
+//                String specialtyId = doctorServiceResponse.getService().getSpecialtyId();
+//                if (specialtyId != null && !specialtyId.isEmpty()) {
+//                    specialtyIds.add(specialtyId);
+//                }
+//            }
+//        }
+//
+//        // Lấy danh sách SpecialtyResponse từ DoctorClient
+//        List<SpecialtyResponse> specialtyResponses = doctorClient.getSpecialtiesByIds(specialtyIds);
+//        Map<String, SpecialtyResponse> specialtyResponseMap = specialtyResponses.stream()
+//                .collect(Collectors.toMap(SpecialtyResponse::getSpecialtyId, specialtyResponse -> specialtyResponse));
+//
+//        // Gán SpecialtyResponse vào DoctorServiceResponse
+//        for (DoctorServiceResponse doctorServiceResponse : doctorServiceResponses) {
+//            if (doctorServiceResponse.getService() != null) {
+//                doctorServiceResponse.setSpecialtyResponse(specialtyResponseMap.get(
+//                        doctorServiceResponse.getService().getSpecialtyId()));
+//            }
+//        }
+
+        // Trả về kết quả phân trang
+        return PageResponse.<DoctorServiceResponse>builder()
+                .totalPages(doctorServices.getTotalPages())
+                .currentPage(doctorServices.getNumber() + 1) // Trả lại số trang bắt đầu từ 1 cho người dùng
+                .pageSize(doctorServices.getSize())
+                .totalElements(doctorServices.getTotalElements())
+                .data(doctorServiceResponses)
+                .build();
+    }
+
+    public PageResponse<DoctorServiceResponse> getDoctorServicesByDoctorIdPublic(String doctorId, int page, int size) {
+        // Tạo Pageable để phân trang
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        // Lấy danh sách DoctorService theo serviceId và phân trang
+        Page<DoctorService> doctorServices = doctorServiceRepository.findByDoctorServiceExistsInServiceTimeFrame(doctorId, pageable);
+
+        // Chuyển đổi danh sách DoctorService thành DoctorServiceResponse thông qua mapper
+        List<DoctorServiceResponse> doctorServiceResponses = doctorServiceMapper.toListDoctorServiceResponse(doctorServices.getContent());
+
+        // Lấy danh sách doctorIds từ DoctorServiceResponse
+        List<String> doctorIds = doctorServiceResponses.stream()
+                .map(DoctorServiceResponse::getDoctorId)
+                .toList();
+
+        // Trả về kết quả phân trang
+        return PageResponse.<DoctorServiceResponse>builder()
+                .totalPages(doctorServices.getTotalPages())
+                .currentPage(doctorServices.getNumber() + 1) // Trả lại số trang bắt đầu từ 1 cho người dùng
+                .pageSize(doctorServices.getSize())
+                .totalElements(doctorServices.getTotalElements())
+                .data(doctorServiceResponses)
+                .build();
+
+    }
+
+
 }

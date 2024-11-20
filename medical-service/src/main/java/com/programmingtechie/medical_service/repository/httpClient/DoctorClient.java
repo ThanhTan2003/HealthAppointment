@@ -19,11 +19,14 @@ import com.programmingtechie.medical_service.dto.response.Doctor.SpecialtyRespon
         configuration = {AuthenticationRequestInterceptor.class})
 public interface DoctorClient {
 
-    @GetMapping(value = "/specialty/id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public SpecialtyResponse getSpecialtyById(@PathVariable String id);
-
     @GetMapping(value = "/id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public DoctorResponse getById(@PathVariable String id);
+
+    @PostMapping(value = "/public/get-by-ids", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<DoctorResponse> getByIds(@RequestBody List<String> doctorIds);
+
+    @GetMapping(value = "/specialty/id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public SpecialtyResponse getSpecialtyById(@PathVariable String id);
 
     @PostMapping(value = "/specialty/public/get-by-ids", produces = MediaType.APPLICATION_JSON_VALUE)
     List<SpecialtyResponse> getSpecialtiesByIds(@RequestBody List<String> specialtyIds);

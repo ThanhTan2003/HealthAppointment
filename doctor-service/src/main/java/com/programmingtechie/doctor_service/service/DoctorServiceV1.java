@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.doctor_service.mapper.DoctorMapper;
 import com.programmingtechie.doctor_service.repository.httpClient.MedicalClient;
 import org.springframework.data.domain.*;
 import org.springframework.data.domain.PageRequest;
@@ -34,13 +35,15 @@ public class DoctorServiceV1 {
 
     final MedicalClient medicalClient;
 
+    final DoctorMapper doctorMapper;
+
     // Lấy tất cả danh sách bác sĩ với phân trang
     public PageResponse<DoctorResponse> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Doctor> pageData = doctorRepository.findAll(pageable);
 
         List<DoctorResponse> doctorResponses =
-                pageData.getContent().stream().map(this::mapToDoctorResponse).collect(Collectors.toList());
+                pageData.getContent().stream().map(doctorMapper::toDoctorResponse).collect(Collectors.toList());
 
         return PageResponse.<DoctorResponse>builder()
                 .currentPage(page)
@@ -57,7 +60,7 @@ public class DoctorServiceV1 {
         Doctor doctor = doctorRepository
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bác sĩ có mã " + id + "!"));
-        return mapToDoctorResponse(doctor);
+        return doctorMapper.toDoctorResponse(doctor);
     }
 
     // Lấy bác sĩ theo số điện thoại
@@ -66,40 +69,7 @@ public class DoctorServiceV1 {
                 .findByPhoneNumber(phoneNumber)
                 .orElseThrow(() ->
                         new IllegalArgumentException("Không tìm thấy bác sĩ có số điện thoại: " + phoneNumber));
-        return mapToDoctorResponse(doctor);
-    }
-
-    private String getQualificationName(Doctor doctor) {
-        // Lấy danh sách các học vị (abbreviation) từ doctor.getDoctorQualifications()
-        return doctor.getDoctorQualifications().stream()
-                .map(doctorQualification ->
-                        doctorQualification.getQualification().getAbbreviation())
-                //                .sorted()
-                // Optional: nếu cần sắp xếp theo thứ tự, bạn có thể tùy chỉnh.
-                .collect(Collectors.joining(". ")) // Thay dấu chấm thành ". " để không có dấu chấm cuối cùng
-                .trim(); // Loại bỏ khoảng trắng thừa nếu có
-    }
-
-    // Hàm chuyển đổi từ Doctor sang DoctorResponse
-    private DoctorResponse mapToDoctorResponse(Doctor doctor) {
-        return DoctorResponse.builder()
-                .id(doctor.getId())
-                .fullName(doctor.getFullName())
-                .qualificationName(getQualificationName(doctor))
-                .gender(doctor.getGender())
-                .phoneNumber(doctor.getPhoneNumber())
-                .email(doctor.getEmail())
-                .description(doctor.getDescription())
-                .status(doctor.getStatus())
-                .image(doctor.getImage())
-                .lastUpdated(doctor.getLastUpdated())
-                .specialties(doctor.getSpecialties().stream()
-                        .map(this::mapToSpecialtyResponse)
-                        .collect(Collectors.toList()))
-                .qualifications(doctor.getDoctorQualifications().stream()
-                        .map(doctorQualification -> mapToQualificationResponse(doctorQualification.getQualification()))
-                        .collect(Collectors.toList()))
-                .build();
+        return doctorMapper.toDoctorResponse(doctor);
     }
 
     // Lấy danh sách bác sĩ theo Specialty với phân trang
@@ -113,7 +83,7 @@ public class DoctorServiceV1 {
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(pageData.getContent().stream()
-                        .map(this::mapToDoctorResponse)
+                        .map(doctorMapper::toDoctorResponse)
                         .collect(Collectors.toList()))
                 .build();
     }
@@ -130,27 +100,8 @@ public class DoctorServiceV1 {
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(pageData.getContent().stream()
-                        .map(this::mapToDoctorResponse)
+                        .map(doctorMapper::toDoctorResponse)
                         .collect(Collectors.toList()))
-                .build();
-    }
-
-    // Hàm chuyển đổi từ Specialty sang SpecialtyResponse
-    private SpecialtyResponse mapToSpecialtyResponse(DoctorSpecialty doctorSpecialty) {
-        Specialty specialty = doctorSpecialty.getSpecialty();
-        return SpecialtyResponse.builder()
-                .specialtyId(specialty.getId())
-                .specialtyName(specialty.getName())
-                .description(specialty.getDescription())
-                .build();
-    }
-
-    // Hàm chuyển đổi từ Qualification sang QualificationResponse
-    private QualificationResponse mapToQualificationResponse(Qualification qualification) {
-        return QualificationResponse.builder()
-                .abbreviation(qualification.getAbbreviation())
-                .name(qualification.getName())
-                .displayOrder(qualification.getDisplayOrder())
                 .build();
     }
 
@@ -165,7 +116,7 @@ public class DoctorServiceV1 {
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(pageData.getContent().stream()
-                        .map(this::mapToDoctorResponse)
+                        .map(doctorMapper::toDoctorResponse)
                         .collect(Collectors.toList()))
                 .build();
     }
@@ -181,7 +132,7 @@ public class DoctorServiceV1 {
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(pageData.getContent().stream()
-                        .map(this::mapToDoctorResponse)
+                        .map(doctorMapper::toDoctorResponse)
                         .collect(Collectors.toList()))
                 .build();
     }
@@ -196,7 +147,7 @@ public class DoctorServiceV1 {
         List<Doctor> doctors = doctorRepository.findByIdIn(doctorIdsWithService);
 
         List<DoctorResponse> doctorResponses = doctors.stream()
-                .map(this::mapToDoctorResponse)
+                .map(doctorMapper::toDoctorResponsePublic)
                 .collect(Collectors.toList());
 
         return PageResponse.<DoctorResponse>builder()
@@ -206,6 +157,13 @@ public class DoctorServiceV1 {
                 .totalElements(response.getTotalElements())
                 .data(doctorResponses)
                 .build();
+    }
+
+    public List<DoctorResponse> getByIds(List<String> doctorIds) {
+        List<Doctor> doctors = doctorRepository.findByIdIn(doctorIds);
+        return doctors.stream()
+                .map(doctorMapper::toDoctorResponse)
+                .collect(Collectors.toList());
     }
 
 }

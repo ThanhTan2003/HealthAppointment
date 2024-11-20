@@ -104,6 +104,37 @@ public class RoomController {
         return ResponseEntity.ok(roomService.searchRooms(keyword, page, size));
     }
 
+    @GetMapping("/get-list-of-available-rooms")
+    @PreAuthorize("hasRole('GiamDoc') or hasRole('QuanLyLichKhamBenh')")
+    public ResponseEntity<PageResponse<RoomResponse>> getListOfAvailableRooms(
+            @ModelAttribute RoomAvailabilityRequest request,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        return ResponseEntity.ok(roomService.getListOfAvailableRooms(request, page, size));
+    }
+
+    @GetMapping("/get-rooms-and-update")
+    @PreAuthorize("hasRole('GiamDoc') or hasRole('QuanLyLichKhamBenh')")
+    public ResponseEntity<PageResponse<RoomResponse>> getRoomsAndUpdate(
+            @RequestParam String roomId,
+            @RequestParam String dayOfWeek,
+            @RequestParam Integer startTime,
+            @RequestParam Integer endTime,
+            @RequestParam String function,
+            @RequestParam String keyword,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        // Gọi service để lấy danh sách phòng còn trống và thêm phòng đang sử dụng
+        PageResponse<RoomResponse> availableRooms = roomService.getRoomsWithInUse(
+                roomId, dayOfWeek, startTime, endTime, function, keyword, page, size);
+
+        // Trả về danh sách phòng
+        return ResponseEntity.ok(availableRooms);
+    }
+}
+
 //    // lấy danh sách các phòng có sẵn
 //    @GetMapping("/get-list-of-available-rooms")
 //    @PreAuthorize(""
@@ -119,14 +150,3 @@ public class RoomController {
 //            @RequestParam(value = "size", defaultValue = "10") int size) {
 //        return ResponseEntity.ok(roomService.getListOfAvailableRooms(page, size));
 //    }
-
-    @GetMapping("/get-list-of-available-rooms")
-    @PreAuthorize("hasRole('GiamDoc') or hasRole('QuanLyLichKhamBenh')")
-    public ResponseEntity<PageResponse<RoomResponse>> getListOfAvailableRooms(
-            @ModelAttribute RoomAvailabilityRequest request,
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
-
-        return ResponseEntity.ok(roomService.getListOfAvailableRooms(request, page, size));
-    }
-}

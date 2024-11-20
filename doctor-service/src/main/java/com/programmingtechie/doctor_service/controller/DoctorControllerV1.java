@@ -1,15 +1,17 @@
 package com.programmingtechie.doctor_service.controller;
 
+import com.programmingtechie.doctor_service.dto.response.DoctorResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import com.programmingtechie.doctor_service.dto.response.DoctorResponse;
 import com.programmingtechie.doctor_service.dto.response.PageResponse;
 import com.programmingtechie.doctor_service.service.DoctorServiceV1;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/doctor")
@@ -18,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 public class DoctorControllerV1 {
     final DoctorServiceV1 doctorServiceV1;
 
-    // Lấy danh sách bác sĩ với phân trang
     @GetMapping("/get-all")
     @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc') or hasRole('NguoiDung')")
     public PageResponse<DoctorResponse> getAll(
@@ -34,39 +35,34 @@ public class DoctorControllerV1 {
         return doctorServiceV1.getAllDoctorsWithServiceTimeFrame(page, size);
     }
 
-    // Lấy bác sĩ theo id qua GET
     @GetMapping("/id/{id}")
     @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public DoctorResponse getById(@PathVariable String id) {
         return doctorServiceV1.getById(id);
     }
 
-    // Lấy bác sĩ theo id qua GET
     @GetMapping("/public/id/{id}")
     public DoctorResponse getByIdByCustomer(@PathVariable String id) {
         return doctorServiceV1.getById(id);
     }
 
-    // Lấy bác sĩ theo id qua POST
+    @PostMapping("/public/get-by-ids")
+    public List<DoctorResponse> getByIds(@RequestBody List<String> doctorIds) {
+        return doctorServiceV1.getByIds(doctorIds);
+    }
+
     @PostMapping("/id")
     @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public DoctorResponse getByIdPost(@RequestBody String id) {
         return doctorServiceV1.getById(id);
     }
 
-    // Lấy bác sĩ theo số điện thoại qua GET
     @GetMapping("/phone/{phoneNumber}")
     @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public DoctorResponse getByPhoneNumber(@PathVariable String phoneNumber) {
         return doctorServiceV1.getByPhoneNumber(phoneNumber);
     }
 
-    // Lấy bác sĩ theo số điện thoại qua POST
-    @PostMapping("/phone")
-    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
-    public DoctorResponse getByPhoneNumberPost(@RequestBody String phoneNumber) {
-        return doctorServiceV1.getByPhoneNumber(phoneNumber);
-    }
 
     // Lấy danh sách bác sĩ theo Specialty với phân trang
     @GetMapping("/specialty/{specialtyId}")
