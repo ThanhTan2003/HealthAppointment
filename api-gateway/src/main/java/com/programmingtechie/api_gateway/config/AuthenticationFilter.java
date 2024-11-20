@@ -38,20 +38,20 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     @NonFinal
     private String[] publicEndpoints = {
-            "/identity/.*",
+        "/identity/.*",
 
-            //Doctor-Service
-            "/doctor/public(/.*)?",
-            "/doctor/qualification/public(/.*)?",
-            "/doctor/specialty/public(/.*)?",
+        // Doctor-Service
+        "/doctor/public(/.*)?",
+        "/doctor/qualification/public(/.*)?",
+        "/doctor/specialty/public(/.*)?",
 
-            //Medical-Service
-            "/medical/service-time-frame/public(/.*)?",
-            "/medical/service-type/public(/.*)?",
-            "/medical/service/public(/.*)?",
-            "/medical/doctor-service/public(/.*)?",
-            "/medical/service-time-frame/public(/.*)?",
-            "/medical/doctor-service/public(/.*)?"
+        // Medical-Service
+        "/medical/service-time-frame/public(/.*)?",
+        "/medical/service-type/public(/.*)?",
+        "/medical/service/public(/.*)?",
+        "/medical/doctor-service/public(/.*)?",
+        "/medical/service-time-frame/public(/.*)?",
+        "/medical/doctor-service/public(/.*)?"
     };
 
     @Value("${app.api-prefix}")

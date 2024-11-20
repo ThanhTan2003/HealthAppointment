@@ -64,8 +64,7 @@ public class SpecialtyControllerV1 {
     }
 
     @PostMapping("/public/get-by-ids")
-    public ResponseEntity<List<SpecialtyResponse>> getSpecialtiesByIds(
-            @RequestBody List<String> specialtyIds) {
+    public ResponseEntity<List<SpecialtyResponse>> getSpecialtiesByIds(@RequestBody List<String> specialtyIds) {
         return ResponseEntity.ok(specialtyServiceV1.getSpecialtiesByIds(specialtyIds));
     }
 }

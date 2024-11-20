@@ -5,6 +5,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -153,6 +155,37 @@ public class PatientServiceV1 {
                         .map(this::mapToPatientResponse)
                         .collect(Collectors.toList()))
                 .build();
+    }
+
+    public PageResponse<PatientResponse> getMyPatientRecord(int page, int size) {
+        var context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("Người dùng chưa được xác thực");
+        }
+
+        if (authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+            // Lấy thông tin từ Jwt
+            String id = jwt.getClaim("id");
+            if (id == null) {
+                throw new IllegalArgumentException("Không tìm thấy ID trong token!");
+            }
+
+            Pageable pageable = PageRequest.of(page - 1, size);
+            Page<Patient> pageData = patientRepository.findPatientByCustomerId(id, pageable);
+            return PageResponse.<PatientResponse>builder()
+                    .currentPage(page)
+                    .pageSize(pageData.getSize())
+                    .totalPages(pageData.getTotalPages())
+                    .totalElements(pageData.getTotalElements())
+                    .data(pageData.getContent().stream()
+                            .map(this::mapToPatientResponse)
+                            .collect(Collectors.toList()))
+                    .build();
+        }
+
+        throw new IllegalArgumentException("Principal không hợp lệ hoặc không phải là JWT");
     }
 
     public PageResponse<PatientResponse> getPatientByCustomerEmail(String email, int page, int size) {

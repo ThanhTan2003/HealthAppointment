@@ -1,17 +1,17 @@
 package com.programmingtechie.doctor_service.controller;
 
-import com.programmingtechie.doctor_service.dto.response.DoctorResponse;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import com.programmingtechie.doctor_service.dto.response.DoctorResponse;
 import com.programmingtechie.doctor_service.dto.response.PageResponse;
 import com.programmingtechie.doctor_service.service.DoctorServiceV1;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/doctor")
@@ -62,7 +62,6 @@ public class DoctorControllerV1 {
     public DoctorResponse getByPhoneNumber(@PathVariable String phoneNumber) {
         return doctorServiceV1.getByPhoneNumber(phoneNumber);
     }
-
 
     // Lấy danh sách bác sĩ theo Specialty với phân trang
     @GetMapping("/specialty/{specialtyId}")

@@ -36,31 +36,28 @@ public class PatientController {
     }
 
     @PutMapping("/update-patient/{id}")
-    @PostAuthorize("" +
-            "hasRole('NguoiDung') or " +
-            "hasRole('GiamDoc') or " +
-            "returnObject.email == authentication.principal.claims['email']")
+    @PostAuthorize("" + "hasRole('NguoiDung') or "
+            + "hasRole('GiamDoc') or "
+            + "returnObject.email == authentication.principal.claims['email']")
     public PatientResponse updatePatient(
             @PathVariable("id") String patientId, @RequestBody PatientUpdateRequest patientUpdateRequest) {
         return patientServiceV1.updatePatient(patientId, patientUpdateRequest);
     }
 
     @DeleteMapping
-    @PostAuthorize("" +
-            "hasRole('NguoiDung') or " +
-            "hasRole('GiamDoc') or " +
-            "returnObject.email == authentication.principal.claims['email']")
+    @PostAuthorize("" + "hasRole('NguoiDung') or "
+            + "hasRole('GiamDoc') or "
+            + "returnObject.email == authentication.principal.claims['email']")
     public String deletePatient(String patientID) {
         patientServiceV1.deletePatient(patientID);
         return "Xóa hồ sơ thành công";
     }
 
     @GetMapping("/customer/{customerId}")
-    @PreAuthorize("" +
-            "hasRole('QuanTriVienHeThong') or " +
-            "hasRole('QuanTriVienHeThong') or " +
-            "hasRole('NguoiDung') or " +
-            "returnObject.email == authentication.principal.claims['email']")
+    @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or "
+            + "hasRole('QuanTriVienHeThong') or "
+            + "hasRole('NguoiDung') or "
+            + "returnObject.email == authentication.principal.claims['email']")
     public PageResponse<PatientResponse> getPatientByCustomerId(
             @PathVariable("customerId") String customerId,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
@@ -68,12 +65,20 @@ public class PatientController {
         return patientServiceV1.getPatientByCustomerId(customerId, page, size);
     }
 
+    @GetMapping("/customer/patient-details")
+    @PreAuthorize(
+            "hasRole('QuanTriVienHeThong') or hasRole('NguoiDung') or returnObject.email == authentication.principal.claims['email']")
+    public PageResponse<PatientResponse> getMyPatientRecord(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return patientServiceV1.getMyPatientRecord(page, size);
+    }
+
     @GetMapping("/customer/patient-details/{customerId}")
-    @PreAuthorize("" +
-            "hasRole('QuanTriVienHeThong') or " +
-            "hasRole('QuanTriVienHeThong') or " +
-            "hasRole('NguoiDung') or " +
-            "returnObject.email == authentication.principal.claims['email']")
+    @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or "
+            + "hasRole('QuanTriVienHeThong') or "
+            + "hasRole('NguoiDung') or "
+            + "returnObject.email == authentication.principal.claims['email']")
     public CustomerWithPatientDetailsResponse getCustomerWithPatientDetails(
             @PathVariable("customerId") String customerId,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
@@ -144,10 +149,7 @@ public class PatientController {
     // }
 
     @GetMapping("/customer/info/{customerId}")
-    @PreAuthorize("" +
-            "hasRole('QuanTriVienHeThong') or " +
-            "hasRole('GiamDoc') or " +
-            "hasRole('NguoiDung')")
+    @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc') or " + "hasRole('NguoiDung')")
     public PageResponse<PatientAndCustomerInfoResponse> getPatientWithCustomerInfo(
             @PathVariable("customerId") String customerId,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,

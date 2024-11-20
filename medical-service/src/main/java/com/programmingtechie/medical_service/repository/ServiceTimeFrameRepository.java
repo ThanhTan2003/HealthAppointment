@@ -1,19 +1,21 @@
 package com.programmingtechie.medical_service.repository;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import com.programmingtechie.medical_service.model.ServiceTimeFrame;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
+import com.programmingtechie.medical_service.model.ServiceTimeFrame;
 
 public interface ServiceTimeFrameRepository extends JpaRepository<ServiceTimeFrame, String> {
 
-    @Query("SELECT stf FROM ServiceTimeFrame stf JOIN stf.doctorService ds WHERE ds.doctorId = :doctorId AND stf.dayOfWeek = :dayOfWeek ORDER BY stf.startTime ASC")
-    List<ServiceTimeFrame> findByDoctorIdAndDayOfWeek(@Param("doctorId") String doctorId, @Param("dayOfWeek") String dayOfWeek);
+    @Query(
+            "SELECT stf FROM ServiceTimeFrame stf JOIN stf.doctorService ds WHERE ds.doctorId = :doctorId AND stf.dayOfWeek = :dayOfWeek ORDER BY stf.startTime ASC")
+    List<ServiceTimeFrame> findByDoctorIdAndDayOfWeek(
+            @Param("doctorId") String doctorId, @Param("dayOfWeek") String dayOfWeek);
 
     @Query("SELECT DISTINCT stf.doctorService.doctorId FROM ServiceTimeFrame stf")
     Page<String> findDistinctDoctorIds(Pageable pageable);
@@ -29,10 +31,9 @@ public interface ServiceTimeFrameRepository extends JpaRepository<ServiceTimeFra
     List<String> findListDayOfWeekByDoctorServiceId(@Param("doctorServiceId") String doctorServiceId);
 
     // Truy vấn tìm các ServiceTimeFrame theo doctorServiceId và dayOfWeek
-    @Query("SELECT stf FROM ServiceTimeFrame stf " +
-            "WHERE stf.doctorService.id = :doctorServiceId " +
-                "AND stf.dayOfWeek = :dayOfWeek " +
-                "AND stf.isActive = true " +
-                "AND unaccent(LOWER(stf.status)) = unaccent(LOWER('nhan dang ky'))")
+    @Query("SELECT stf FROM ServiceTimeFrame stf " + "WHERE stf.doctorService.id = :doctorServiceId "
+            + "AND stf.dayOfWeek = :dayOfWeek "
+            + "AND stf.isActive = true "
+            + "AND unaccent(LOWER(stf.status)) = unaccent(LOWER('nhan dang ky'))")
     List<ServiceTimeFrame> findByDoctorServiceIdAndDayOfWeek(String doctorServiceId, String dayOfWeek);
 }

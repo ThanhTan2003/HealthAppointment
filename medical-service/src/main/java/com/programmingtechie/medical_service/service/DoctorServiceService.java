@@ -165,36 +165,38 @@ public class DoctorServiceService {
         Page<DoctorService> doctorServices = doctorServiceRepository.findByServiceId(serviceId, pageable);
 
         // Chuyển đổi danh sách DoctorService thành DoctorServiceResponse thông qua mapper
-        List<DoctorServiceResponse> doctorServiceResponses = doctorServiceMapper.toListDoctorServiceResponse(doctorServices.getContent());
+        List<DoctorServiceResponse> doctorServiceResponses =
+                doctorServiceMapper.toListDoctorServiceResponse(doctorServices.getContent());
 
         // Lấy danh sách doctorIds từ DoctorServiceResponse
         List<String> doctorIds = doctorServiceResponses.stream()
                 .map(DoctorServiceResponse::getDoctorId)
                 .toList();
 
-//        // Lấy danh sách serviceIds từ DoctorServiceResponse
-//        List<String> specialtyIds = new ArrayList<>();
-//        for (DoctorServiceResponse doctorServiceResponse : doctorServiceResponses) {
-//            if (doctorServiceResponse.getService() != null) {
-//                String specialtyId = doctorServiceResponse.getService().getSpecialtyId();
-//                if (specialtyId != null && !specialtyId.isEmpty()) {
-//                    specialtyIds.add(specialtyId);
-//                }
-//            }
-//        }
-//
-//        // Lấy danh sách SpecialtyResponse từ DoctorClient
-//        List<SpecialtyResponse> specialtyResponses = doctorClient.getSpecialtiesByIds(specialtyIds);
-//        Map<String, SpecialtyResponse> specialtyResponseMap = specialtyResponses.stream()
-//                .collect(Collectors.toMap(SpecialtyResponse::getSpecialtyId, specialtyResponse -> specialtyResponse));
-//
-//        // Gán SpecialtyResponse vào DoctorServiceResponse
-//        for (DoctorServiceResponse doctorServiceResponse : doctorServiceResponses) {
-//            if (doctorServiceResponse.getService() != null) {
-//                doctorServiceResponse.setSpecialtyResponse(specialtyResponseMap.get(
-//                        doctorServiceResponse.getService().getSpecialtyId()));
-//            }
-//        }
+        //        // Lấy danh sách serviceIds từ DoctorServiceResponse
+        //        List<String> specialtyIds = new ArrayList<>();
+        //        for (DoctorServiceResponse doctorServiceResponse : doctorServiceResponses) {
+        //            if (doctorServiceResponse.getService() != null) {
+        //                String specialtyId = doctorServiceResponse.getService().getSpecialtyId();
+        //                if (specialtyId != null && !specialtyId.isEmpty()) {
+        //                    specialtyIds.add(specialtyId);
+        //                }
+        //            }
+        //        }
+        //
+        //        // Lấy danh sách SpecialtyResponse từ DoctorClient
+        //        List<SpecialtyResponse> specialtyResponses = doctorClient.getSpecialtiesByIds(specialtyIds);
+        //        Map<String, SpecialtyResponse> specialtyResponseMap = specialtyResponses.stream()
+        //                .collect(Collectors.toMap(SpecialtyResponse::getSpecialtyId, specialtyResponse ->
+        // specialtyResponse));
+        //
+        //        // Gán SpecialtyResponse vào DoctorServiceResponse
+        //        for (DoctorServiceResponse doctorServiceResponse : doctorServiceResponses) {
+        //            if (doctorServiceResponse.getService() != null) {
+        //                doctorServiceResponse.setSpecialtyResponse(specialtyResponseMap.get(
+        //                        doctorServiceResponse.getService().getSpecialtyId()));
+        //            }
+        //        }
 
         // Trả về kết quả phân trang
         return PageResponse.<DoctorServiceResponse>builder()
@@ -211,10 +213,12 @@ public class DoctorServiceService {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         // Lấy danh sách DoctorService theo serviceId và phân trang
-        Page<DoctorService> doctorServices = doctorServiceRepository.findByDoctorServiceExistsInServiceTimeFrame(doctorId, pageable);
+        Page<DoctorService> doctorServices =
+                doctorServiceRepository.findByDoctorServiceExistsInServiceTimeFrame(doctorId, pageable);
 
         // Chuyển đổi danh sách DoctorService thành DoctorServiceResponse thông qua mapper
-        List<DoctorServiceResponse> doctorServiceResponses = doctorServiceMapper.toListDoctorServiceResponse(doctorServices.getContent());
+        List<DoctorServiceResponse> doctorServiceResponses =
+                doctorServiceMapper.toListDoctorServiceResponse(doctorServices.getContent());
 
         // Lấy danh sách doctorIds từ DoctorServiceResponse
         List<String> doctorIds = doctorServiceResponses.stream()
@@ -229,8 +233,5 @@ public class DoctorServiceService {
                 .totalElements(doctorServices.getTotalElements())
                 .data(doctorServiceResponses)
                 .build();
-
     }
-
-
 }

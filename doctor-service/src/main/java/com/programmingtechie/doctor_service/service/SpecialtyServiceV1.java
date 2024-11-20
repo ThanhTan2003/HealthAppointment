@@ -4,10 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.programmingtechie.doctor_service.dto.response.DoctorResponse;
-import com.programmingtechie.doctor_service.mapper.SpecialtyMapper;
-import com.programmingtechie.doctor_service.model.Doctor;
-import com.programmingtechie.doctor_service.repository.httpClient.MedicalClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,8 +13,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.programmingtechie.doctor_service.dto.response.PageResponse;
 import com.programmingtechie.doctor_service.dto.response.SpecialtyResponse;
+import com.programmingtechie.doctor_service.mapper.SpecialtyMapper;
 import com.programmingtechie.doctor_service.model.Specialty;
 import com.programmingtechie.doctor_service.repository.SpecialtyRepository;
+import com.programmingtechie.doctor_service.repository.httpClient.MedicalClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,8 +54,6 @@ public class SpecialtyServiceV1 {
         return specialtyRepository.findById(id).map(specialtyMapper::toSpecialtyResponse);
     }
 
-
-
     public PageResponse<SpecialtyResponse> searchSpecialties(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Specialty> pageData = specialtyRepository.searchSpecialties(keyword, pageable);
@@ -75,14 +71,11 @@ public class SpecialtyServiceV1 {
 
     public List<SpecialtyResponse> getSpecialtiesByIds(List<String> specialtyIds) {
         List<Specialty> specialties = specialtyRepository.findByIdIn(specialtyIds);
-        if(specialtyIds.isEmpty())
-        {
+        if (specialtyIds.isEmpty()) {
             log.info("Rỗng ...");
         }
         log.info(specialties.toString());
-        return specialties.stream()
-                .map(specialtyMapper::toSpecialtyResponse)
-                .collect(Collectors.toList());
+        return specialties.stream().map(specialtyMapper::toSpecialtyResponse).collect(Collectors.toList());
     }
 
     public PageResponse<SpecialtyResponse> getAllSpecialtiesByCustomer(int page, int size) {
@@ -94,9 +87,8 @@ public class SpecialtyServiceV1 {
         // Tìm danh sách bác sĩ dựa trên danh sách doctorId đã có
         List<Specialty> specialtyList = specialtyRepository.findByIdIn(specialtyIdsWithService);
 
-        List<SpecialtyResponse> specialtyResponses = specialtyList.stream()
-                .map(specialtyMapper::toSpecialtyResponse)
-                .collect(Collectors.toList());
+        List<SpecialtyResponse> specialtyResponses =
+                specialtyList.stream().map(specialtyMapper::toSpecialtyResponse).collect(Collectors.toList());
 
         return PageResponse.<SpecialtyResponse>builder()
                 .currentPage(response.getCurrentPage())

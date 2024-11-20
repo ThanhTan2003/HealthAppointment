@@ -1,22 +1,24 @@
 package com.programmingtechie.medical_service.mapper;
 
-import com.programmingtechie.medical_service.dto.response.Doctor.DoctorResponse;
-import com.programmingtechie.medical_service.repository.httpClient.DoctorClient;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import com.programmingtechie.medical_service.dto.response.DoctorServiceResponse;
-import com.programmingtechie.medical_service.model.DoctorService;
-
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
+import com.programmingtechie.medical_service.dto.response.Doctor.DoctorResponse;
+import com.programmingtechie.medical_service.dto.response.DoctorServiceResponse;
+import com.programmingtechie.medical_service.model.DoctorService;
+import com.programmingtechie.medical_service.repository.httpClient.DoctorClient;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class DoctorServiceMapper {
     final DoctorClient doctorClient;
+
     public DoctorServiceResponse toDoctorServiceResponse(DoctorService doctorService) {
         return DoctorServiceResponse.builder()
                 .id(doctorService.getId())
@@ -26,10 +28,10 @@ public class DoctorServiceMapper {
                 .service(doctorService.getService())
                 .build();
     }
+
     public List<DoctorServiceResponse> toListDoctorServiceResponse(List<DoctorService> doctorServices) {
-        List<String> doctorIds = doctorServices.stream()
-                .map(DoctorService::getDoctorId)
-                .collect(Collectors.toList());
+        List<String> doctorIds =
+                doctorServices.stream().map(DoctorService::getDoctorId).collect(Collectors.toList());
 
         List<DoctorResponse> doctorResponses = doctorClient.getByIds(doctorIds);
 

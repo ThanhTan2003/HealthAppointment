@@ -1,12 +1,14 @@
 package com.programmingtechie.doctor_service.mapper;
 
-import com.programmingtechie.doctor_service.dto.response.DoctorResponse;
-import com.programmingtechie.doctor_service.model.Doctor;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 
-import java.util.stream.Collectors;
+import com.programmingtechie.doctor_service.dto.response.DoctorResponse;
+import com.programmingtechie.doctor_service.model.Doctor;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
@@ -14,8 +16,8 @@ import java.util.stream.Collectors;
 public class DoctorMapper {
     final SpecialtyMapper specialtyMapper;
     final QualificationMapper qualificationMapper;
-    public DoctorResponse toDoctorResponse (Doctor doctor)
-    {
+
+    public DoctorResponse toDoctorResponse(Doctor doctor) {
         return DoctorResponse.builder()
                 .id(doctor.getId())
                 .fullName(doctor.getFullName())
@@ -31,13 +33,13 @@ public class DoctorMapper {
                         .map(specialtyMapper::toSpecialtyResponse)
                         .collect(Collectors.toList()))
                 .qualifications(doctor.getDoctorQualifications().stream()
-                        .map(doctorQualification -> qualificationMapper.toQualificationResponse(doctorQualification.getQualification()))
+                        .map(doctorQualification ->
+                                qualificationMapper.toQualificationResponse(doctorQualification.getQualification()))
                         .collect(Collectors.toList()))
                 .build();
     }
 
-    public DoctorResponse toDoctorResponsePublic (Doctor doctor)
-    {
+    public DoctorResponse toDoctorResponsePublic(Doctor doctor) {
         return DoctorResponse.builder()
                 .id(doctor.getId())
                 .fullName(doctor.getFullName())
@@ -53,7 +55,8 @@ public class DoctorMapper {
                         .map(specialtyMapper::toSpecialtyResponse)
                         .collect(Collectors.toList()))
                 .qualifications(doctor.getDoctorQualifications().stream()
-                        .map(doctorQualification -> qualificationMapper.toQualificationResponse(doctorQualification.getQualification()))
+                        .map(doctorQualification ->
+                                qualificationMapper.toQualificationResponse(doctorQualification.getQualification()))
                         .collect(Collectors.toList()))
                 .build();
     }

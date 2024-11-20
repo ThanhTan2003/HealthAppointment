@@ -1,7 +1,6 @@
 package com.programmingtechie.identity_service.service;
 
 import java.text.ParseException;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -142,8 +141,7 @@ public class AuthenticationService {
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10); // Ma hoa mat khau
         boolean result = passwordEncoder.matches(request.getPassword(), user.getPassword()); // Kiem tra mat khau
-        if(result)
-            updatelastAccessTime(user);
+        if (result) updatelastAccessTime(user);
         return AuthenticationResponse.builder()
                 .authenticated(result) // Tra ve ket qua dang nhap
                 .token(generateToken(user)) // Tra ve token neu dang nhap thanh cong
@@ -306,14 +304,12 @@ public class AuthenticationService {
                 .build(); // Tra ve token moi va ket qua xac thuc
     }
 
-    private void updatelastAccessTime(User user)
-    {
+    private void updatelastAccessTime(User user) {
         user.setLastAccessTime(LocalDateTime.now());
         userRepository.save(user);
     }
 
-    private void updatelastAccessTime(Customer customer)
-    {
+    private void updatelastAccessTime(Customer customer) {
         customer.setLastAccessTime(LocalDateTime.now());
         customerRepository.save(customer);
     }

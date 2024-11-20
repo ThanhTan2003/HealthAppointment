@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.programmingtechie.identity_service.mapper.CustomerMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.programmingtechie.identity_service.dto.request.Customer.CustomerRequest;
 import com.programmingtechie.identity_service.dto.response.Customer.CustomerResponse;
 import com.programmingtechie.identity_service.dto.response.PageResponse;
+import com.programmingtechie.identity_service.mapper.CustomerMapper;
 import com.programmingtechie.identity_service.model.Customer;
 import com.programmingtechie.identity_service.model.Role;
 import com.programmingtechie.identity_service.repository.CustomerRepository;
@@ -119,7 +119,6 @@ public class CustomerService {
         return customers.stream().map(customerMapper::toCustomerResponse).toList();
     }
 
-
     public CustomerResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
@@ -146,13 +145,13 @@ public class CustomerService {
         throw new IllegalArgumentException("Principal không hợp lệ hoặc không phải là JWT");
     }
 
-
     public PageResponse<CustomerResponse> getCustomers(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("fullName").ascending());
         var pageData = customerRepository.getAllCustomers(pageable);
 
-        List<CustomerResponse> customerResponses =
-                pageData.getContent().stream().map(customerMapper::toCustomerResponse).toList();
+        List<CustomerResponse> customerResponses = pageData.getContent().stream()
+                .map(customerMapper::toCustomerResponse)
+                .toList();
 
         return PageResponse.<CustomerResponse>builder()
                 .currentPage(page)

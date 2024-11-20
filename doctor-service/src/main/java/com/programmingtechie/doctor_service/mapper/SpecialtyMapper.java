@@ -1,11 +1,13 @@
 package com.programmingtechie.doctor_service.mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.programmingtechie.doctor_service.dto.response.SpecialtyResponse;
 import com.programmingtechie.doctor_service.model.DoctorSpecialty;
 import com.programmingtechie.doctor_service.model.Specialty;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

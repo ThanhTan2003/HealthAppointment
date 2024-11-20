@@ -1,18 +1,19 @@
 package com.programmingtechie.identity_service.mapper;
 
-import com.programmingtechie.identity_service.dto.response.Customer.CustomerResponse;
-import com.programmingtechie.identity_service.model.Customer;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
+
+import org.springframework.stereotype.Component;
+
+import com.programmingtechie.identity_service.dto.response.Customer.CustomerResponse;
+import com.programmingtechie.identity_service.model.Customer;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class CustomerMapper {
-    public CustomerResponse toCustomerResponse(Customer customer)
-    {
+    public CustomerResponse toCustomerResponse(Customer customer) {
         return CustomerResponse.builder()
                 .id(customer.getId())
                 .fullName(customer.getFullName())
@@ -27,8 +28,7 @@ public class CustomerMapper {
     }
 
     private String getTimeSinceLastAccess(LocalDateTime lastAccessTime) {
-        if(lastAccessTime == null)
-            return "Chưa sử dụng";
+        if (lastAccessTime == null) return "Chưa sử dụng";
         LocalDateTime now = LocalDateTime.now();
         Duration duration = Duration.between(lastAccessTime, now);
 
