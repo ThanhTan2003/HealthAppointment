@@ -3,7 +3,6 @@ package com.programmingtechie.appointment_service.service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,8 +40,7 @@ public class AppointmentService {
             Boolean patientExists = patientClient.checkPatientExists(patientId);
             log.info("patientExists: " + patientExists.toString());
             log.info("!patientExists: " + (!patientExists));
-            if (!patientExists)
-                throw new IllegalArgumentException("Hồ sơ không hợp lệ!");
+            if (!patientExists) throw new IllegalArgumentException("Hồ sơ không hợp lệ!");
         } catch (IllegalArgumentException e) {
             // Nếu là lỗi logic từ dữ liệu không hợp lệ, tái ném ngoại lệ gốc
             throw e;
@@ -55,8 +53,7 @@ public class AppointmentService {
         String serviceTimeFrameId = appointmentRequest.getServiceTimeFrameId();
         try {
             Boolean serviceTimeFrameExists = medicalClient.checkServiceTimeFrameExists(serviceTimeFrameId);
-            if (!serviceTimeFrameExists)
-                throw new IllegalArgumentException("Dịch vụ không hợp lệ!");
+            if (!serviceTimeFrameExists) throw new IllegalArgumentException("Dịch vụ không hợp lệ!");
 
         } catch (IllegalArgumentException e) {
             // Nếu là lỗi logic từ dữ liệu không hợp lệ, tái ném ngoại lệ gốc
@@ -197,18 +194,19 @@ public class AppointmentService {
                 .build();
     }
 
-    public PageResponse<AppointmentResponse> searchAppointments(String id, LocalDate date, String serviceTimeFrameId, int page, int size) {
+    public PageResponse<AppointmentResponse> searchAppointments(
+            String id, LocalDate date, String serviceTimeFrameId, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         Specification<Appointment> specification = Specification.where(null);
 
         if (id != null && !id.isBlank()) { // Nếu id không phải null hoặc rỗng, thêm điều kiện id = :id
-            specification = specification.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("id"), id));
+            specification =
+                    specification.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), id));
         }
         if (date != null) {
-            specification = specification.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("date"), date));
+            specification =
+                    specification.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("date"), date));
         }
         if (serviceTimeFrameId != null && !serviceTimeFrameId.isBlank()) {
             specification = specification.and((root, query, criteriaBuilder) ->

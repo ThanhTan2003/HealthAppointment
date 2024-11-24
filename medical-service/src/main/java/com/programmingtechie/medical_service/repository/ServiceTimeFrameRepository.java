@@ -38,6 +38,7 @@ public interface ServiceTimeFrameRepository extends JpaRepository<ServiceTimeFra
     List<ServiceTimeFrame> findByDoctorServiceIdAndDayOfWeek(String doctorServiceId, String dayOfWeek);
 
     // Kiểm tra sự tồn tại dựa trên ID, isActive = true, và status = "Nhận đăng ký"
-    @Query("SELECT COUNT(stf) > 0 FROM ServiceTimeFrame stf WHERE stf.id = :id AND stf.isActive = true AND unaccent(LOWER(stf.status)) = unaccent(LOWER('nhan dang ky'))")
+    @Query(
+            "SELECT COUNT(stf) > 0 FROM ServiceTimeFrame stf WHERE stf.id = :id AND stf.isActive = true AND unaccent(LOWER(stf.status)) = unaccent(LOWER('nhan dang ky'))")
     boolean existsByIdAndIsActiveAndStatus(@Param("id") String id);
 }

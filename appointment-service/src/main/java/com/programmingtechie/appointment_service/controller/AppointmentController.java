@@ -3,7 +3,6 @@ package com.programmingtechie.appointment_service.controller;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -131,13 +130,15 @@ public class AppointmentController {
     @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<AppointmentResponse>> searchAppointments(
             @RequestParam(value = "id", required = false) String id,
-            @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                    LocalDate date,
             @RequestParam(value = "serviceTimeFrameId", required = false) String serviceTimeFrameId,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
         // Gửi yêu cầu đến service để tìm kiếm
-        PageResponse<AppointmentResponse> results = appointmentService.searchAppointments(id, date, serviceTimeFrameId, page, size);
+        PageResponse<AppointmentResponse> results =
+                appointmentService.searchAppointments(id, date, serviceTimeFrameId, page, size);
 
         return ResponseEntity.ok(results);
     }

@@ -122,5 +122,4 @@ public class SpecialtyServiceV1 {
                 .data(specialtyResponses)
                 .build();
     }
-
 }

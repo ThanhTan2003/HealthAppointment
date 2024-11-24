@@ -54,6 +54,13 @@ public class PatientController {
         return "Xóa hồ sơ thành công";
     }
 
+    @GetMapping("/id/{patientId}")
+    @PreAuthorize(
+            "hasRole('QuanTriVienHeThong') or hasRole('NguoiDung') or returnObject.email == authentication.principal.claims['email']")
+    public PatientResponse getByPatientId(@PathVariable String patientId) {
+        return patientServiceV1.getByPatientId(patientId);
+    }
+
     @GetMapping("/customer/{customerId}")
     @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or "
             + "hasRole('QuanTriVienHeThong') or "
