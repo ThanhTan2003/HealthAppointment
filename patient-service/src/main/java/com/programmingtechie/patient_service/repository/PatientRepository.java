@@ -25,4 +25,6 @@ public interface PatientRepository extends JpaRepository<Patient, String> {
     Page<Patient> findPatientByPhoneNumber(@Param("phoneNumber") String phoneNumber, Pageable pageable);
 
     Page<Patient> findByCustomerId(String customerId, Pageable pageable);
+
+    boolean existsById(String id);
 }

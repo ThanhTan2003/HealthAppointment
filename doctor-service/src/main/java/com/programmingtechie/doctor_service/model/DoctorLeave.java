@@ -40,6 +40,9 @@ public class DoctorLeave {
         if (this.id == null) {
             this.id = UUID.randomUUID().toString();
         }
+        if (this.lastUpdated == null) {
+            this.lastUpdated = LocalDateTime.now();
+        }
     }
 
     @PreUpdate

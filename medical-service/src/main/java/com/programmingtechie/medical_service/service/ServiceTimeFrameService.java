@@ -168,4 +168,9 @@ public class ServiceTimeFrameService {
 
         return serviceTimeFrameResponseList;
     }
+
+    // Kiểm tra tồn tại ServiceTimeFrame dựa trên ID, isActive, và status
+    public boolean doesServiceTimeFrameExist(String id) {
+        return serviceTimeFrameRepository.existsByIdAndIsActiveAndStatus(id);
+    }
 }

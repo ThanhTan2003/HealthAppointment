@@ -1,5 +1,6 @@
 package com.programmingtechie.patient_service.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -248,5 +249,12 @@ public class PatientController {
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         return patientServiceV1.getPatientByCustomerPhoneNumber(phoneNumber, page, size);
+    }
+
+    @GetMapping("/exists/{id}")
+    @PreAuthorize("hasRole('NguoiDung')")
+    public ResponseEntity<Boolean> checkPatientExists(@PathVariable String id) {
+        boolean exists = patientServiceV1.doesPatientExist(id);
+        return ResponseEntity.ok(exists);
     }
 }

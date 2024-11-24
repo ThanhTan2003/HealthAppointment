@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,8 @@ import com.programmingtechie.patient_service.repository.httpClient.CustomerIdent
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Service
 @RequiredArgsConstructor
@@ -279,8 +282,8 @@ public class PatientServiceV1 {
     // Tạo mã ngẫu nhiên
     private static String generatePatientID() {
         String prefix = "BN-";
-        String middlePart = generateRandomDigits(10); // 6 chữ số ngẫu nhiên
-        String suffixPart = generateRandomAlphanumeric(10); // 6 ký tự chữ hoa hoặc số ngẫu nhiên
+        String middlePart = generateRandomDigits(0); // 6 chữ số ngẫu nhiên
+        String suffixPart = generateRandomAlphanumeric(20); // 6 ký tự chữ hoa hoặc số ngẫu nhiên
         return prefix + middlePart + suffixPart;
     }
 
@@ -294,7 +297,7 @@ public class PatientServiceV1 {
     }
 
     private static String generateRandomAlphanumeric(int length) {
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        String characters = "06BDYZVR2XJAW5KLTQSI9MC8UHE1OFG34NP7";
         Random random = new Random();
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < length; i++) {
@@ -303,4 +306,8 @@ public class PatientServiceV1 {
         return result.toString();
     }
     // Kết thúc tạo mã ngẫu nhiên
+
+    public boolean doesPatientExist(String id) {
+        return patientRepository.existsById(id);
+    }
 }

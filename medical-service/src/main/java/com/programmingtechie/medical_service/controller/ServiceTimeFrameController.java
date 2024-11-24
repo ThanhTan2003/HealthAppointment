@@ -133,4 +133,11 @@ public class ServiceTimeFrameController {
                         doctorServiceId, dayOfWeek, parsedDate);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/exists/{id}")
+    @PreAuthorize("hasRole('NguoiDung')")
+    public ResponseEntity<Boolean> checkServiceTimeFrameExists(@PathVariable String id) {
+        boolean exists = serviceTimeFrameService.doesServiceTimeFrameExist(id);
+        return ResponseEntity.ok(exists);
+    }
 }

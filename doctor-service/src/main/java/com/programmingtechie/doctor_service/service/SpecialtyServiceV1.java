@@ -1,5 +1,6 @@
 package com.programmingtechie.doctor_service.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -79,23 +80,47 @@ public class SpecialtyServiceV1 {
     }
 
     public PageResponse<SpecialtyResponse> getAllSpecialtiesByCustomer(int page, int size) {
-        // Gọi Medical Service
-        PageResponse<String> response = medicalClient.getListSpecialtyWithServiceTimeFrames(page, size);
+        // Gọi Medical Service và xử lý lỗi
+        PageResponse<String> response;
+        try {
+            response = medicalClient.getListSpecialtyWithServiceTimeFrames(page, size);
+        } catch (Exception e) {
+            log.error("Lỗi kết nối đến Medical Service: {}", e.getMessage());
+            throw new IllegalArgumentException("Không thể kết nối đến Medical Service.");
+        }
 
+        // Lấy danh sách ID chuyên khoa
         List<String> specialtyIdsWithService = response.getData();
+        if (specialtyIdsWithService == null || specialtyIdsWithService.isEmpty()) {
+            log.info("Danh sách ID specialties từ Medical Service rỗng.");
+            return PageResponse.<SpecialtyResponse>builder()
+                    .currentPage(page)
+                    .pageSize(size)
+                    .totalPages(0)
+                    .totalElements(0)
+                    .data(Collections.emptyList())
+                    .build();
+        }
 
-        // Tìm danh sách bác sĩ dựa trên danh sách doctorId đã có
-        List<Specialty> specialtyList = specialtyRepository.findByIdIn(specialtyIdsWithService);
+        // Tạo đối tượng Pageable
+        Pageable pageable = PageRequest.of(page - 1, size);
 
-        List<SpecialtyResponse> specialtyResponses =
-                specialtyList.stream().map(specialtyMapper::toSpecialtyResponse).collect(Collectors.toList());
+        // Truy vấn database với phân trang
+        Page<Specialty> pageData = specialtyRepository.findByIdIn(specialtyIdsWithService, pageable);
 
+        // Chuyển đổi dữ liệu sang SpecialtyResponse
+        List<SpecialtyResponse> specialtyResponses = pageData.getContent().stream()
+                .map(specialtyMapper::toSpecialtyResponse)
+                .collect(Collectors.toList());
+
+        // Trả về kết quả
         return PageResponse.<SpecialtyResponse>builder()
-                .currentPage(response.getCurrentPage())
-                .pageSize(response.getPageSize())
-                .totalPages(response.getTotalPages())
-                .totalElements(response.getTotalElements())
+                .currentPage(pageData.getNumber() + 1) // Spring Page bắt đầu từ 0
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
                 .data(specialtyResponses)
                 .build();
     }
+
 }

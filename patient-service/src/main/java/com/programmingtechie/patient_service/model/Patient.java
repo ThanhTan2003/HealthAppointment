@@ -11,7 +11,10 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @Data
-@Table(name = "patient")
+@Table(name = "patient",
+indexes = {
+        @Index(name = "idx_id", columnList = "id")
+})
 @Entity
 public class Patient {
     @Id

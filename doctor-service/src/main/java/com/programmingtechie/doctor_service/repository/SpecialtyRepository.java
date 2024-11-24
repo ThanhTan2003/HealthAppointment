@@ -19,4 +19,6 @@ public interface SpecialtyRepository extends JpaRepository<Specialty, String> {
     Page<Specialty> searchSpecialties(@Param("keyword") String keyword, Pageable pageable);
 
     List<Specialty> findByIdIn(List<String> specialtyIds);
+
+    Page<Specialty> findByIdIn(List<String> specialtyIds, Pageable pageable);
 }
