@@ -20,5 +20,5 @@ public interface SpecialtyRepository extends JpaRepository<Specialty, String> {
 
     List<Specialty> findByIdIn(List<String> specialtyIds);
 
-    Page<Specialty> findByIdIn(List<String> specialtyIds, Pageable pageable);
+    Page<Specialty> findByIdIn(List<String> ids, Pageable pageable);
 }

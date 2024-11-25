@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -89,6 +90,8 @@ public class SpecialtyServiceV1 {
             throw new IllegalArgumentException("Không thể kết nối đến Medical Service.");
         }
 
+        log.info("Lay tu Medical: " + response.toString());
+
         // Lấy danh sách ID chuyên khoa
         List<String> specialtyIdsWithService = response.getData();
         if (specialtyIdsWithService == null || specialtyIdsWithService.isEmpty()) {
@@ -102,25 +105,25 @@ public class SpecialtyServiceV1 {
                     .build();
         }
 
-        // Tạo đối tượng Pageable
-        Pageable pageable = PageRequest.of(page - 1, size);
+        log.info(specialtyIdsWithService.toString());
 
-        // Truy vấn database với phân trang
-        Page<Specialty> pageData = specialtyRepository.findByIdIn(specialtyIdsWithService, pageable);
+        // Truy vấn database để lấy danh sách chuyên khoa
+        List<Specialty> specialties = specialtyRepository.findByIdIn(specialtyIdsWithService);
 
-        // Chuyển đổi dữ liệu sang SpecialtyResponse
-        List<SpecialtyResponse> specialtyResponses = pageData.getContent().stream()
+        // Chuyển đổi danh sách Specialty sang SpecialtyResponse
+        List<SpecialtyResponse> specialtyResponses = specialties.stream()
                 .map(specialtyMapper::toSpecialtyResponse)
                 .collect(Collectors.toList());
 
-        // Trả về kết quả
+        // Trả về PageResponse dựa trên kết quả từ Medical Service
         return PageResponse.<SpecialtyResponse>builder()
-                .currentPage(pageData.getNumber() + 1) // Spring Page bắt đầu từ 0
-                .pageSize(pageData.getSize())
-                .totalPages(pageData.getTotalPages())
-                .totalElements(pageData.getTotalElements())
+                .currentPage(page)
+                .pageSize(size)
+                .totalPages(response.getTotalPages())  // Sử dụng số trang từ Medical Service
+                .totalElements(response.getTotalElements())  // Tổng số phần tử từ Medical Service
                 .data(specialtyResponses)
                 .build();
     }
+
 
 }
