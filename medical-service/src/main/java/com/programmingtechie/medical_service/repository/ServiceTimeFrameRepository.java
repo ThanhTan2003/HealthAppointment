@@ -20,9 +20,8 @@ public interface ServiceTimeFrameRepository extends JpaRepository<ServiceTimeFra
     @Query("SELECT DISTINCT stf.doctorService.doctorId FROM ServiceTimeFrame stf")
     Page<String> findDistinctDoctorIds(Pageable pageable);
 
-    @Query("SELECT DISTINCT stf.doctorService.service.specialtyId " +
-            "FROM ServiceTimeFrame stf " +
-            "WHERE stf.doctorService.service.specialtyId IS NOT NULL")
+    @Query("SELECT DISTINCT stf.doctorService.service.specialtyId " + "FROM ServiceTimeFrame stf "
+            + "WHERE stf.doctorService.service.specialtyId IS NOT NULL")
     Page<String> findDistinctSpecialtyIds(Pageable pageable);
 
     @Query("SELECT DISTINCT stf.doctorService.service.serviceType.Id FROM ServiceTimeFrame stf")

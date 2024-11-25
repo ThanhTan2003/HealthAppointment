@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -111,19 +110,16 @@ public class SpecialtyServiceV1 {
         List<Specialty> specialties = specialtyRepository.findByIdIn(specialtyIdsWithService);
 
         // Chuyển đổi danh sách Specialty sang SpecialtyResponse
-        List<SpecialtyResponse> specialtyResponses = specialties.stream()
-                .map(specialtyMapper::toSpecialtyResponse)
-                .collect(Collectors.toList());
+        List<SpecialtyResponse> specialtyResponses =
+                specialties.stream().map(specialtyMapper::toSpecialtyResponse).collect(Collectors.toList());
 
         // Trả về PageResponse dựa trên kết quả từ Medical Service
         return PageResponse.<SpecialtyResponse>builder()
                 .currentPage(page)
                 .pageSize(size)
-                .totalPages(response.getTotalPages())  // Sử dụng số trang từ Medical Service
-                .totalElements(response.getTotalElements())  // Tổng số phần tử từ Medical Service
+                .totalPages(response.getTotalPages()) // Sử dụng số trang từ Medical Service
+                .totalElements(response.getTotalElements()) // Tổng số phần tử từ Medical Service
                 .data(specialtyResponses)
                 .build();
     }
-
-
 }

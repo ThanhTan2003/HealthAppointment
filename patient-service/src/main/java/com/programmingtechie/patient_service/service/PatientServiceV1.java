@@ -1,6 +1,5 @@
 package com.programmingtechie.patient_service.service;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,15 +29,14 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @Slf4j
 public class PatientServiceV1 {
-
     final PatientRepository patientRepository;
     final PatientMapper patientMapper;
     final CustomerIdentityClient customerIdentityClient;
 
     public PatientResponse createPatient(PatientCreationRequest patientRequest) {
-        Patient patient = mapToPatientRequest(patientRequest);
+        Patient patient = patientMapper.mapToPatientRequest(patientRequest);
         patientRepository.save(patient);
-        return mapToPatientResponse(patient);
+        return patientMapper.mapToPatientResponse(patient);
     }
 
     public PatientResponse updatePatient(String patientId, PatientUpdateRequest patientUpdateRequest) {
@@ -67,7 +65,7 @@ public class PatientServiceV1 {
 
         patientRepository.save(patient);
 
-        return mapToPatientResponse(patient);
+        return patientMapper.mapToPatientResponse(patient);
     }
 
     public void deletePatient(String patientId) {
@@ -82,7 +80,7 @@ public class PatientServiceV1 {
         Patient patient = patientRepository
                 .findById(patientId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ với mã " + patientId + "!"));
-        return mapToPatientResponse(patient);
+        return patientMapper.mapToPatientResponse(patient);
     }
 
     public boolean isValidpatient(PatientCreationRequest patientRequest) {
@@ -103,70 +101,6 @@ public class PatientServiceV1 {
         return phoneNumber != null && phoneNumber.length() == 10;
     }
 
-    private PatientResponse mapToPatientResponse(Patient patient) {
-        return PatientResponse.builder()
-                .id(patient.getId())
-                .fullName(patient.getFullName())
-                .dateOfBirth(patient.getDateOfBirth())
-                .gender(patient.getGender())
-                .insuranceId(patient.getInsuranceId())
-                .identificationCode(patient.getIdentificationCode())
-                .nation(patient.getNation())
-                .occupation(patient.getOccupation())
-                .phoneNumber(patient.getPhoneNumber())
-                .email(patient.getEmail())
-                .country(patient.getCountry())
-                .province(patient.getProvince())
-                .district(patient.getDistrict())
-                .ward(patient.getWard())
-                .address(patient.getAddress())
-                .relationship(patient.getRelationship())
-                .note(patient.getNote())
-                .customerId(patient.getCustomerId())
-                .lastUpdated(LocalDateTime.now())
-                .build();
-    }
-
-    public Patient mapToPatientRequest(PatientCreationRequest patientRequest) {
-        var context = SecurityContextHolder.getContext();
-        Authentication authentication = context.getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new IllegalArgumentException("Người dùng chưa được xác thực");
-        }
-
-        if (authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
-            // Lấy thông tin từ Jwt
-            String id = jwt.getClaim("id");
-            if (id == null) {
-                throw new IllegalArgumentException("Không tìm thấy ID trong token!");
-            }
-
-            return Patient.builder()
-                    .id(generatePatientID())
-                    .fullName(patientRequest.getFullName())
-                    .dateOfBirth(patientRequest.getDateOfBirth())
-                    .gender(patientRequest.getGender())
-                    .insuranceId(patientRequest.getInsuranceId())
-                    .identificationCode(patientRequest.getIdentificationCode())
-                    .nation(patientRequest.getNation())
-                    .occupation(patientRequest.getOccupation())
-                    .phoneNumber(patientRequest.getPhoneNumber())
-                    .email(patientRequest.getEmail())
-                    .country(patientRequest.getCountry())
-                    .province(patientRequest.getProvince())
-                    .district(patientRequest.getDistrict())
-                    .ward(patientRequest.getWard())
-                    .address(patientRequest.getAddress())
-                    .relationship(patientRequest.getRelationship())
-                    .note(patientRequest.getNote())
-                    .customerId(id)
-                    .lastUpdated(LocalDateTime.now())
-                    .build();
-        }
-        throw new IllegalArgumentException("Principal không hợp lệ hoặc không phải là JWT");
-    }
-
     public PageResponse<PatientResponse> getPatientByCustomerId(String customerId, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Patient> pageData = patientRepository.findPatientByCustomerId(customerId, pageable);
@@ -176,7 +110,7 @@ public class PatientServiceV1 {
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(pageData.getContent().stream()
-                        .map(this::mapToPatientResponse)
+                        .map(patientMapper::mapToPatientResponse)
                         .collect(Collectors.toList()))
                 .build();
     }
@@ -204,7 +138,7 @@ public class PatientServiceV1 {
                     .totalPages(pageData.getTotalPages())
                     .totalElements(pageData.getTotalElements())
                     .data(pageData.getContent().stream()
-                            .map(this::mapToPatientResponse)
+                            .map(patientMapper::mapToPatientResponse)
                             .collect(Collectors.toList()))
                     .build();
         }
@@ -221,7 +155,7 @@ public class PatientServiceV1 {
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(pageData.getContent().stream()
-                        .map(this::mapToPatientResponse)
+                        .map(patientMapper::mapToPatientResponse)
                         .collect(Collectors.toList()))
                 .build();
     }
@@ -235,7 +169,7 @@ public class PatientServiceV1 {
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(pageData.getContent().stream()
-                        .map(this::mapToPatientResponse)
+                        .map(patientMapper::mapToPatientResponse)
                         .collect(Collectors.toList()))
                 .build();
     }
@@ -265,8 +199,9 @@ public class PatientServiceV1 {
         // Lấy danh sách bệnh nhân phân trang từ repository
         Page<Patient> pageData = patientRepository.findByCustomerId(customerId, pageable);
 
-        List<PatientResponse> patientResponses =
-                pageData.getContent().stream().map(this::mapToPatientResponse).collect(Collectors.toList());
+        List<PatientResponse> patientResponses = pageData.getContent().stream()
+                .map(patientMapper::mapToPatientResponse)
+                .collect(Collectors.toList());
 
         PageResponse<PatientResponse> pageResponse = PageResponse.<PatientResponse>builder()
                 .currentPage(page)
@@ -299,34 +234,6 @@ public class PatientServiceV1 {
                 .patientDetails(pageResponse)
                 .build();
     }
-
-    // Tạo mã ngẫu nhiên
-    private static String generatePatientID() {
-        String prefix = "BN-";
-        String middlePart = generateRandomDigits(0); // 6 chữ số ngẫu nhiên
-        String suffixPart = generateRandomAlphanumeric(20); // 6 ký tự chữ hoa hoặc số ngẫu nhiên
-        return prefix + middlePart + suffixPart;
-    }
-
-    private static String generateRandomDigits(int length) {
-        Random random = new Random();
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            result.append(random.nextInt(10)); // Tạo số ngẫu nhiên từ 0 đến 9
-        }
-        return result.toString();
-    }
-
-    private static String generateRandomAlphanumeric(int length) {
-        String characters = "06BDYZVR2XJAW5KLTQSI9MC8UHE1OFG34NP7";
-        Random random = new Random();
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            result.append(characters.charAt(random.nextInt(characters.length())));
-        }
-        return result.toString();
-    }
-    // Kết thúc tạo mã ngẫu nhiên
 
     public boolean doesPatientExist(String id) {
         return patientRepository.existsById(id);
