@@ -5,7 +5,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.*;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,8 +24,6 @@ import com.programmingtechie.patient_service.repository.httpClient.CustomerIdent
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Service
 @RequiredArgsConstructor
@@ -80,6 +77,14 @@ public class PatientServiceV1 {
         patientRepository.deleteById(patientId);
     }
 
+    public PatientResponse getByPatientId(String patientId) {
+        if ((patientId == null) || (patientId.isEmpty())) throw new IllegalArgumentException("Không tìm thấy hồ sơ!");
+        Patient patient = patientRepository
+                .findById(patientId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hồ sơ với mã " + patientId + "!"));
+        return mapToPatientResponse(patient);
+    }
+
     public boolean isValidpatient(PatientCreationRequest patientRequest) {
         return isValidInsuranceId(patientRequest.getInsuranceId())
                 && isValidIdentificationCode(patientRequest.getIdentificationCode())
@@ -123,27 +128,43 @@ public class PatientServiceV1 {
     }
 
     public Patient mapToPatientRequest(PatientCreationRequest patientRequest) {
-        return Patient.builder()
-                .id(generatePatientID())
-                .fullName(patientRequest.getFullName())
-                .dateOfBirth(patientRequest.getDateOfBirth())
-                .gender(patientRequest.getGender())
-                .insuranceId(patientRequest.getInsuranceId())
-                .identificationCode(patientRequest.getIdentificationCode())
-                .nation(patientRequest.getNation())
-                .occupation(patientRequest.getOccupation())
-                .phoneNumber(patientRequest.getPhoneNumber())
-                .email(patientRequest.getEmail())
-                .country(patientRequest.getCountry())
-                .province(patientRequest.getProvince())
-                .district(patientRequest.getDistrict())
-                .ward(patientRequest.getWard())
-                .address(patientRequest.getAddress())
-                .relationship(patientRequest.getRelationship())
-                .note(patientRequest.getNote())
-                .customerId(patientRequest.getCustomerId())
-                .lastUpdated(LocalDateTime.now())
-                .build();
+        var context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("Người dùng chưa được xác thực");
+        }
+
+        if (authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+            // Lấy thông tin từ Jwt
+            String id = jwt.getClaim("id");
+            if (id == null) {
+                throw new IllegalArgumentException("Không tìm thấy ID trong token!");
+            }
+
+            return Patient.builder()
+                    .id(generatePatientID())
+                    .fullName(patientRequest.getFullName())
+                    .dateOfBirth(patientRequest.getDateOfBirth())
+                    .gender(patientRequest.getGender())
+                    .insuranceId(patientRequest.getInsuranceId())
+                    .identificationCode(patientRequest.getIdentificationCode())
+                    .nation(patientRequest.getNation())
+                    .occupation(patientRequest.getOccupation())
+                    .phoneNumber(patientRequest.getPhoneNumber())
+                    .email(patientRequest.getEmail())
+                    .country(patientRequest.getCountry())
+                    .province(patientRequest.getProvince())
+                    .district(patientRequest.getDistrict())
+                    .ward(patientRequest.getWard())
+                    .address(patientRequest.getAddress())
+                    .relationship(patientRequest.getRelationship())
+                    .note(patientRequest.getNote())
+                    .customerId(id)
+                    .lastUpdated(LocalDateTime.now())
+                    .build();
+        }
+        throw new IllegalArgumentException("Principal không hợp lệ hoặc không phải là JWT");
     }
 
     public PageResponse<PatientResponse> getPatientByCustomerId(String customerId, int page, int size) {

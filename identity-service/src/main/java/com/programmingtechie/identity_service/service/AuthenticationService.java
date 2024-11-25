@@ -179,7 +179,6 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .authenticated(true)
                 .token(generateCustomerToken(foundCustomer))
-                .id(customer.get().getId())
                 .build();
     }
 

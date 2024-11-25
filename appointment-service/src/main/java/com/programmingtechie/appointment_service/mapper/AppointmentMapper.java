@@ -38,10 +38,10 @@ public class AppointmentMapper {
         StringBuilder middlePart = new StringBuilder();
         StringBuilder suffixPart = new StringBuilder();
 
-//        // Tạo 10 chữ số ngẫu nhiên
-//        for (int i = 0; i < 10; i++) {
-//            middlePart.append(random.nextInt(10));
-//        }
+        //        // Tạo 10 chữ số ngẫu nhiên
+        //        for (int i = 0; i < 10; i++) {
+        //            middlePart.append(random.nextInt(10));
+        //        }
 
         // Tạo 10 ký tự chữ hoa hoặc số ngẫu nhiên
         String characters = "06BDYZVR2XJAW5KLTQSI9MC8UHE1OFG34NP7";
