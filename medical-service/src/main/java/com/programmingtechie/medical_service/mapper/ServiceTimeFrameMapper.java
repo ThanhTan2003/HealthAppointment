@@ -26,8 +26,6 @@ public class ServiceTimeFrameMapper {
         return ServiceTimeFrameResponse.builder()
                 .id(serviceTimeFrame.getId())
                 .dayOfWeek(serviceTimeFrame.getDayOfWeek())
-                .startTime(serviceTimeFrame.getStartTime())
-                .endTime(serviceTimeFrame.getEndTime())
                 .maximumQuantity(serviceTimeFrame.getMaximumQuantity())
                 .startNumber(serviceTimeFrame.getStartNumber())
                 .endNumber(serviceTimeFrame.getEndNumber())

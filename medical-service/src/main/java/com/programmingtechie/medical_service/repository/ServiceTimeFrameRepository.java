@@ -13,7 +13,7 @@ import com.programmingtechie.medical_service.model.ServiceTimeFrame;
 public interface ServiceTimeFrameRepository extends JpaRepository<ServiceTimeFrame, String> {
 
     @Query(
-            "SELECT stf FROM ServiceTimeFrame stf JOIN stf.doctorService ds WHERE ds.doctorId = :doctorId AND stf.dayOfWeek = :dayOfWeek ORDER BY stf.startTime ASC")
+            "SELECT stf FROM ServiceTimeFrame stf JOIN stf.doctorService ds WHERE ds.doctorId = :doctorId AND stf.dayOfWeek = :dayOfWeek")
     List<ServiceTimeFrame> findByDoctorIdAndDayOfWeek(
             @Param("doctorId") String doctorId, @Param("dayOfWeek") String dayOfWeek);
 

@@ -22,12 +22,6 @@ public class ServiceTimeFrame {
     @Column(name = "day_of_week", nullable = false)
     private String dayOfWeek;
 
-    @Column(name = "start_time")
-    private Integer startTime;
-
-    @Column(name = "end_time")
-    private Integer endTime;
-
     @Column(name = "maximum_quantity")
     private Integer maximumQuantity;
 
