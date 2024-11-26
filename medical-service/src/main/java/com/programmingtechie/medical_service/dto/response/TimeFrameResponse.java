@@ -1,14 +1,11 @@
 package com.programmingtechie.medical_service.dto.response;
 
-import com.programmingtechie.medical_service.dto.response.Doctor.DoctorResponse;
-import com.programmingtechie.medical_service.dto.response.Doctor.SpecialtyResponse;
-import com.programmingtechie.medical_service.model.Service;
+import java.time.LocalTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalTime;
 
 @Data
 @Builder

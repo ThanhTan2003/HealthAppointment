@@ -1,12 +1,13 @@
 package com.programmingtechie.medical_service.mapper;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
+import org.springframework.stereotype.Component;
+
 import com.programmingtechie.medical_service.dto.request.TimeFrameRequest;
 import com.programmingtechie.medical_service.dto.response.TimeFrameResponse;
 import com.programmingtechie.medical_service.model.TimeFrame;
-import org.springframework.stereotype.Component;
-
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 
 @Component
 public class TimeFrameMapper {
@@ -31,7 +32,8 @@ public class TimeFrameMapper {
         String formattedName = formatTimeFrameName(timeFrame.getStartTime(), timeFrame.getEndTime());
         response.setName(formattedName);
 
-        String formattedFullName = formatTimeFrameFullName(timeFrame.getStartTime(), timeFrame.getEndTime(), timeFrame.getSession());
+        String formattedFullName =
+                formatTimeFrameFullName(timeFrame.getStartTime(), timeFrame.getEndTime(), timeFrame.getSession());
         response.setFullName(formattedFullName);
 
         return response;

@@ -1,9 +1,10 @@
 package com.programmingtechie.medical_service.repository;
 
-import com.programmingtechie.medical_service.model.TimeFrame;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import com.programmingtechie.medical_service.model.TimeFrame;
 
 public interface TimeFrameRepository extends JpaRepository<TimeFrame, String> {
     List<TimeFrame> findAllByOrderByStartTimeAsc();

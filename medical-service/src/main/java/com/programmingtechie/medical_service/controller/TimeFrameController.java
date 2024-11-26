@@ -1,23 +1,16 @@
 package com.programmingtechie.medical_service.controller;
 
-import com.programmingtechie.medical_service.dto.request.ServiceTypeRequest;
-import com.programmingtechie.medical_service.dto.request.TimeFrameRequest;
-import com.programmingtechie.medical_service.dto.response.PageResponse;
-import com.programmingtechie.medical_service.dto.response.ServiceTypeResponse;
-import com.programmingtechie.medical_service.dto.response.TimeFrameResponse;
-import com.programmingtechie.medical_service.service.ServiceTypeService;
-import com.programmingtechie.medical_service.service.TimeFrameService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
 
-import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import com.programmingtechie.medical_service.dto.request.TimeFrameRequest;
+import com.programmingtechie.medical_service.dto.response.TimeFrameResponse;
+import com.programmingtechie.medical_service.service.TimeFrameService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/medical/time-frame")
@@ -44,8 +37,7 @@ public class TimeFrameController {
     @PutMapping("/update/{id}")
     @PreAuthorize("" + "hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<TimeFrameResponse> updateTimeFrame(
-            @PathVariable String id,
-            @RequestBody TimeFrameRequest request) {
+            @PathVariable String id, @RequestBody TimeFrameRequest request) {
         return ResponseEntity.ok(timeFrameService.updateTimeFrame(id, request));
     }
 

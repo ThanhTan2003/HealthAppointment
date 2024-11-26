@@ -135,13 +135,7 @@ public class RoomService {
     }
 
     public PageResponse<RoomResponse> getRoomsWithInUse(
-            String roomId,
-            String dayOfWeek,
-            String timeFrameId,
-            String function,
-            String keyword,
-            int page,
-            int size) {
+            String roomId, String dayOfWeek, String timeFrameId, String function, String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         // Gọi truy vấn mới từ repository
