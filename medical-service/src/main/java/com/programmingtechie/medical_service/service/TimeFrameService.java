@@ -1,18 +1,17 @@
 package com.programmingtechie.medical_service.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.programmingtechie.medical_service.dto.request.TimeFrameRequest;
 import com.programmingtechie.medical_service.dto.response.TimeFrameResponse;
 import com.programmingtechie.medical_service.mapper.TimeFrameMapper;
-import com.programmingtechie.medical_service.model.Holiday;
 import com.programmingtechie.medical_service.model.TimeFrame;
-import com.programmingtechie.medical_service.repository.HolidayRepository;
 import com.programmingtechie.medical_service.repository.TimeFrameRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +26,8 @@ public class TimeFrameService {
     }
 
     public TimeFrameResponse getTimeFrameById(String id) {
-        TimeFrame timeFrame = timeFrameRepository.findById(id)
+        TimeFrame timeFrame = timeFrameRepository
+                .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("TimeFrame không tồn tại với ID: " + id));
         return timeFrameMapper.toResponse(timeFrame);
     }
@@ -39,7 +39,8 @@ public class TimeFrameService {
     }
 
     public TimeFrameResponse updateTimeFrame(String id, TimeFrameRequest request) {
-        TimeFrame existingTimeFrame = timeFrameRepository.findById(id)
+        TimeFrame existingTimeFrame = timeFrameRepository
+                .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("TimeFrame không tồn tại với ID: " + id));
 
         existingTimeFrame.setStartTime(request.getStartTime());

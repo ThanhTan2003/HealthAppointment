@@ -24,5 +24,4 @@ public class ServiceTimeFrameResponse {
     private TimeFrameResponse timeFrameResponse;
     private DoctorServiceResponse doctorServiceResponse;
     private RoomResponse roomResponse;
-
 }

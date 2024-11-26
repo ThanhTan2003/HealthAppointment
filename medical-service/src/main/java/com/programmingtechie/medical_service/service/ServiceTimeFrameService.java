@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.programmingtechie.medical_service.model.TimeFrame;
-import com.programmingtechie.medical_service.repository.TimeFrameRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,9 +17,11 @@ import com.programmingtechie.medical_service.mapper.ServiceTimeFrameMapper;
 import com.programmingtechie.medical_service.model.DoctorService;
 import com.programmingtechie.medical_service.model.Room;
 import com.programmingtechie.medical_service.model.ServiceTimeFrame;
+import com.programmingtechie.medical_service.model.TimeFrame;
 import com.programmingtechie.medical_service.repository.DoctorServiceRepository;
 import com.programmingtechie.medical_service.repository.RoomRepository;
 import com.programmingtechie.medical_service.repository.ServiceTimeFrameRepository;
+import com.programmingtechie.medical_service.repository.TimeFrameRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -74,8 +74,10 @@ public class ServiceTimeFrameService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Không tìm thấy phòng với id: " + serviceTimeFrameRequest.getRoomId()));
 
-        TimeFrame timeFrame = timeFrameRepository.findById(serviceTimeFrameRequest.getTimeFrameId())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khung thời gian với id: " + serviceTimeFrameRequest.getTimeFrameId()));
+        TimeFrame timeFrame = timeFrameRepository
+                .findById(serviceTimeFrameRequest.getTimeFrameId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Không tìm thấy khung thời gian với id: " + serviceTimeFrameRequest.getTimeFrameId()));
 
         // Tạo đối tượng ServiceTimeFrame mới
         ServiceTimeFrame serviceTimeFrame = ServiceTimeFrame.builder()
