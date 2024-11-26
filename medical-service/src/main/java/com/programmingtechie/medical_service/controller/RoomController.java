@@ -104,8 +104,7 @@ public class RoomController {
     public ResponseEntity<PageResponse<RoomResponse>> getRoomsAndUpdate(
             @RequestParam String roomId,
             @RequestParam String dayOfWeek,
-            @RequestParam Integer startTime,
-            @RequestParam Integer endTime,
+            @RequestParam String timeFrameId,
             @RequestParam String function,
             @RequestParam String keyword,
             @RequestParam(value = "page", defaultValue = "1") int page,
@@ -113,7 +112,7 @@ public class RoomController {
 
         // Gọi service để lấy danh sách phòng còn trống và thêm phòng đang sử dụng
         PageResponse<RoomResponse> availableRooms =
-                roomService.getRoomsWithInUse(roomId, dayOfWeek, startTime, endTime, function, keyword, page, size);
+                roomService.getRoomsWithInUse(roomId, dayOfWeek, timeFrameId, function, keyword, page, size);
 
         // Trả về danh sách phòng
         return ResponseEntity.ok(availableRooms);

@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.medical_service.model.TimeFrame;
+import com.programmingtechie.medical_service.repository.TimeFrameRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class ServiceTimeFrameService {
     private final ServiceTimeFrameRepository serviceTimeFrameRepository;
     private final DoctorServiceRepository doctorServiceRepository;
+    private final TimeFrameRepository timeFrameRepository;
 
     private final ServiceTimeFrameMapper serviceTimeFrameMapper;
 
@@ -71,11 +74,12 @@ public class ServiceTimeFrameService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Không tìm thấy phòng với id: " + serviceTimeFrameRequest.getRoomId()));
 
+        TimeFrame timeFrame = timeFrameRepository.findById(serviceTimeFrameRequest.getTimeFrameId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khung thời gian với id: " + serviceTimeFrameRequest.getTimeFrameId()));
+
         // Tạo đối tượng ServiceTimeFrame mới
         ServiceTimeFrame serviceTimeFrame = ServiceTimeFrame.builder()
                 .dayOfWeek(serviceTimeFrameRequest.getDayOfWeek())
-                .startTime(serviceTimeFrameRequest.getStartTime())
-                .endTime(serviceTimeFrameRequest.getEndTime())
                 .maximumQuantity(serviceTimeFrameRequest.getMaximumQuantity())
                 .startNumber(serviceTimeFrameRequest.getStartNumber())
                 .endNumber(serviceTimeFrameRequest.getEndNumber())
@@ -83,6 +87,7 @@ public class ServiceTimeFrameService {
                 .status("Nhận đăng ký")
                 .isActive(true)
                 .room(room)
+                .timeFrame(timeFrame)
                 .build();
 
         serviceTimeFrame = serviceTimeFrameRepository.save(serviceTimeFrame);
@@ -97,8 +102,6 @@ public class ServiceTimeFrameService {
 
         Room room = roomRepository.findById(serviceTimeFrameRequest.getRoomId()).get();
 
-        serviceTimeFrame.setStartTime(serviceTimeFrameRequest.getStartTime());
-        serviceTimeFrame.setEndTime(serviceTimeFrameRequest.getEndTime());
         serviceTimeFrame.setMaximumQuantity(serviceTimeFrameRequest.getMaximumQuantity());
         serviceTimeFrame.setStartNumber(serviceTimeFrameRequest.getStartNumber());
         serviceTimeFrame.setEndNumber(serviceTimeFrameRequest.getEndNumber());

@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ServiceTimeFrameMapper {
     private final DoctorServiceMapper doctorServiceMapper;
     private final RoomMapper roomMapper;
+    private final TimeFrameMapper timeFrameMapper;
 
     public ServiceTimeFrameResponse toServiceTimeFrameResponse(ServiceTimeFrame serviceTimeFrame) {
         DoctorServiceResponse doctorServiceResponse =
@@ -34,6 +35,7 @@ public class ServiceTimeFrameMapper {
                 .status(serviceTimeFrame.getStatus())
                 .doctorServiceId(serviceTimeFrame.getDoctorService().getId())
                 .roomId(serviceTimeFrame.getRoom().getId())
+                .timeFrameResponse(timeFrameMapper.toResponse(serviceTimeFrame.getTimeFrame()))
                 .doctorServiceResponse(doctorServiceResponse)
                 .roomResponse(roomResponse)
                 .build();

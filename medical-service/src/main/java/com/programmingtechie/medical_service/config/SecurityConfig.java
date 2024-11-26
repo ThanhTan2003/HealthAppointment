@@ -20,7 +20,8 @@ public class SecurityConfig {
         "/api/v1/medical/service-type/public/**",
         "/api/v1/medical/service/public/**",
         "/api/v1/medical/service-time-frame/public/**",
-        "/api/v1/medical/doctor-service/public/**"
+        "/api/v1/medical/doctor-service/public/**",
+        "/api/v1/medical/time-frame/public/**"
     };
 
     @Autowired

@@ -11,8 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RoomAvailabilityRequest {
     private String dayOfWeek;
-    private Integer startTime;
-    private Integer endTime;
+    private String timeFrameId;
     private String function;
     private String keyword;
     private int page = 1;

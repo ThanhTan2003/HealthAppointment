@@ -34,8 +34,7 @@ public interface RoomRepository extends JpaRepository<Room, String> {
                     + "WHERE stf.room_id = r.id "
                     + "AND stf.is_active = TRUE "
                     + "AND stf.day_of_week = :dayOfWeek "
-                    + "AND stf.start_time = :startTime  "
-                    + "AND stf.end_time = :endTime "
+                    + "AND stf.time_frame_id = :timeFrameId  "
                     + ") "
                     + "AND unaccent(LOWER(r.status)) LIKE unaccent(LOWER('Đang hoạt động')) "
                     + "AND ("
@@ -47,8 +46,7 @@ public interface RoomRepository extends JpaRepository<Room, String> {
             nativeQuery = true)
     Page<Room> getListOfAvailableRooms(
             @Param("dayOfWeek") String dayOfWeek,
-            @Param("startTime") Integer startTime,
-            @Param("endTime") Integer endTime,
+            @Param("timeFrameId") String timeFrameId,
             @Param("function") String function,
             @Param("keyword") String keyword,
             Pageable pageable);
@@ -60,8 +58,7 @@ public interface RoomRepository extends JpaRepository<Room, String> {
                     + "    WHERE stf.room_id = r.id "
                     + "    AND stf.is_active = TRUE "
                     + "    AND stf.day_of_week = :dayOfWeek "
-                    + "    AND stf.start_time = :startTime "
-                    + "    AND stf.end_time = :endTime "
+                    + "    AND stf.time_frame_id = :timeFrameId "
                     + ") "
                     + "AND unaccent(LOWER(r.status)) LIKE unaccent(LOWER('Đang hoạt động')) "
                     + "AND (unaccent(LOWER(r.id)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) OR "
@@ -73,8 +70,7 @@ public interface RoomRepository extends JpaRepository<Room, String> {
     Page<Room> getRoomsWithInUse(
             @Param("roomId") String roomId,
             @Param("dayOfWeek") String dayOfWeek,
-            @Param("startTime") Integer startTime,
-            @Param("endTime") Integer endTime,
+            @Param("timeFrameId") String timeFrameId,
             @Param("function") String function,
             @Param("keyword") String keyword,
             Pageable pageable);

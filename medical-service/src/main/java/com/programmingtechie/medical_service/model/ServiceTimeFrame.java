@@ -44,6 +44,10 @@ public class ServiceTimeFrame {
     private String status;
 
     @ManyToOne
+    @JoinColumn(name = "time_frame_id")
+    private TimeFrame timeFrame;
+
+    @ManyToOne
     @JoinColumn(name = "doctor_service_id")
     private DoctorService doctorService;
 

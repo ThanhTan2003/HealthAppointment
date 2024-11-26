@@ -4,14 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.antlr.v4.runtime.misc.NotNull;
+
+import java.time.LocalTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ServiceTimeFrameUpdate {
-    private Integer maximumQuantity;
-    private Integer startNumber;
-    private Integer endNumber;
-    private String roomId;
+public class TimeFrameRequest {
+    private LocalTime startTime;
+
+    private LocalTime endTime;
+
+    private String session;
 }

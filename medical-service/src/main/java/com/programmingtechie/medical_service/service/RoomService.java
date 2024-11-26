@@ -106,17 +106,17 @@ public class RoomService {
                 .build();
     }
 
+    // Lay danh sach phong con trong
     public PageResponse<RoomResponse> getListOfAvailableRooms(RoomAvailabilityRequest request, int page, int size) {
         String dayOfWeek = request.getDayOfWeek();
-        Integer startTime = request.getStartTime();
-        Integer endTime = request.getEndTime();
+        String timeFrameId = request.getTimeFrameId();
         String keyword = "%" + request.getKeyword() + "%";
         String function = "%" + request.getFunction() + "%";
 
         Pageable pageable = PageRequest.of(page - 1, size);
 
         Page<Room> pageData =
-                roomRepository.getListOfAvailableRooms(dayOfWeek, startTime, endTime, function, keyword, pageable);
+                roomRepository.getListOfAvailableRooms(dayOfWeek, timeFrameId, function, keyword, pageable);
 
         List<RoomResponse> roomResponses =
                 pageData.getContent().stream().map(roomMapper::toRoomResponse).toList();
@@ -137,8 +137,7 @@ public class RoomService {
     public PageResponse<RoomResponse> getRoomsWithInUse(
             String roomId,
             String dayOfWeek,
-            Integer startTime,
-            Integer endTime,
+            String timeFrameId,
             String function,
             String keyword,
             int page,
@@ -147,7 +146,7 @@ public class RoomService {
 
         // Gọi truy vấn mới từ repository
         Page<Room> pageData = roomRepository.getRoomsWithInUse(
-                roomId, dayOfWeek, startTime, endTime, function, "%" + keyword + "%", pageable);
+                roomId, dayOfWeek, timeFrameId, function, "%" + keyword + "%", pageable);
 
         List<RoomResponse> roomResponses = pageData.getContent().stream()
                 .map(room -> RoomResponse.builder()

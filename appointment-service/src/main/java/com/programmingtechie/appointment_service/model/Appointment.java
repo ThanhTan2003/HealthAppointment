@@ -32,9 +32,6 @@ public class Appointment {
     @Column(name = "date")
     private LocalDate date;
 
-    @Column(name = "session", columnDefinition = "TEXT")
-    private String session;
-
     @Column(name = "status", columnDefinition = "TEXT")
     private String status;
 

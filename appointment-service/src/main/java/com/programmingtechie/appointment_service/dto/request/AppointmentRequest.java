@@ -14,8 +14,6 @@ import lombok.NoArgsConstructor;
 public class AppointmentRequest {
     private LocalDate date;
 
-    private String session;
-
     private String serviceTimeFrameId;
 
     private String patientsId;
