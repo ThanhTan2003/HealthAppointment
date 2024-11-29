@@ -162,7 +162,8 @@ public class DoctorServiceService {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         // Lấy danh sách DoctorService theo serviceId và phân trang
-        Page<DoctorService> doctorServices = doctorServiceRepository.findByDoctorServiceExistsInServiceTimeFrameByServiceId(serviceId, pageable);
+        Page<DoctorService> doctorServices =
+                doctorServiceRepository.findByDoctorServiceExistsInServiceTimeFrameByServiceId(serviceId, pageable);
 
         // Chuyển đổi danh sách DoctorService thành DoctorServiceResponse thông qua mapper
         List<DoctorServiceResponse> doctorServiceResponses =
