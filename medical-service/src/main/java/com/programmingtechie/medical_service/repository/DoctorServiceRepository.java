@@ -18,6 +18,14 @@ public interface DoctorServiceRepository extends JpaRepository<DoctorService, St
     // Tìm danh sách DoctorService với phân trang
     Page<DoctorService> findByServiceId(String serviceId, Pageable pageable);
 
+    @Query("SELECT ds FROM DoctorService ds " + "WHERE ds.service.id = :serviceId "
+            + "AND EXISTS ("
+            + "  SELECT 1 FROM ServiceTimeFrame stf "
+            + "  WHERE stf.doctorService.id = ds.id"
+            + ")")
+    Page<DoctorService> findByDoctorServiceExistsInServiceTimeFrameByServiceId(
+            @Param("serviceId") String serviceId, Pageable pageable);
+
     @Query("SELECT ds FROM DoctorService ds " + "WHERE ds.doctorId = :doctorId "
             + "AND EXISTS ("
             + "  SELECT 1 FROM ServiceTimeFrame stf "
