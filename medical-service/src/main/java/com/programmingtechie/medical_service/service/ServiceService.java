@@ -226,15 +226,3 @@ public class ServiceService {
     }
 }
 
-// private ServiceResponse mapToServiceResponse(com.programmingtechie.medical_service.model.Service service) {
-//    return ServiceResponse.builder()
-//            .id(service.getId())
-//            .name(service.getName())
-//            .unitPrice(service.getUnitPrice())
-//            .description(service.getDescription())
-//            .status(service.getStatus())
-//            .specialtyId((service.getSpecialtyId()))
-//            .serviceTypeId(service.getServiceType().getId())
-//            .serviceType(service.getServiceType())
-//            .build();
-// }

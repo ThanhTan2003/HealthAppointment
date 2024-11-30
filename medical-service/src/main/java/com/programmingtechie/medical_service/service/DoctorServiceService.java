@@ -1,5 +1,6 @@
 package com.programmingtechie.medical_service.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import com.programmingtechie.medical_service.repository.ServiceRepository;
 import com.programmingtechie.medical_service.repository.httpClient.DoctorClient;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -58,15 +60,32 @@ public class DoctorServiceService {
         return doctorServiceMapper.toDoctorServiceResponse(doctorService);
     }
 
+    @Transactional
     public DoctorServiceResponse createDoctorService(DoctorServiceRequest doctorServiceRequest) {
         // Kiểm tra xem sự kết hợp của DoctorId và ServiceId đã tồn tại trong bảng DoctorService chưa
-        if (doctorServiceRepository.existsByDoctorIdAndServiceId(
-                doctorServiceRequest.getDoctorId(), doctorServiceRequest.getServiceId())) {
-            throw new IllegalArgumentException("Dịch vụ bác sĩ đã tồn tại!");
+        DoctorService existingDoctorService = doctorServiceRepository
+                .findByDoctorIdAndServiceId(doctorServiceRequest.getDoctorId(), doctorServiceRequest.getServiceId());
+
+        if (existingDoctorService != null) {
+            if (existingDoctorService.getIsActive()) {
+                // Nếu đã tồn tại và isActive = true, ném lỗi
+                throw new IllegalArgumentException("Dịch vụ bác sĩ đã tồn tại!");
+            } else {
+                // Nếu đã tồn tại và isActive = false, chỉ cần set lại isActive = true
+                existingDoctorService.setIsActive(true);
+                existingDoctorService.setUnitPrice(doctorServiceRequest.getUnitPrice());
+                existingDoctorService.setLastUpdated(LocalDateTime.now());
+
+                // Lưu lại và trả về thông tin cập nhật
+                existingDoctorService = doctorServiceRepository.save(existingDoctorService);
+                return doctorServiceMapper.toDoctorServiceResponse(existingDoctorService);
+            }
         }
 
-        if (doctorServiceRequest.getServiceId().isEmpty())
+        // Nếu không tồn tại, tạo mới DoctorService
+        if (doctorServiceRequest.getServiceId().isEmpty()) {
             throw new IllegalArgumentException("Chưa có thông tin dịch vụ!");
+        }
 
         com.programmingtechie.medical_service.model.Service service = serviceRepository
                 .findById(doctorServiceRequest.getServiceId())
@@ -77,21 +96,45 @@ public class DoctorServiceService {
                 .doctorId(doctorServiceRequest.getDoctorId())
                 .service(service)
                 .isActive(doctorServiceRequest.getIsActive())
+                .unitPrice(doctorServiceRequest.getUnitPrice())
                 .build();
 
         doctorService = doctorServiceRepository.save(doctorService);
         return doctorServiceMapper.toDoctorServiceResponse(doctorService);
     }
 
-    public DoctorServiceResponse updateDoctorService(String id, DoctorServiceRequest doctorServiceRequest) {
+
+    @Transactional
+    public DoctorServiceResponse updateDoctorService(String id, Map<String, Object> updates) {
+        // Tìm kiếm DoctorService theo id
         DoctorService doctorService = doctorServiceRepository
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy dịch vụ bác sĩ với id: " + id));
 
-        doctorService.setDoctorId(doctorServiceRequest.getDoctorId());
-        doctorService.setIsActive(doctorServiceRequest.getIsActive());
+        // Duyệt qua các cặp key-value trong updates để cập nhật các trường trong doctorService
+        for (Map.Entry<String, Object> entry : updates.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
 
+            // Cập nhật các trường tương ứng
+            switch (key) {
+                case "doctorId":
+                    doctorService.setDoctorId((String) value);
+                    break;
+                case "isActive":
+                    doctorService.setIsActive((Boolean) value);
+                    break;
+                case "unitPrice":
+                    doctorService.setUnitPrice((double) value);
+                default:
+                    throw new IllegalArgumentException("Trường cập nhật không hợp lệ: " + key);
+            }
+        }
+
+        // Lưu lại DoctorService đã được cập nhật
         doctorService = doctorServiceRepository.save(doctorService);
+
+        // Chuyển đổi thành DoctorServiceResponse và trả về
         return doctorServiceMapper.toDoctorServiceResponse(doctorService);
     }
 

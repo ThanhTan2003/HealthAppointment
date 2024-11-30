@@ -1,5 +1,6 @@
 package com.programmingtechie.medical_service.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -34,9 +35,21 @@ public interface ServiceTimeFrameRepository extends JpaRepository<ServiceTimeFra
     // Truy vấn tìm các ServiceTimeFrame theo doctorServiceId và dayOfWeek
     @Query("SELECT stf FROM ServiceTimeFrame stf " + "WHERE stf.doctorService.id = :doctorServiceId "
             + "AND stf.dayOfWeek = :dayOfWeek "
-            + "AND stf.isActive = true "
+            + "AND stf.isActive = :isActive "
             + "AND unaccent(LOWER(stf.status)) = unaccent(LOWER('nhan dang ky'))")
-    List<ServiceTimeFrame> findByDoctorServiceIdAndDayOfWeek(String doctorServiceId, String dayOfWeek);
+    List<ServiceTimeFrame> findByDoctorServiceIdAndDayOfWeek(String doctorServiceId, String dayOfWeek, Boolean isActive);
+
+    @Query("SELECT stf FROM ServiceTimeFrame stf " +
+            "WHERE stf.doctorService.id = :doctorServiceId " +
+            "AND stf.dayOfWeek = :dayOfWeek " +
+            "AND stf.isActive = :isActive " +
+            "AND unaccent(LOWER(stf.status)) = unaccent(LOWER('nhan dang ky')) " +
+            "AND (stf.lastUpdated >= :oneMonthAgo)")
+    List<ServiceTimeFrame> findByDoctorServiceIdAndDayOfWeek(
+            String doctorServiceId,
+            String dayOfWeek,
+            Boolean isActive,
+            LocalDateTime oneMonthAgo);
 
     // Kiểm tra sự tồn tại dựa trên ID, isActive = true, và status = "Nhận đăng ký"
     @Query(

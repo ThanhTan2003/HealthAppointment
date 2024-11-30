@@ -26,6 +26,7 @@ public class DoctorServiceMapper {
                 .serviceId(doctorService.getService().getId())
                 .isActive(doctorService.getIsActive())
                 .service(doctorService.getService())
+                .unitPrice(doctorService.getUnitPrice() != null ? doctorService.getUnitPrice() : 0)
                 .build();
     }
 

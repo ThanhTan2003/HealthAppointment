@@ -29,6 +29,9 @@ public class DoctorService {
     @Column(name = "is_active")
     private Boolean isActive;
 
+    @Column(name = "unit_price")
+    private Double unitPrice;
+
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;
 

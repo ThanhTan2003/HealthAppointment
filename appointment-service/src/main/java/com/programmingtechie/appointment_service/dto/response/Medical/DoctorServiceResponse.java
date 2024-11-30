@@ -1,4 +1,4 @@
-package com.programmingtechie.medical_service.dto.request;
+package com.programmingtechie.appointment_service.dto.response.Medical;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DoctorServiceRequest {
+public class DoctorServiceResponse {
+    private String id;
     private String doctorId;
     private String serviceId;
+    private String roomId;
     private Boolean isActive;
-    private double unitPrice;
+    private Double unitPrice;
 }

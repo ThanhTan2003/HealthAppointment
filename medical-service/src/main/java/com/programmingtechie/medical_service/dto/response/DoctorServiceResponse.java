@@ -20,6 +20,7 @@ public class DoctorServiceResponse {
     private String roomId;
     private Boolean isActive;
     private Service service;
+    private Double unitPrice;
     private SpecialtyResponse specialtyResponse;
 
     private DoctorResponse doctorResponse;

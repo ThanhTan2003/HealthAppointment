@@ -2,6 +2,7 @@ package com.programmingtechie.medical_service.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
 import com.programmingtechie.medical_service.dto.request.ServiceTimeFrameRequest;
-import com.programmingtechie.medical_service.dto.request.ServiceTimeFrameUpdate;
 import com.programmingtechie.medical_service.dto.response.PageResponse;
 import com.programmingtechie.medical_service.dto.response.ServiceTimeFrameResponse;
 import com.programmingtechie.medical_service.service.ServiceTimeFrameService;
@@ -72,8 +72,8 @@ public class ServiceTimeFrameController {
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public ResponseEntity<ServiceTimeFrameResponse> updateServiceTimeFrame(
-            @PathVariable String id, @RequestBody ServiceTimeFrameUpdate serviceTimeFrameRequest) {
-        return ResponseEntity.ok(serviceTimeFrameService.updateServiceTimeFrame(id, serviceTimeFrameRequest));
+            @PathVariable String id, @RequestBody Map<String, Object> updates) {
+        return ResponseEntity.ok(serviceTimeFrameService.updateServiceTimeFrame(id, updates));
     }
 
     @DeleteMapping("/delete/{id}")
@@ -140,4 +140,19 @@ public class ServiceTimeFrameController {
         boolean exists = serviceTimeFrameService.doesServiceTimeFrameExist(id);
         return ResponseEntity.ok(exists);
     }
+
+    @GetMapping("/next-order/{serviceTimeFrameId}")
+    public ResponseEntity<Integer> getNextAvailableOrderNumber(
+            @PathVariable String serviceTimeFrameId,
+            @RequestParam LocalDate day,
+            @RequestParam List<Integer> existingOrderNumbers){
+
+        // Gọi Service để lấy số thứ tự tiếp theo
+        LocalDate parsedDate;
+        Integer nextOrderNumber = serviceTimeFrameService.getNextAvailableOrderNumber(serviceTimeFrameId, day, existingOrderNumbers);
+
+        return ResponseEntity.ok(nextOrderNumber);  // Trả về số thứ tự tiếp theo
+    }
+
+
 }

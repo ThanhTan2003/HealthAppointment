@@ -62,9 +62,10 @@ public class DoctorServiceController {
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public ResponseEntity<DoctorServiceResponse> updateDoctorService(
-            @PathVariable String id, @RequestBody DoctorServiceRequest doctorServiceRequest) {
-        return ResponseEntity.ok(doctorServiceService.updateDoctorService(id, doctorServiceRequest));
+            @PathVariable String id, @RequestBody Map<String, Object> updates) {
+        return ResponseEntity.ok(doctorServiceService.updateDoctorService(id, updates));
     }
+
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")

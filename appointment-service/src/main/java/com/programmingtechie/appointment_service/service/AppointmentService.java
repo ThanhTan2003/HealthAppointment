@@ -1,9 +1,16 @@
 package com.programmingtechie.appointment_service.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.programmingtechie.appointment_service.dto.request.AppointmentCountRequest;
+import com.programmingtechie.appointment_service.dto.request.AppointmentSearchRequest;
+import com.programmingtechie.appointment_service.dto.response.AppointmentCountResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,8 +27,12 @@ import com.programmingtechie.appointment_service.repository.AppointmentRepositor
 import com.programmingtechie.appointment_service.repository.httpClient.MedicalClient;
 import com.programmingtechie.appointment_service.repository.httpClient.PatientClient;
 
+import jakarta.persistence.criteria.Predicate;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
 @Service
 @RequiredArgsConstructor
@@ -33,40 +44,125 @@ public class AppointmentService {
     final PatientClient patientClient;
     final MedicalClient medicalClient;
 
+    @Transactional
     public AppointmentResponse createAppointment(AppointmentRequest appointmentRequest) {
-
         String patientId = appointmentRequest.getPatientsId();
+
         try {
             Boolean patientExists = patientClient.checkPatientExists(patientId);
-            log.info("patientExists: " + patientExists.toString());
-            log.info("!patientExists: " + (!patientExists));
+            log.info("patientExists: " + patientExists);
             if (!patientExists) throw new IllegalArgumentException("Hồ sơ không hợp lệ!");
         } catch (IllegalArgumentException e) {
-            // Nếu là lỗi logic từ dữ liệu không hợp lệ, tái ném ngoại lệ gốc
-            throw e;
+            log.error("Lỗi khi kiểm tra bệnh nhân: " + e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
-            // Nếu là lỗi kết nối, ghi log và ném ngoại lệ khác
-            log.info("Lỗi kết nối đến Patient Service: " + e.getMessage());
+            log.error("Lỗi kết nối đến Patient Service: " + e.getMessage());
             throw new IllegalArgumentException("Đã xảy ra lỗi. Vui lòng thử lại sau!");
         }
 
         String serviceTimeFrameId = appointmentRequest.getServiceTimeFrameId();
-        try {
-            Boolean serviceTimeFrameExists = medicalClient.checkServiceTimeFrameExists(serviceTimeFrameId);
-            if (!serviceTimeFrameExists) throw new IllegalArgumentException("Dịch vụ không hợp lệ!");
+        LocalDate date = appointmentRequest.getDate();
+        LocalDate today = LocalDate.now();
 
-        } catch (IllegalArgumentException e) {
-            // Nếu là lỗi logic từ dữ liệu không hợp lệ, tái ném ngoại lệ gốc
-            throw e;
-        } catch (Exception e) {
-            log.info("Lỗi kết nối đến Medical Service: " + e.getMessage());
-            throw new IllegalArgumentException("Đã xảy ra lỗi. Vui lòng thử lại sau!");
+        // Kiểm tra ngày hẹn hợp lệ
+        if (date.isBefore(today.plusDays(1))) {
+            throw new IllegalArgumentException("Ngày đăng ký lịch hẹn phải sau ít nhất 1 ngày so với ngày hiện tại.");
         }
 
-        Appointment appointment = appointmentMapper.toAppointmentEntity(appointmentRequest);
-        appointment = appointmentRepository.save(appointment);
-        return appointmentMapper.toAppointmentResponse(appointment);
+        if (date.isAfter(today.plusMonths(1))) {
+            throw new IllegalArgumentException("Ngày đăng ký lịch hẹn không được quá 1 tháng kể từ ngày hiện tại.");
+        }
+
+        try {
+            List<Integer> existingOrderNumbers = appointmentRepository.findOrderNumbersByServiceTimeFrameIdAndDate(serviceTimeFrameId, date);
+            Integer nextOrderNumber = medicalClient.getNextAvailableOrderNumber(serviceTimeFrameId, date, existingOrderNumbers);
+            log.info("Next available order number: " + nextOrderNumber);
+
+            if (nextOrderNumber == -1) {
+                throw new IllegalArgumentException("Dịch vụ bác sĩ không tồn tại!");
+            } else if (nextOrderNumber == 0) {
+                throw new IllegalArgumentException("Dịch vụ đã đủ đăng ký!");
+            }
+
+            // Tạo lịch hẹn mới
+            Appointment appointment = appointmentMapper.toAppointmentEntity(appointmentRequest);
+            appointment.setOrderNumber(nextOrderNumber);
+            appointment = appointmentRepository.save(appointment);
+
+            return appointmentMapper.toAppointmentResponse(appointment);
+
+        } catch (HttpClientErrorException e) {
+            // Lỗi client (4xx)
+            log.error("Lỗi từ client: " + e.getMessage());
+            log.error("Full error response: " + e.getResponseBodyAsString());
+
+            try {
+                // Trích xuất thông báo lỗi từ JSON
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode errorJson = objectMapper.readTree(e.getResponseBodyAsString());
+                String errorMessage = errorJson.path("message").asText();
+
+                log.error("Thông báo lỗi từ client: " + errorMessage);
+                throw new IllegalArgumentException(errorMessage); // Ném thông báo lỗi chi tiết
+            } catch (JsonProcessingException ex) {
+                log.error("Không thể trích xuất thông báo lỗi từ JSON: " + ex.getMessage());
+                throw new IllegalArgumentException("Đã xảy ra lỗi khi tạo lịch hẹn.");
+            }
+        } catch (HttpServerErrorException e) {
+            // Lỗi server (5xx)
+            log.error("Lỗi từ server: " + e.getMessage());
+            log.error("Full error response: " + e.getResponseBodyAsString());
+
+            try {
+                // Trích xuất thông báo lỗi từ JSON nếu có
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode errorJson = objectMapper.readTree(e.getResponseBodyAsString());
+                String errorMessage = errorJson.path("message").asText();
+
+                log.error("Thông báo lỗi từ server: " + errorMessage);
+                throw new IllegalArgumentException("Lỗi từ dịch vụ. Vui lòng thử lại sau.");
+            } catch (JsonProcessingException ex) {
+                log.error("Không thể trích xuất thông báo lỗi từ JSON: " + ex.getMessage());
+                throw new IllegalArgumentException("Lỗi từ dịch vụ. Vui lòng thử lại sau.");
+            }
+        } catch (Exception e) {
+            // In log lỗi chung
+            log.error("Lỗi khi tạo lịch hẹn: " + e.getMessage());
+
+            // Kiểm tra nếu message có dạng thông báo lỗi cụ thể
+            if (e.getMessage() != null) {
+                // Trường hợp thông báo lỗi có chuỗi xác định như "Dịch vụ bác sĩ không tồn tại!"
+                if (e.getMessage().contains("Dịch vụ bác sĩ không tồn tại!") || e.getMessage().contains("Dịch vụ đã đủ đăng ký!")) {
+                    throw new IllegalArgumentException(e.getMessage());
+                }
+
+                // Trường hợp thông báo lỗi có định dạng JSON
+                try {
+                    // Phân tích lỗi JSON để lấy thông báo cụ thể từ trường "message"
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JsonNode errorJson = objectMapper.readTree(e.getMessage());
+                    String errorMessage = errorJson.path("message").asText();
+
+                    // Ném lại thông báo lỗi đã trích xuất từ JSON
+                    if (!errorMessage.isEmpty()) {
+                        throw new IllegalArgumentException(errorMessage);
+                    } else {
+                        // Nếu không tìm thấy message trong JSON, ném lỗi mặc định
+                        throw new IllegalArgumentException("Đã xảy ra lỗi khi tạo lịch hẹn. Vui lòng kiểm tra lại");
+                    }
+                } catch (JsonProcessingException ex) {
+                    log.error("Không thể trích xuất thông báo lỗi từ JSON: " + ex.getMessage());
+                    throw new IllegalArgumentException("Lỗi từ dịch vụ. Vui lòng thử lại sau.");
+                }
+            } else {
+                // Nếu không có message hoặc không xác định được thông báo
+                log.error("Thông báo lỗi không rõ ràng hoặc không có thông báo lỗi.");
+                throw new IllegalArgumentException("Đã xảy ra lỗi khi tạo lịch hẹn. Vui lòng kiểm tra lại");
+            }
+        }
     }
+
+
 
     public AppointmentResponse getAppointmentById(String id) {
         Appointment appointment = appointmentRepository
@@ -226,5 +322,60 @@ public class AppointmentService {
                 .totalElements(appointments.getTotalElements())
                 .data(data)
                 .build();
+    }
+
+    // Tính tổng số lượng appointments từ một danh sách các cặp serviceTimeFrameId và date
+    public List<AppointmentCountResponse> countAppointments(List<AppointmentCountRequest> request) {
+        List<AppointmentCountResponse> responses = new ArrayList<>();
+
+        for (AppointmentCountRequest item : request) {
+            long count = appointmentRepository.countByServiceTimeFrameIdAndDate(
+                    item.getServiceTimeFrameId(), item.getDate());
+
+            AppointmentCountResponse response = new AppointmentCountResponse(
+                    item.getServiceTimeFrameId(), item.getDate(), count);
+
+            responses.add(response);
+        }
+
+        return responses;
+    }
+
+    // Tính tổng số lượng appointments theo một cặp serviceTimeFrameId và date
+    public AppointmentCountResponse countAppointmentsByParams(String serviceTimeFrameId, LocalDate date) {
+        long totalAppointments = appointmentRepository.countByServiceTimeFrameIdAndDate(serviceTimeFrameId, date);
+
+        return new AppointmentCountResponse(serviceTimeFrameId, date, totalAppointments);
+    }
+
+    public boolean checkIfAppointmentExists(AppointmentSearchRequest request) {
+        // Tạo điều kiện truy vấn động
+        Specification<Appointment> specification = (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Kiểm tra từng trường một cách linh hoạt
+            if (request.getMedicalRecordsId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("medicalRecordsId"), request.getMedicalRecordsId()));
+            }
+            if (request.getServiceTimeFrameId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("serviceTimeFrameId"), request.getServiceTimeFrameId()));
+            }
+            if (request.getPatientsId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("patientsId"), request.getPatientsId()));
+            }
+            if (request.getReplacementDoctorId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("replacementDoctorId"), request.getReplacementDoctorId()));
+            }
+
+            // Nếu không có điều kiện nào, trả về true (kết quả hợp lệ)
+            if (predicates.isEmpty()) {
+                return criteriaBuilder.conjunction();
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // Sử dụng Spring Data JPA Specification để truy vấn cơ sở dữ liệu
+        return appointmentRepository.exists(specification);
     }
 }

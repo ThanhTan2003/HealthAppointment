@@ -13,6 +13,15 @@ public interface DoctorServiceRepository extends JpaRepository<DoctorService, St
 
     boolean existsByDoctorIdAndServiceId(String doctorId, String serviceId);
 
+    // Kiểm tra xem DoctorService có tồn tại với doctorId và serviceId
+    DoctorService findByDoctorIdAndServiceId(String doctorId, String serviceId);
+
+    // Kiểm tra xem DoctorService có tồn tại với doctorId và serviceId và isActive = true
+    boolean existsByDoctorIdAndServiceIdAndIsActiveTrue(String doctorId, String serviceId);
+
+    // Kiểm tra xem DoctorService có tồn tại với doctorId và serviceId và isActive = false
+    boolean existsByDoctorIdAndServiceIdAndIsActiveFalse(String doctorId, String serviceId);
+
     Page<DoctorService> findByDoctorId(String doctorId, Pageable pageable);
 
     // Tìm danh sách DoctorService với phân trang
