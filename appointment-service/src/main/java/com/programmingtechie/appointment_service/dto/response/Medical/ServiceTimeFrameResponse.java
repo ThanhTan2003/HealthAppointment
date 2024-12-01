@@ -21,7 +21,4 @@ public class ServiceTimeFrameResponse {
     private String status;
     private String doctorServiceId;
     private String roomId;
-    private TimeFrameResponse timeFrameResponse;
-    private DoctorServiceResponse doctorServiceResponse;
-    private RoomResponse roomResponse;
 }

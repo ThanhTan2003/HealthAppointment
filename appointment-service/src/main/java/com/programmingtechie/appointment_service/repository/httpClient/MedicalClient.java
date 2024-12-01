@@ -26,6 +26,9 @@ public interface MedicalClient {
     @GetMapping(value = "/id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ServiceTimeFrameResponse getServiceTimeFrameById(@PathVariable String id);
 
+    @GetMapping(value = "/service-time-frame/public/id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ServiceTimeFrameResponse getAppointmentTimeFrame(@PathVariable String id);
+
     @GetMapping(value = "/service-time-frame/next-order/{serviceTimeFrameId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Integer getNextAvailableOrderNumber(
             @PathVariable String serviceTimeFrameId,

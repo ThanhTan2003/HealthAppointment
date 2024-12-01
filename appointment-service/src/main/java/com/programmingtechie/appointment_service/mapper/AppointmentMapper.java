@@ -3,6 +3,11 @@ package com.programmingtechie.appointment_service.mapper;
 import java.time.LocalDateTime;
 import java.util.Random;
 
+import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
+import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameResponse;
+import com.programmingtechie.appointment_service.repository.httpClient.MedicalClient;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.programmingtechie.appointment_service.dto.request.AppointmentRequest;
@@ -18,8 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AppointmentMapper {
     final AppointmentRepository appointmentRepository;
+    final MedicalClient medicalClient;
 
     public Appointment toAppointmentEntity(AppointmentRequest appointmentRequest) {
+
         // Chuyển đổi từ AppointmentRequest sang Appointmecnt entity
         return Appointment.builder()
                 .id(createAppointmentId())
@@ -76,7 +83,30 @@ public class AppointmentMapper {
                 .medicalRecordsId(appointment.getMedicalRecordsId())
                 .patientsId(appointment.getPatientsId())
                 .replacementDoctorId(appointment.getReplacementDoctorId())
+                .customerId(appointment.getCustomerId())
                 .billId(appointment.getBill() != null ? appointment.getBill().getId() : null)
+                .build();
+    }
+
+    public AppointmentTimeFrameResponse mapToAppointmentTimeFrameResponse(Appointment appointment) {
+        if (appointment == null) {
+            throw new IllegalArgumentException("Appointment không được null");
+        }
+        ServiceTimeFrameResponse serviceTimeFrameResponse =
+                medicalClient.getAppointmentTimeFrame(appointment.getServiceTimeFrameId());
+        return AppointmentTimeFrameResponse.builder()
+                .id(appointment.getId())
+                .dateTime(appointment.getDateTime())
+                .date(appointment.getDate())
+                .status(appointment.getStatus())
+                .orderNumber(appointment.getOrderNumber())
+                .lastUpdated(appointment.getLastUpdated())
+                .medicalRecordsId(appointment.getMedicalRecordsId())
+                .patientsId(appointment.getPatientsId())
+                .customerId(appointment.getCustomerId())
+                .replacementDoctorId(appointment.getReplacementDoctorId())
+                .billId(appointment.getBill() != null ? appointment.getBill().getId() : null)
+                .serviceTimeFrameResponse(serviceTimeFrameResponse)
                 .build();
     }
 }

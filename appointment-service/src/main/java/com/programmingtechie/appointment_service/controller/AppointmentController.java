@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.programmingtechie.appointment_service.dto.request.AppointmentCountRequest;
 import com.programmingtechie.appointment_service.dto.response.AppointmentCountResponse;
+import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,6 +63,22 @@ public class AppointmentController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
         return ResponseEntity.ok(appointmentService.getAppointmentByPatientsId(id, page, size));
+    }
+
+    @GetMapping("/customer/patientId/{patientId}")
+    @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc') or hasRole('NguoiDung')")
+    public ResponseEntity<PageResponse<AppointmentTimeFrameResponse>> getAppointmentByCustomerIdAndPatientsId(
+            @PathVariable String patientId,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        return ResponseEntity.ok(appointmentService.getAppointmentByCustomerIdAndPatientsId(patientId, page, size));
+    }
+    @GetMapping("/customer/get-all")
+    @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc') or hasRole('NguoiDung')")
+    public ResponseEntity<PageResponse<AppointmentTimeFrameResponse>> getMyAppointment(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        return ResponseEntity.ok(appointmentService.getMyAppointment(page, size));
     }
 
     @PatchMapping("/{id}/update")

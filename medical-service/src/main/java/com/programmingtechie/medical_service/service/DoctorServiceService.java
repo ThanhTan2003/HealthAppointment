@@ -125,7 +125,8 @@ public class DoctorServiceService {
                     doctorService.setIsActive((Boolean) value);
                     break;
                 case "unitPrice":
-                    doctorService.setUnitPrice((double) value);
+                    doctorService.setUnitPrice((Double) value);
+                    break;
                 default:
                     throw new IllegalArgumentException("Trường cập nhật không hợp lệ: " + key);
             }
