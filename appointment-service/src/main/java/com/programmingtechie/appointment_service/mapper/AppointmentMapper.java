@@ -3,17 +3,15 @@ package com.programmingtechie.appointment_service.mapper;
 import java.time.LocalDateTime;
 import java.util.Random;
 
-import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
-import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameResponse;
-import com.programmingtechie.appointment_service.repository.httpClient.MedicalClient;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.programmingtechie.appointment_service.dto.request.AppointmentRequest;
 import com.programmingtechie.appointment_service.dto.response.AppointmentResponse;
+import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
+import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameResponse;
 import com.programmingtechie.appointment_service.model.Appointment;
 import com.programmingtechie.appointment_service.repository.AppointmentRepository;
+import com.programmingtechie.appointment_service.repository.httpClient.MedicalClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

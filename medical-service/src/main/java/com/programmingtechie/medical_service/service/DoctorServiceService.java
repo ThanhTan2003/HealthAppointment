@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.programmingtechie.medical_service.dto.request.DoctorServiceRequest;
 import com.programmingtechie.medical_service.dto.response.Doctor.SpecialtyResponse;
@@ -22,7 +23,6 @@ import com.programmingtechie.medical_service.repository.ServiceRepository;
 import com.programmingtechie.medical_service.repository.httpClient.DoctorClient;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -63,8 +63,8 @@ public class DoctorServiceService {
     @Transactional
     public DoctorServiceResponse createDoctorService(DoctorServiceRequest doctorServiceRequest) {
         // Kiểm tra xem sự kết hợp của DoctorId và ServiceId đã tồn tại trong bảng DoctorService chưa
-        DoctorService existingDoctorService = doctorServiceRepository
-                .findByDoctorIdAndServiceId(doctorServiceRequest.getDoctorId(), doctorServiceRequest.getServiceId());
+        DoctorService existingDoctorService = doctorServiceRepository.findByDoctorIdAndServiceId(
+                doctorServiceRequest.getDoctorId(), doctorServiceRequest.getServiceId());
 
         if (existingDoctorService != null) {
             if (existingDoctorService.getIsActive()) {
@@ -102,7 +102,6 @@ public class DoctorServiceService {
         doctorService = doctorServiceRepository.save(doctorService);
         return doctorServiceMapper.toDoctorServiceResponse(doctorService);
     }
-
 
     @Transactional
     public DoctorServiceResponse updateDoctorService(String id, Map<String, Object> updates) {
@@ -206,7 +205,8 @@ public class DoctorServiceService {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         // Lấy danh sách DoctorService theo serviceId và phân trang
-        Page<DoctorService> doctorServices = doctorServiceRepository.findByDoctorServiceExistsInServiceTimeFrameByServiceId(serviceId, pageable);
+        Page<DoctorService> doctorServices =
+                doctorServiceRepository.findByDoctorServiceExistsInServiceTimeFrameByServiceId(serviceId, pageable);
 
         // Chuyển đổi danh sách DoctorService thành DoctorServiceResponse thông qua mapper
         List<DoctorServiceResponse> doctorServiceResponses =

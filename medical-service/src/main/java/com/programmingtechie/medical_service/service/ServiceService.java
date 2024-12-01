@@ -225,4 +225,3 @@ public class ServiceService {
         return services.stream().map(serviceMapper::toServiceResponse).collect(Collectors.toList());
     }
 }
-

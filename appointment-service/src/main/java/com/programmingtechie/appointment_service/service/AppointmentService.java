@@ -6,14 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.programmingtechie.appointment_service.dto.request.AppointmentCountRequest;
-import com.programmingtechie.appointment_service.dto.request.AppointmentSearchRequest;
-import com.programmingtechie.appointment_service.dto.response.AppointmentCountResponse;
-import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
-import com.programmingtechie.appointment_service.dto.response.Patient.PatientResponse;
+import jakarta.persistence.criteria.Predicate;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,22 +16,28 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.programmingtechie.appointment_service.dto.request.AppointmentCountRequest;
 import com.programmingtechie.appointment_service.dto.request.AppointmentRequest;
+import com.programmingtechie.appointment_service.dto.request.AppointmentSearchRequest;
+import com.programmingtechie.appointment_service.dto.response.AppointmentCountResponse;
 import com.programmingtechie.appointment_service.dto.response.AppointmentResponse;
+import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
 import com.programmingtechie.appointment_service.dto.response.PageResponse;
+import com.programmingtechie.appointment_service.dto.response.Patient.PatientResponse;
 import com.programmingtechie.appointment_service.mapper.AppointmentMapper;
 import com.programmingtechie.appointment_service.model.Appointment;
 import com.programmingtechie.appointment_service.repository.AppointmentRepository;
 import com.programmingtechie.appointment_service.repository.httpClient.MedicalClient;
 import com.programmingtechie.appointment_service.repository.httpClient.PatientClient;
 
-import jakarta.persistence.criteria.Predicate;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 
 @Service
 @RequiredArgsConstructor
@@ -54,10 +54,10 @@ public class AppointmentService {
         String patientId = appointmentRequest.getPatientsId();
         String customerId = "";
         try {
-            //Boolean patientExists = patientClient.checkPatientExists(patientId);
+            // Boolean patientExists = patientClient.checkPatientExists(patientId);
             PatientResponse patientResponse = patientClient.getByPatientId(patientId);
 
-           //log.info("patientExists: " + patientExists);
+            // log.info("patientExists: " + patientExists);
 
             log.info("patientResponse: " + patientResponse);
             if (patientResponse == null) throw new IllegalArgumentException("Hồ sơ không hợp lệ!");
@@ -74,8 +74,7 @@ public class AppointmentService {
                 if (id == null) {
                     throw new IllegalArgumentException("Không tìm thấy ID trong token!");
                 }
-                if(!id.equals(customerId))
-                    throw new IllegalArgumentException("Người dùng chưa được xác thực");
+                if (!id.equals(customerId)) throw new IllegalArgumentException("Người dùng chưa được xác thực");
             }
         } catch (IllegalArgumentException e) {
             log.error("Lỗi khi kiểm tra bệnh nhân: " + e.getMessage());
@@ -99,8 +98,10 @@ public class AppointmentService {
         }
 
         try {
-            List<Integer> existingOrderNumbers = appointmentRepository.findOrderNumbersByServiceTimeFrameIdAndDate(serviceTimeFrameId, date);
-            Integer nextOrderNumber = medicalClient.getNextAvailableOrderNumber(serviceTimeFrameId, date, existingOrderNumbers);
+            List<Integer> existingOrderNumbers =
+                    appointmentRepository.findOrderNumbersByServiceTimeFrameIdAndDate(serviceTimeFrameId, date);
+            Integer nextOrderNumber =
+                    medicalClient.getNextAvailableOrderNumber(serviceTimeFrameId, date, existingOrderNumbers);
             log.info("Next available order number: " + nextOrderNumber);
 
             if (nextOrderNumber == -1) {
@@ -158,7 +159,8 @@ public class AppointmentService {
             // Kiểm tra nếu message có dạng thông báo lỗi cụ thể
             if (e.getMessage() != null) {
                 // Trường hợp thông báo lỗi có chuỗi xác định như "Dịch vụ bác sĩ không tồn tại!"
-                if (e.getMessage().contains("Dịch vụ bác sĩ không tồn tại!") || e.getMessage().contains("Dịch vụ đã đủ đăng ký!")) {
+                if (e.getMessage().contains("Dịch vụ bác sĩ không tồn tại!")
+                        || e.getMessage().contains("Dịch vụ đã đủ đăng ký!")) {
                     throw new IllegalArgumentException(e.getMessage());
                 }
 
@@ -356,8 +358,8 @@ public class AppointmentService {
             long count = appointmentRepository.countByServiceTimeFrameIdAndDate(
                     item.getServiceTimeFrameId(), item.getDate());
 
-            AppointmentCountResponse response = new AppointmentCountResponse(
-                    item.getServiceTimeFrameId(), item.getDate(), count);
+            AppointmentCountResponse response =
+                    new AppointmentCountResponse(item.getServiceTimeFrameId(), item.getDate(), count);
 
             responses.add(response);
         }
@@ -388,7 +390,8 @@ public class AppointmentService {
                 predicates.add(criteriaBuilder.equal(root.get("patientsId"), request.getPatientsId()));
             }
             if (request.getReplacementDoctorId() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("replacementDoctorId"), request.getReplacementDoctorId()));
+                predicates.add(
+                        criteriaBuilder.equal(root.get("replacementDoctorId"), request.getReplacementDoctorId()));
             }
 
             // Nếu không có điều kiện nào, trả về true (kết quả hợp lệ)
@@ -429,6 +432,7 @@ public class AppointmentService {
         }
         throw new IllegalArgumentException("Principal không hợp lệ hoặc không phải là JWT");
     }
+
     public PageResponse<AppointmentTimeFrameResponse> getAppointmentByCustomerIdAndPatientsId(
             String patientId, int page, int size) {
         var context = SecurityContextHolder.getContext();

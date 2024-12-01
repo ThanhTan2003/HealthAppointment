@@ -6,16 +6,15 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.programmingtechie.medical_service.dto.request.AppointmentCountRequest;
-import com.programmingtechie.medical_service.dto.response.AppointmentCountResponse;
-import com.programmingtechie.medical_service.repository.httpClient.AppointmentClient;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.programmingtechie.medical_service.dto.request.AppointmentCountRequest;
 import com.programmingtechie.medical_service.dto.request.ServiceTimeFrameRequest;
+import com.programmingtechie.medical_service.dto.response.AppointmentCountResponse;
 import com.programmingtechie.medical_service.dto.response.PageResponse;
 import com.programmingtechie.medical_service.dto.response.ServiceTimeFrameResponse;
 import com.programmingtechie.medical_service.mapper.ServiceTimeFrameMapper;
@@ -27,10 +26,10 @@ import com.programmingtechie.medical_service.repository.DoctorServiceRepository;
 import com.programmingtechie.medical_service.repository.RoomRepository;
 import com.programmingtechie.medical_service.repository.ServiceTimeFrameRepository;
 import com.programmingtechie.medical_service.repository.TimeFrameRepository;
+import com.programmingtechie.medical_service.repository.httpClient.AppointmentClient;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
-
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -76,7 +75,7 @@ public class ServiceTimeFrameService {
         List<ServiceTimeFrame> existingTimeFrames = serviceTimeFrameRepository.findByDoctorServiceIdAndDayOfWeek(
                 serviceTimeFrameRequest.getDoctorServiceId(),
                 serviceTimeFrameRequest.getDayOfWeek(),
-                true);  // isActive = true
+                true); // isActive = true
 
         if (!existingTimeFrames.isEmpty()) {
             // Nếu đã tồn tại và isActive = true, ném lỗi
@@ -87,7 +86,7 @@ public class ServiceTimeFrameService {
         existingTimeFrames = serviceTimeFrameRepository.findByDoctorServiceIdAndDayOfWeek(
                 serviceTimeFrameRequest.getDoctorServiceId(),
                 serviceTimeFrameRequest.getDayOfWeek(),
-                false);  // isActive = false
+                false); // isActive = false
 
         if (!existingTimeFrames.isEmpty()) {
             // Nếu tồn tại với isActive = false, chỉ cần cập nhật lại trạng thái
@@ -96,10 +95,14 @@ public class ServiceTimeFrameService {
             existingServiceTimeFrame.setMaximumQuantity(serviceTimeFrameRequest.getMaximumQuantity());
             existingServiceTimeFrame.setStartNumber(serviceTimeFrameRequest.getStartNumber());
             existingServiceTimeFrame.setEndNumber(serviceTimeFrameRequest.getEndNumber());
-            existingServiceTimeFrame.setRoom(roomRepository.findById(serviceTimeFrameRequest.getRoomId())
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phòng với id: " + serviceTimeFrameRequest.getRoomId())));
-            existingServiceTimeFrame.setTimeFrame(timeFrameRepository.findById(serviceTimeFrameRequest.getTimeFrameId())
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khung thời gian với id: " + serviceTimeFrameRequest.getTimeFrameId())));
+            existingServiceTimeFrame.setRoom(roomRepository
+                    .findById(serviceTimeFrameRequest.getRoomId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Không tìm thấy phòng với id: " + serviceTimeFrameRequest.getRoomId())));
+            existingServiceTimeFrame.setTimeFrame(timeFrameRepository
+                    .findById(serviceTimeFrameRequest.getTimeFrameId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Không tìm thấy khung thời gian với id: " + serviceTimeFrameRequest.getTimeFrameId())));
 
             existingServiceTimeFrame = serviceTimeFrameRepository.save(existingServiceTimeFrame);
             return serviceTimeFrameMapper.toServiceTimeFrameResponse(existingServiceTimeFrame);
@@ -143,7 +146,8 @@ public class ServiceTimeFrameService {
         // Tìm kiếm ServiceTimeFrame theo id
         ServiceTimeFrame serviceTimeFrame = serviceTimeFrameRepository
                 .findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khung thời gian dịch vụ với id: " + id));
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Không tìm thấy khung thời gian dịch vụ với id: " + id));
 
         // Duyệt qua các cặp key-value trong updates để cập nhật các trường trong ServiceTimeFrame
         for (Map.Entry<String, Object> entry : updates.entrySet()) {
@@ -167,7 +171,8 @@ public class ServiceTimeFrameService {
                     serviceTimeFrame.setStatus((String) value);
                     break;
                 case "roomId":
-                    Room room = roomRepository.findById((String) value)
+                    Room room = roomRepository
+                            .findById((String) value)
                             .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phòng với id: " + value));
                     serviceTimeFrame.setRoom(room);
                     break;
@@ -244,26 +249,29 @@ public class ServiceTimeFrameService {
                 serviceTimeFrameRepository.findByDoctorServiceIdAndDayOfWeek(doctorServiceId, dayOfWeek, true);
 
         // Lấy danh sách các khung giờ không hoạt động trong 1 tháng qua (isActive = false, lastUpdated >= oneMonthAgo)
-        List<ServiceTimeFrame> inactiveServiceTimeFrames =
-                serviceTimeFrameRepository.findByDoctorServiceIdAndDayOfWeek(doctorServiceId, dayOfWeek, false, oneMonthAgo);
+        List<ServiceTimeFrame> inactiveServiceTimeFrames = serviceTimeFrameRepository.findByDoctorServiceIdAndDayOfWeek(
+                doctorServiceId, dayOfWeek, false, oneMonthAgo);
 
         // Tạo danh sách yêu cầu đếm lịch hẹn cho tất cả các khung giờ (cả khung giờ đang hoạt động và không hoạt động)
         List<AppointmentCountRequest> appointmentCountRequests = new ArrayList<>();
 
         // Thêm các khung giờ không hoạt động vào danh sách yêu cầu
         for (ServiceTimeFrame inactiveTimeFrame : inactiveServiceTimeFrames) {
-            LocalDate appointmentDate = day.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate appointmentDate =
+                    day.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             appointmentCountRequests.add(new AppointmentCountRequest(inactiveTimeFrame.getId(), appointmentDate));
         }
 
         // Thêm các khung giờ đang hoạt động vào danh sách yêu cầu
         for (ServiceTimeFrame activeTimeFrame : activeServiceTimeFrames) {
-            LocalDate appointmentDate = day.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate appointmentDate =
+                    day.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             appointmentCountRequests.add(new AppointmentCountRequest(activeTimeFrame.getId(), appointmentDate));
         }
 
         // Gọi AppointmentClient để lấy thông tin về tổng số cuộc hẹn cho từng khung giờ
-        List<AppointmentCountResponse> appointmentCountResponses = appointmentClient.countAppointments(appointmentCountRequests);
+        List<AppointmentCountResponse> appointmentCountResponses =
+                appointmentClient.countAppointments(appointmentCountRequests);
 
         // Tạo một Map để lưu trữ tổng số cuộc hẹn cho mỗi khung giờ
         Map<String, Long> appointmentCountMap = new HashMap<>();
@@ -285,7 +293,6 @@ public class ServiceTimeFrameService {
         return validServiceTimeFrames;
     }
 
-
     // Kiểm tra tồn tại ServiceTimeFrame dựa trên ID, isActive, và status
     public boolean doesServiceTimeFrameExist(String id) {
         return serviceTimeFrameRepository.existsByIdAndIsActiveAndStatus(id);
@@ -298,32 +305,33 @@ public class ServiceTimeFrameService {
         // Chuyển đổi từ 1-7 thành 2-7 và CN
         switch (dayOfWeek) {
             case 7:
-                return "CN";  // Chủ nhật
+                return "CN"; // Chủ nhật
             case 1:
-                return "2";  // Thứ 2
+                return "2"; // Thứ 2
             case 2:
-                return "3";  // Thứ 3
+                return "3"; // Thứ 3
             case 3:
-                return "4";  // Thứ 4
+                return "4"; // Thứ 4
             case 4:
-                return "5";  // Thứ 5
+                return "5"; // Thứ 5
             case 5:
-                return "6";  // Thứ 6
+                return "6"; // Thứ 6
             case 6:
-                return "7";  // Thứ 7
+                return "7"; // Thứ 7
             default:
                 throw new IllegalArgumentException("Invalid day of the week");
         }
     }
 
-    public Integer getNextAvailableOrderNumber(String serviceTimeFrameId, LocalDate parsedDate, List<Integer> existingOrderNumbers) {
+    public Integer getNextAvailableOrderNumber(
+            String serviceTimeFrameId, LocalDate parsedDate, List<Integer> existingOrderNumbers) {
         log.info("Nhan yeu cau...");
         // Lấy ServiceTimeFrame từ repository
         Optional<ServiceTimeFrame> serviceTimeFrame = serviceTimeFrameRepository.findById(serviceTimeFrameId);
 
         // Kiểm tra khung giờ có tồn tại và hoạt động hay không
         if (serviceTimeFrame.isEmpty() || !serviceTimeFrame.get().getIsActive()) {
-            return -1;  // Nếu không tồn tại hoặc không hoạt động
+            return -1; // Nếu không tồn tại hoặc không hoạt động
         }
 
         // Kiểm tra ngày đăng ký lịch hẹn có hợp lệ hay không
@@ -337,11 +345,11 @@ public class ServiceTimeFrameService {
         LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
 
         // Lấy danh sách các khung giờ không hoạt động trong 1 tháng qua (isActive = false, lastUpdated >= oneMonthAgo)
-        List<ServiceTimeFrame> inactiveServiceTimeFrames =
-                serviceTimeFrameRepository.findByDoctorServiceIdAndDayOfWeek(serviceTimeFrame.get().getDoctorService().getId(), getDayOfWeek(parsedDate), false, oneMonthAgo);
+        List<ServiceTimeFrame> inactiveServiceTimeFrames = serviceTimeFrameRepository.findByDoctorServiceIdAndDayOfWeek(
+                serviceTimeFrame.get().getDoctorService().getId(), getDayOfWeek(parsedDate), false, oneMonthAgo);
 
         // Khởi tạo biến đếm tổng số cuộc hẹn đã có
-        Long count = (long) existingOrderNumbers.size();  // Số cuộc hẹn đã có
+        Long count = (long) existingOrderNumbers.size(); // Số cuộc hẹn đã có
 
         // Kiểm tra các khung giờ không hoạt động và thêm số cuộc hẹn vào biến count
         if (!inactiveServiceTimeFrames.isEmpty()) {
@@ -354,7 +362,8 @@ public class ServiceTimeFrameService {
 
             try {
                 // Gửi yêu cầu đếm cuộc hẹn
-                List<AppointmentCountResponse> appointmentCountResponses = appointmentClient.countAppointments(appointmentCountRequests);
+                List<AppointmentCountResponse> appointmentCountResponses =
+                        appointmentClient.countAppointments(appointmentCountRequests);
 
                 // Cộng dồn số cuộc hẹn đã có từ các khung giờ không hoạt động
                 for (AppointmentCountResponse item : appointmentCountResponses) {
@@ -368,7 +377,7 @@ public class ServiceTimeFrameService {
 
         // Kiểm tra nếu số cuộc hẹn đã đạt tối đa
         if (count >= serviceTimeFrame.get().getMaximumQuantity()) {
-            return 0;  // Nếu đã đủ số lượng, trả về 0
+            return 0; // Nếu đã đủ số lượng, trả về 0
         }
 
         // Lấy số thứ tự tiếp theo
@@ -378,18 +387,18 @@ public class ServiceTimeFrameService {
         // Duyệt từ startNumber đến endNumber và tìm số thứ tự chưa được sử dụng
         for (Integer orderNumber = startNumber; orderNumber <= endNumber; orderNumber++) {
             if (!existingOrderNumbers.contains(orderNumber)) {
-                return orderNumber;  // Trả về số thứ tự tiếp theo chưa được sử dụng
+                return orderNumber; // Trả về số thứ tự tiếp theo chưa được sử dụng
             }
         }
 
         // Nếu không tìm thấy số thứ tự hợp lệ, trả về -1 và thông báo chi tiết
         log.warn("Không còn số thứ tự hợp lệ cho khung giờ: " + serviceTimeFrameId + " vào ngày: " + parsedDate);
-        return -1;  // Không có số thứ tự hợp lệ
+        return -1; // Không có số thứ tự hợp lệ
     }
 }
 
 // Lay danh sach cac khung gio kham
-//public List<ServiceTimeFrameResponse> getServiceTimeFramesByDoctorServiceIdAndDayOfWeek(
+// public List<ServiceTimeFrameResponse> getServiceTimeFramesByDoctorServiceIdAndDayOfWeek(
 //        String doctorServiceId, String dayOfWeek, Date day) {
 //
 //    // Lay danh sach các khung gio đang hoat dong
@@ -399,17 +408,21 @@ public class ServiceTimeFrameService {
 //    // Lay danh sach cac khung gio kham da ngung hoat dong trong 1 thang tro ve truoc
 //    LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
 //    List<ServiceTimeFrame> serviceTimeFrameNotActive =
-//            serviceTimeFrameRepository.findByDoctorServiceIdAndDayOfWeekAndStatus(doctorServiceId, dayOfWeek, false, oneMonthAgo);
+//            serviceTimeFrameRepository.findByDoctorServiceIdAndDayOfWeekAndStatus(doctorServiceId, dayOfWeek, false,
+// oneMonthAgo);
 //
 //    List<AppointmentCountRequest> appointmentCountRequests = new ArrayList();
 //
 //    for(ServiceTimeFrame item : serviceTimeFrameNotActive)
-//        appointmentCountRequests.add(new AppointmentCountRequest(item.getId(), day.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
+//        appointmentCountRequests.add(new AppointmentCountRequest(item.getId(),
+// day.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
 //
 //    for(ServiceTimeFrame item : serviceTimeFrameList)
-//        appointmentCountRequests.add(new AppointmentCountRequest(item.getId(), day.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
+//        appointmentCountRequests.add(new AppointmentCountRequest(item.getId(),
+// day.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
 //
-//    List<AppointmentCountResponse> appointmentCountResponses = appointmentClient.countAppointments(appointmentCountRequests);
+//    List<AppointmentCountResponse> appointmentCountResponses =
+// appointmentClient.countAppointments(appointmentCountRequests);
 //
 //    for(int  i = 0; i < serviceTimeFrameList.size(); i++)
 //    {
@@ -438,4 +451,4 @@ public class ServiceTimeFrameService {
 //            .toList();
 //
 //    return serviceTimeFrameResponseList;
-//}
+// }

@@ -37,19 +37,16 @@ public interface ServiceTimeFrameRepository extends JpaRepository<ServiceTimeFra
             + "AND stf.dayOfWeek = :dayOfWeek "
             + "AND stf.isActive = :isActive "
             + "AND unaccent(LOWER(stf.status)) = unaccent(LOWER('nhan dang ky'))")
-    List<ServiceTimeFrame> findByDoctorServiceIdAndDayOfWeek(String doctorServiceId, String dayOfWeek, Boolean isActive);
-
-    @Query("SELECT stf FROM ServiceTimeFrame stf " +
-            "WHERE stf.doctorService.id = :doctorServiceId " +
-            "AND stf.dayOfWeek = :dayOfWeek " +
-            "AND stf.isActive = :isActive " +
-            "AND unaccent(LOWER(stf.status)) = unaccent(LOWER('nhan dang ky')) " +
-            "AND (stf.lastUpdated >= :oneMonthAgo)")
     List<ServiceTimeFrame> findByDoctorServiceIdAndDayOfWeek(
-            String doctorServiceId,
-            String dayOfWeek,
-            Boolean isActive,
-            LocalDateTime oneMonthAgo);
+            String doctorServiceId, String dayOfWeek, Boolean isActive);
+
+    @Query("SELECT stf FROM ServiceTimeFrame stf " + "WHERE stf.doctorService.id = :doctorServiceId "
+            + "AND stf.dayOfWeek = :dayOfWeek "
+            + "AND stf.isActive = :isActive "
+            + "AND unaccent(LOWER(stf.status)) = unaccent(LOWER('nhan dang ky')) "
+            + "AND (stf.lastUpdated >= :oneMonthAgo)")
+    List<ServiceTimeFrame> findByDoctorServiceIdAndDayOfWeek(
+            String doctorServiceId, String dayOfWeek, Boolean isActive, LocalDateTime oneMonthAgo);
 
     // Kiểm tra sự tồn tại dựa trên ID, isActive = true, và status = "Nhận đăng ký"
     @Query(

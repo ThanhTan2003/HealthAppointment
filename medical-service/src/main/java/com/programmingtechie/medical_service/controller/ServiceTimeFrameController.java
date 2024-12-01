@@ -145,14 +145,13 @@ public class ServiceTimeFrameController {
     public ResponseEntity<Integer> getNextAvailableOrderNumber(
             @PathVariable String serviceTimeFrameId,
             @RequestParam LocalDate day,
-            @RequestParam List<Integer> existingOrderNumbers){
+            @RequestParam List<Integer> existingOrderNumbers) {
 
         // Gọi Service để lấy số thứ tự tiếp theo
         LocalDate parsedDate;
-        Integer nextOrderNumber = serviceTimeFrameService.getNextAvailableOrderNumber(serviceTimeFrameId, day, existingOrderNumbers);
+        Integer nextOrderNumber =
+                serviceTimeFrameService.getNextAvailableOrderNumber(serviceTimeFrameId, day, existingOrderNumbers);
 
-        return ResponseEntity.ok(nextOrderNumber);  // Trả về số thứ tự tiếp theo
+        return ResponseEntity.ok(nextOrderNumber); // Trả về số thứ tự tiếp theo
     }
-
-
 }
