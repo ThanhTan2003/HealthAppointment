@@ -1,7 +1,10 @@
-package com.programmingtechie.patient_service.dto.response;
+package com.programmingtechie.patient_service.dto.response.customer;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
+import com.programmingtechie.patient_service.dto.response.PageResponse;
+import com.programmingtechie.patient_service.dto.response.PatientResponse;
 
 import lombok.*;
 

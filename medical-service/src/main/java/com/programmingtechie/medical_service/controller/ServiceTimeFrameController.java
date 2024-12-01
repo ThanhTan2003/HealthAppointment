@@ -58,6 +58,7 @@ public class ServiceTimeFrameController {
     }
 
     @GetMapping("/public/id/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc') or hasRole('NguoiDung')")
     public ResponseEntity<ServiceTimeFrameResponse> getServiceTimeFrameByIdById(@PathVariable String id) {
         return ResponseEntity.ok(serviceTimeFrameService.getServiceTimeFrameById(id));
     }

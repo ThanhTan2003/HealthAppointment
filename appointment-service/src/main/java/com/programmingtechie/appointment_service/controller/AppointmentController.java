@@ -14,6 +14,7 @@ import org.springframework.web.context.request.WebRequest;
 
 import com.programmingtechie.appointment_service.dto.request.AppointmentRequest;
 import com.programmingtechie.appointment_service.dto.response.AppointmentResponse;
+import com.programmingtechie.appointment_service.dto.response.AppointmentTimeFrameResponse;
 import com.programmingtechie.appointment_service.dto.response.PageResponse;
 import com.programmingtechie.appointment_service.service.AppointmentService;
 
@@ -50,6 +51,23 @@ public class AppointmentController {
     @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
     public ResponseEntity<AppointmentResponse> getAppointmentById(@PathVariable String id) {
         return ResponseEntity.ok(appointmentService.getAppointmentById(id));
+    }
+
+    @GetMapping("/customer/patientId/{patientId}")
+    @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc') or hasRole('NguoiDung')")
+    public ResponseEntity<PageResponse<AppointmentTimeFrameResponse>> getAppointmentByCustomerIdAndPatientsId(
+            @PathVariable String patientId,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        return ResponseEntity.ok(appointmentService.getAppointmentByCustomerIdAndPatientsId(patientId, page, size));
+    }
+
+    @GetMapping("/customer/get-all")
+    @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc') or hasRole('NguoiDung')")
+    public ResponseEntity<PageResponse<AppointmentTimeFrameResponse>> getMyAppointment(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        return ResponseEntity.ok(appointmentService.getMyAppointment(page, size));
     }
 
     @GetMapping("/patients-id/{id}")
@@ -136,7 +154,6 @@ public class AppointmentController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
-        // Gửi yêu cầu đến service để tìm kiếm
         PageResponse<AppointmentResponse> results =
                 appointmentService.searchAppointments(id, date, serviceTimeFrameId, page, size);
 

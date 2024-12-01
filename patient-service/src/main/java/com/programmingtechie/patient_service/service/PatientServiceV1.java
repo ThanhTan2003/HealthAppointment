@@ -11,11 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.programmingtechie.patient_service.dto.request.PatientCreationRequest;
 import com.programmingtechie.patient_service.dto.request.PatientUpdateRequest;
-import com.programmingtechie.patient_service.dto.response.CustomerIdentityResponse;
-import com.programmingtechie.patient_service.dto.response.CustomerWithPatientDetailsResponse;
 import com.programmingtechie.patient_service.dto.response.PageResponse;
 import com.programmingtechie.patient_service.dto.response.PatientAndCustomerInfoResponse;
 import com.programmingtechie.patient_service.dto.response.PatientResponse;
+import com.programmingtechie.patient_service.dto.response.customer.CustomerIdentityResponse;
+import com.programmingtechie.patient_service.dto.response.customer.CustomerWithPatientDetailsResponse;
 import com.programmingtechie.patient_service.mapper.PatientMapper;
 import com.programmingtechie.patient_service.model.Patient;
 import com.programmingtechie.patient_service.repository.PatientRepository;

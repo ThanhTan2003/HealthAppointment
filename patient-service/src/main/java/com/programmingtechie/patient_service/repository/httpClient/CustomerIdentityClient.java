@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.programmingtechie.patient_service.config.AuthenticationRequestInterceptor;
-import com.programmingtechie.patient_service.dto.response.CustomerIdentityResponse;
-import com.programmingtechie.patient_service.dto.response.CustomerWithPatientDetailsResponse;
+import com.programmingtechie.patient_service.dto.response.customer.CustomerIdentityResponse;
+import com.programmingtechie.patient_service.dto.response.customer.CustomerWithPatientDetailsResponse;
 
 @FeignClient(
         name = "identity-client",

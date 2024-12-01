@@ -50,6 +50,9 @@ public class Appointment {
     @Column(name = "patients_id", length = 36)
     private String patientsId;
 
+    @Column(name = "customer_id", length = 36)
+    private String customerId;
+
     @Column(name = "replacement_doctor_id", length = 36)
     private String replacementDoctorId;
 

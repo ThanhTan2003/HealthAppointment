@@ -3,20 +3,24 @@ package com.programmingtechie.appointment_service.service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.programmingtechie.appointment_service.dto.request.AppointmentRequest;
 import com.programmingtechie.appointment_service.dto.response.AppointmentResponse;
+import com.programmingtechie.appointment_service.dto.response.AppointmentTimeFrameResponse;
 import com.programmingtechie.appointment_service.dto.response.PageResponse;
 import com.programmingtechie.appointment_service.mapper.AppointmentMapper;
 import com.programmingtechie.appointment_service.model.Appointment;
-import com.programmingtechie.appointment_service.repository.AppointmentRepository;
+import com.programmingtechie.appointment_service.repository.AppointmentRepositorynt_service;
 import com.programmingtechie.appointment_service.repository.httpClient.MedicalClient;
 import com.programmingtechie.appointment_service.repository.httpClient.PatientClient;
 
@@ -27,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class AppointmentService {
-    final AppointmentRepository appointmentRepository;
+    final AppointmentRepositorynt_service appointmentRepository;
     private final AppointmentMapper appointmentMapper;
 
     final PatientClient patientClient;
@@ -120,7 +124,8 @@ public class AppointmentService {
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy cuộc hẹn với ID: " + id));
 
-        // Duyệt qua các cặp trường và giá trị trong `updates` để cập nhật thực thể `appointment`
+        // Duyệt qua các cặp trường và giá trị trong `updates` để cập nhật thực thể
+        // `appointment`
         for (Map.Entry<String, Object> entry : updates.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
@@ -179,9 +184,68 @@ public class AppointmentService {
                 .build();
     }
 
+    public PageResponse<AppointmentTimeFrameResponse> getMyAppointment(int page, int size) {
+        var context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("Người dùng chưa được xác thực");
+        }
+
+        if (authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+            // Lấy thông tin từ Jwt
+            String id = jwt.getClaim("id");
+            if (id == null) {
+                throw new IllegalArgumentException("Không tìm thấy ID trong token!");
+            }
+            Pageable pageable = PageRequest.of(page - 1, size);
+            Page<Appointment> pageData = appointmentRepository.findByCustomerId(id, pageable);
+            return PageResponse.<AppointmentTimeFrameResponse>builder()
+                    .currentPage(page)
+                    .pageSize(pageData.getSize())
+                    .totalPages(pageData.getTotalPages())
+                    .totalElements(pageData.getTotalElements())
+                    .data(pageData.getContent().stream()
+                            .map(appointmentMapper::mapToAppointmentTimeFrameResponse)
+                            .collect(Collectors.toList()))
+                    .build();
+        }
+        throw new IllegalArgumentException("Principal không hợp lệ hoặc không phải là JWT");
+    }
+
+    public PageResponse<AppointmentTimeFrameResponse> getAppointmentByCustomerIdAndPatientsId(
+            String patientId, int page, int size) {
+        var context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("Người dùng chưa được xác thực");
+        }
+
+        if (authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+            // Lấy thông tin từ Jwt
+            String id = jwt.getClaim("id");
+            if (id == null) {
+                throw new IllegalArgumentException("Không tìm thấy ID trong token!");
+            }
+            Pageable pageable = PageRequest.of(page - 1, size);
+            Page<Appointment> pageData = appointmentRepository.findByCustomerIdAndPatientsId(id, patientId, pageable);
+            return PageResponse.<AppointmentTimeFrameResponse>builder()
+                    .currentPage(page)
+                    .pageSize(pageData.getSize())
+                    .totalPages(pageData.getTotalPages())
+                    .totalElements(pageData.getTotalElements())
+                    .data(pageData.getContent().stream()
+                            .map(appointmentMapper::mapToAppointmentTimeFrameResponse)
+                            .collect(Collectors.toList()))
+                    .build();
+        }
+        throw new IllegalArgumentException("Principal không hợp lệ hoặc không phải là JWT");
+    }
+
     public PageResponse<AppointmentResponse> getAppointmentByPatientsId(String id, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Appointment> appointments = appointmentRepository.findAll(pageable);
+        Page<Appointment> appointments = appointmentRepository.findByPatientsId(id, pageable);
         List<AppointmentResponse> data = appointments.stream()
                 .map(appointmentMapper::toAppointmentResponse)
                 .toList();

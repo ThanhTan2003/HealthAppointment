@@ -1,4 +1,4 @@
-package com.programmingtechie.patient_service.dto.response;
+package com.programmingtechie.patient_service.dto.response.customer;
 
 import java.time.LocalDateTime;
 import java.util.Date;

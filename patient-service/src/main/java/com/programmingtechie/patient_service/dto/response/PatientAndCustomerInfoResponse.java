@@ -3,6 +3,8 @@ package com.programmingtechie.patient_service.dto.response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.programmingtechie.patient_service.dto.response.customer.CustomerIdentityResponse;
+
 import lombok.*;
 
 @Data

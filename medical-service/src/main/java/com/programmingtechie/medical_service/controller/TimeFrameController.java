@@ -25,6 +25,7 @@ public class TimeFrameController {
     }
 
     @GetMapping("/public/id/{id}")
+    @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc') or hasRole('NguoiDung')")
     public ResponseEntity<TimeFrameResponse> getTimeFrameById(@PathVariable String id) {
         return ResponseEntity.ok(timeFrameService.getTimeFrameById(id));
     }
