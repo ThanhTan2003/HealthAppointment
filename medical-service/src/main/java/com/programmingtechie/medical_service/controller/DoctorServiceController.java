@@ -66,7 +66,6 @@ public class DoctorServiceController {
         return ResponseEntity.ok(doctorServiceService.updateDoctorService(id, updates));
     }
 
-
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public ResponseEntity<Void> deleteDoctorService(@PathVariable String id) {

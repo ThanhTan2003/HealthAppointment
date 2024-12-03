@@ -7,10 +7,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-
-import com.programmingtechie.appointment_service.model.Appointment;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import com.programmingtechie.appointment_service.model.Appointment;
 
 public interface AppointmentRepository
         extends JpaRepository<Appointment, String>, JpaSpecificationExecutor<Appointment> {
@@ -31,8 +31,10 @@ public interface AppointmentRepository
     // Phương thức đếm số lượng appointments theo serviceTimeFrameId và date
     long countByServiceTimeFrameIdAndDate(String serviceTimeFrameId, LocalDate date);
 
-    @Query("SELECT a.orderNumber FROM Appointment a WHERE a.serviceTimeFrameId = :serviceTimeFrameId AND a.date = :date")
-    List<Integer> findOrderNumbersByServiceTimeFrameIdAndDate(@Param("serviceTimeFrameId") String serviceTimeFrameId, @Param("date") LocalDate date);
+    @Query(
+            "SELECT a.orderNumber FROM Appointment a WHERE a.serviceTimeFrameId = :serviceTimeFrameId AND a.date = :date")
+    List<Integer> findOrderNumbersByServiceTimeFrameIdAndDate(
+            @Param("serviceTimeFrameId") String serviceTimeFrameId, @Param("date") LocalDate date);
 
     Page<Appointment> findByCustomerId(String customerId, Pageable pageable);
 
