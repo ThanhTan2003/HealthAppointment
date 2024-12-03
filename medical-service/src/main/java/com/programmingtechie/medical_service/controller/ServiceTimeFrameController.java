@@ -9,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInAppointmentResponse;
+import com.programmingtechie.medical_service.dto.response.ServiceResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -154,5 +156,9 @@ public class ServiceTimeFrameController {
         return ResponseEntity.ok(nextOrderNumber);  // Trả về số thứ tự tiếp theo
     }
 
-
+    @PostMapping("/get-by-ids")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
+    public ResponseEntity<List<ServiceTimeFrameInAppointmentResponse>> getByIds(@RequestBody List<String> ids) {
+        return ResponseEntity.ok(serviceTimeFrameService.getByIds(ids));
+    }
 }

@@ -95,12 +95,22 @@ public class AppointmentController {
         return ResponseEntity.noContent().build();
     }
 
+    // API lấy danh sách distinct status
+    @GetMapping("/get-all-status")
+    @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
+    public ResponseEntity<List<String>> getDistinctStatuses() {
+        List<String> distinctStatuses = appointmentService.getDistinctStatuses();
+        return ResponseEntity.ok(distinctStatuses);
+    }
+
     @GetMapping("/get-all")
     @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<AppointmentResponse>> getAllAppointments(
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
-        return ResponseEntity.ok(appointmentService.getAllAppointments(page, size));
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "status", defaultValue = "") String status,
+            @RequestParam(value = "id", defaultValue = "") String id){
+        return ResponseEntity.ok(appointmentService.getAllAppointments(page, size, status, id));
     }
 
     @GetMapping("/get")

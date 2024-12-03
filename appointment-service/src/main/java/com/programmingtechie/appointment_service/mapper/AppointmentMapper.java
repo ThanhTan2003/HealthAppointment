@@ -1,13 +1,14 @@
 package com.programmingtechie.appointment_service.mapper;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Random;
 
 import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
 import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameResponse;
 import com.programmingtechie.appointment_service.repository.httpClient.MedicalClient;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.programmingtechie.appointment_service.dto.request.AppointmentRequest;
@@ -72,10 +73,14 @@ public class AppointmentMapper {
             throw new IllegalArgumentException("Appointment không được null");
         }
 
+        // Lấy tên ngày (Tên thứ) và định dạng ngày
+        String dateName = getFormattedDateName(appointment.getDate());
+
         return AppointmentResponse.builder()
                 .id(appointment.getId())
                 .dateTime(appointment.getDateTime())
                 .date(appointment.getDate())
+                .dateName(appointment.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
                 .status(appointment.getStatus())
                 .orderNumber(appointment.getOrderNumber())
                 .lastUpdated(appointment.getLastUpdated())
@@ -86,6 +91,21 @@ public class AppointmentMapper {
                 .customerId(appointment.getCustomerId())
                 .billId(appointment.getBill() != null ? appointment.getBill().getId() : null)
                 .build();
+    }
+
+    // Hàm nhận vào LocalDate và trả về chuỗi định dạng "Tên ngày - ngày/ tháng/năm"
+    private String getFormattedDateName(LocalDate date) {
+        if (date == null) {
+            return "";
+        }
+
+        // Định dạng ngày là ngày/tháng/năm
+        String formattedDate = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+        // Lấy tên ngày trong tuần (e.g. Thứ hai)
+        String dayOfWeek = date.getDayOfWeek().getDisplayName(java.time.format.TextStyle.FULL, Locale.forLanguageTag("vi"));
+
+        return dayOfWeek + " - " + formattedDate;
     }
 
     public AppointmentTimeFrameResponse mapToAppointmentTimeFrameResponse(Appointment appointment) {

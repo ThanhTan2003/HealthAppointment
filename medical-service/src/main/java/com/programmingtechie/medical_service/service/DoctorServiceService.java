@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.programmingtechie.medical_service.dto.request.DoctorServiceRequest;
@@ -125,7 +126,20 @@ public class DoctorServiceService {
                     doctorService.setIsActive((Boolean) value);
                     break;
                 case "unitPrice":
-                    doctorService.setUnitPrice((Double) value);
+                    // Xử lý để ép kiểu về Double nếu giá trị là String hoặc Integer
+                    if (value instanceof String) {
+                        try {
+                            doctorService.setUnitPrice(Double.valueOf((String) value)); // Chuyển đổi từ String thành Double
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException("unitPrice phải là số hợp lệ");
+                        }
+                    } else if (value instanceof Integer) {
+                        doctorService.setUnitPrice(((Integer) value).doubleValue()); // Chuyển Integer thành Double
+                    } else if (value instanceof Double) {
+                        doctorService.setUnitPrice((Double) value); // Nếu đã là Double, giữ nguyên
+                    } else {
+                        throw new IllegalArgumentException("unitPrice phải là kiểu số hợp lệ");
+                    }
                     break;
                 default:
                     throw new IllegalArgumentException("Trường cập nhật không hợp lệ: " + key);
@@ -139,6 +153,7 @@ public class DoctorServiceService {
         return doctorServiceMapper.toDoctorServiceResponse(doctorService);
     }
 
+
     public void deleteDoctorService(String id) {
         DoctorService doctorService = doctorServiceRepository
                 .findById(id)
@@ -148,7 +163,7 @@ public class DoctorServiceService {
 
     // Lay danh sach dịch vu cua bac si theo doctorId
     public PageResponse<DoctorServiceResponse> getDoctorServicesByDoctorId(String doctorId, int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").ascending());
         Page<DoctorService> doctorServices = doctorServiceRepository.findByDoctorId(doctorId, pageable);
 
         List<DoctorServiceResponse> doctorServiceResponses = doctorServices.getContent().stream()
@@ -229,7 +244,7 @@ public class DoctorServiceService {
 
     public PageResponse<DoctorServiceResponse> getDoctorServicesByDoctorIdPublic(String doctorId, int page, int size) {
         // Tạo Pageable để phân trang
-        Pageable pageable = PageRequest.of(page - 1, size);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").ascending());
 
         // Lấy danh sách DoctorService theo serviceId và phân trang
         Page<DoctorService> doctorServices =

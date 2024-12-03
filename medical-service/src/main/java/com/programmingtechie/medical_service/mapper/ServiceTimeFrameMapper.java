@@ -1,5 +1,7 @@
 package com.programmingtechie.medical_service.mapper;
 
+import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInAppointmentResponse;
+import com.programmingtechie.medical_service.dto.response.TimeFrameResponse;
 import org.springframework.stereotype.Component;
 
 import com.programmingtechie.medical_service.dto.response.DoctorServiceResponse;
@@ -36,6 +38,32 @@ public class ServiceTimeFrameMapper {
                 .timeFrameResponse(timeFrameMapper.toResponse(serviceTimeFrame.getTimeFrame()))
                 .doctorServiceResponse(doctorServiceResponse)
                 .roomResponse(roomResponse)
+                .build();
+    }
+
+    public ServiceTimeFrameInAppointmentResponse toServiceTimeFrameInAppointmentResponse(ServiceTimeFrame serviceTimeFrame) {
+        DoctorServiceResponse doctorServiceResponse =
+                doctorServiceMapper.toDoctorServiceResponse(serviceTimeFrame.getDoctorService());
+        RoomResponse roomResponse = roomMapper.toRoomResponse(serviceTimeFrame.getRoom());
+
+        TimeFrameResponse timeFrameResponse = timeFrameMapper.toResponse(serviceTimeFrame.getTimeFrame());
+
+        return ServiceTimeFrameInAppointmentResponse.builder()
+                .id(serviceTimeFrame.getId())
+                .dayOfWeek(serviceTimeFrame.getDayOfWeek())
+                .maximumQuantity(serviceTimeFrame.getMaximumQuantity())
+                .startNumber(serviceTimeFrame.getStartNumber())
+                .endNumber(serviceTimeFrame.getEndNumber())
+                .isActive(serviceTimeFrame.getIsActive())
+                .status(serviceTimeFrame.getStatus())
+                .doctorServiceId(serviceTimeFrame.getDoctorService().getId())
+                .roomId(serviceTimeFrame.getRoom().getId())
+
+                .timeFrameNameFullName(timeFrameResponse.getFullName())
+                .serviceName(serviceTimeFrame.getDoctorService().getService().getName())
+                .doctorId(serviceTimeFrame.getDoctorService().getDoctorId())
+                .doctorName("")
+                .roomName(serviceTimeFrame.getRoom().getName())
                 .build();
     }
 }

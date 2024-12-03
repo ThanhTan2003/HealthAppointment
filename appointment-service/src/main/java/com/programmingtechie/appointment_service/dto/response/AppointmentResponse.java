@@ -3,6 +3,7 @@ package com.programmingtechie.appointment_service.dto.response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameInAppointmentResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +20,8 @@ public class AppointmentResponse {
 
     private LocalDate date;
 
+    private String dateName;
+
     private String status;
 
     private Integer orderNumber;
@@ -26,6 +29,12 @@ public class AppointmentResponse {
     private LocalDateTime lastUpdated;
 
     private String serviceTimeFrameId;
+
+    private String timeFrameFullName;
+
+    private String serviceName;
+
+    private String doctorName;
 
     private String medicalRecordsId;
 
@@ -36,4 +45,6 @@ public class AppointmentResponse {
     private String replacementDoctorId;
 
     private String billId;
+
+    private ServiceTimeFrameInAppointmentResponse serviceTimeFrame;
 }

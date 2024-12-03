@@ -15,6 +15,17 @@ import org.springframework.data.repository.query.Param;
 public interface AppointmentRepository
         extends JpaRepository<Appointment, String>, JpaSpecificationExecutor<Appointment> {
 
+    @Query(value = "SELECT * FROM Appointment a WHERE " +
+            "unaccent(LOWER(a.status)) LIKE unaccent(LOWER(CONCAT('%', :status, '%'))) AND " +
+            "unaccent(LOWER(a.id)) LIKE unaccent(LOWER(CONCAT('%', :id, '%'))) " +
+            "ORDER BY a.status ASC", nativeQuery = true)
+    Page<Appointment> getAllAppointment(Pageable pageable, @Param("status") String status, @Param("id") String id);
+
+
+    @Query("SELECT DISTINCT a.status FROM Appointment a")
+    List<String> findDistinctStatuses();
+
+
     Page<Appointment> findByPatientsId(String id, Pageable pageable);
 
     // Phương thức đếm số lượng appointments theo serviceTimeFrameId và date

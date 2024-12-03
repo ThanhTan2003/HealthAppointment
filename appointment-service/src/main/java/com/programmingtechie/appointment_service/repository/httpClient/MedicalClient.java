@@ -1,15 +1,14 @@
 package com.programmingtechie.appointment_service.repository.httpClient;
 
+import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameInAppointmentResponse;
 import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
 import com.programmingtechie.appointment_service.config.AuthenticationRequestInterceptor;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -34,4 +33,8 @@ public interface MedicalClient {
             @PathVariable String serviceTimeFrameId,
             @RequestParam LocalDate day,
             @RequestParam List<Integer> existingOrderNumbers);
+
+    @PostMapping(value = "/service-time-frame/get-by-ids", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<ServiceTimeFrameInAppointmentResponse> getByIds(@RequestBody List<String> ids);
+
 }

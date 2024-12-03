@@ -7,8 +7,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.programmingtechie.medical_service.dto.request.AppointmentCountRequest;
+import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInAppointmentResponse;
 import com.programmingtechie.medical_service.dto.response.AppointmentCountResponse;
+import com.programmingtechie.medical_service.dto.response.Doctor.DoctorResponse;
+import com.programmingtechie.medical_service.dto.response.ServiceResponse;
 import com.programmingtechie.medical_service.repository.httpClient.AppointmentClient;
+import com.programmingtechie.medical_service.repository.httpClient.DoctorClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,6 +48,7 @@ public class ServiceTimeFrameService {
     private final ServiceTimeFrameMapper serviceTimeFrameMapper;
 
     private final AppointmentClient appointmentClient;
+    private final DoctorClient doctorClient;
 
     public PageResponse<ServiceTimeFrameResponse> getAllServiceTimeFrames(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -386,56 +391,38 @@ public class ServiceTimeFrameService {
         log.warn("Không còn số thứ tự hợp lệ cho khung giờ: " + serviceTimeFrameId + " vào ngày: " + parsedDate);
         return -1;  // Không có số thứ tự hợp lệ
     }
-}
 
-// Lay danh sach cac khung gio kham
-//public List<ServiceTimeFrameResponse> getServiceTimeFramesByDoctorServiceIdAndDayOfWeek(
-//        String doctorServiceId, String dayOfWeek, Date day) {
-//
-//    // Lay danh sach các khung gio đang hoat dong
-//    List<ServiceTimeFrame> serviceTimeFrameList =
-//            serviceTimeFrameRepository.findByDoctorServiceIdAndDayOfWeek(doctorServiceId, dayOfWeek, true);
-//
-//    // Lay danh sach cac khung gio kham da ngung hoat dong trong 1 thang tro ve truoc
-//    LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
-//    List<ServiceTimeFrame> serviceTimeFrameNotActive =
-//            serviceTimeFrameRepository.findByDoctorServiceIdAndDayOfWeekAndStatus(doctorServiceId, dayOfWeek, false, oneMonthAgo);
-//
-//    List<AppointmentCountRequest> appointmentCountRequests = new ArrayList();
-//
-//    for(ServiceTimeFrame item : serviceTimeFrameNotActive)
-//        appointmentCountRequests.add(new AppointmentCountRequest(item.getId(), day.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
-//
-//    for(ServiceTimeFrame item : serviceTimeFrameList)
-//        appointmentCountRequests.add(new AppointmentCountRequest(item.getId(), day.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
-//
-//    List<AppointmentCountResponse> appointmentCountResponses = appointmentClient.countAppointments(appointmentCountRequests);
-//
-//    for(int  i = 0; i < serviceTimeFrameList.size(); i++)
-//    {
-//        int count = 0;
-//        for(int j = 0; j < serviceTimeFrameNotActive.size(); j++)
-//        {
-//            if(serviceTimeFrameList.get(i).getTimeFrame() == serviceTimeFrameNotActive.get(j).getTimeFrame())
-//            {
-//                for(AppointmentCountResponse item: appointmentCountResponses)
-//                {
-//                    if(item.getServiceTimeFrameId() == serviceTimeFrameNotActive.get(j).getId())
-//                        count += item.getTotal();
-//                }
-//            }
-//        }
-//        for(AppointmentCountResponse item: appointmentCountResponses)
-//            if(item.getServiceTimeFrameId() == serviceTimeFrameList.get(i).getId())
-//                count += item.getTotal();
-//
-//        if (serviceTimeFrameList.get(i).getMaximumQuantity() <= count)
-//            serviceTimeFrameList.remove(serviceTimeFrameList.get(i));
-//    }
-//
-//    List<ServiceTimeFrameResponse> serviceTimeFrameResponseList = serviceTimeFrameList.stream()
-//            .map(serviceTimeFrameMapper::toServiceTimeFrameResponse)
-//            .toList();
-//
-//    return serviceTimeFrameResponseList;
-//}
+    public List<ServiceTimeFrameInAppointmentResponse> getByIds(List<String> ids) {
+        // Lấy danh sách ServiceTimeFrame từ repository
+        List<ServiceTimeFrame> serviceTimeFrames = serviceTimeFrameRepository.findAllById(ids);
+
+        // Chuyển đổi ServiceTimeFrame thành ServiceTimeFrameInAppointmentResponse
+        List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrameInAppointmentResponses = serviceTimeFrames.stream()
+                .map(serviceTimeFrameMapper::toServiceTimeFrameInAppointmentResponse)
+                .collect(Collectors.toList());
+
+        // Lấy danh sách doctorIds từ serviceTimeFrameInAppointmentResponses
+        List<String> doctorIds = serviceTimeFrameInAppointmentResponses.stream()
+                .map(ServiceTimeFrameInAppointmentResponse::getDoctorId)
+                .collect(Collectors.toList());
+
+        // Lấy thông tin bác sĩ từ doctorClient
+        List<DoctorResponse> doctorResponses = doctorClient.getByIds(doctorIds);
+
+        // Tạo map cho phép tra cứu doctorResponse theo doctorId
+        Map<String, DoctorResponse> doctorInfoMap = doctorResponses.stream()
+                .collect(Collectors.toMap(DoctorResponse::getId, doctorResponse -> doctorResponse));
+
+        // Cập nhật thông tin bác sĩ cho từng item trong serviceTimeFrameInAppointmentResponses
+        serviceTimeFrameInAppointmentResponses.forEach(item -> {
+            DoctorResponse doctorResponse = doctorInfoMap.get(item.getDoctorId());
+            if (doctorResponse != null) {
+                item.setDoctorQualificationName(doctorResponse.getQualificationName());
+                item.setDoctorName(doctorResponse.getFullName());
+            }
+        });
+
+        return serviceTimeFrameInAppointmentResponses;
+    }
+
+}
