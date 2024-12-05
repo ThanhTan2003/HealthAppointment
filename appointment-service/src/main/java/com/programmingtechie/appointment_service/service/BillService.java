@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.programmingtechie.appointment_service.dto.request.BillRequest;
-import com.programmingtechie.appointment_service.dto.response.BillResponse;
+import com.programmingtechie.appointment_service.dto.response.Payment.BillResponse;
 import com.programmingtechie.appointment_service.dto.response.PageResponse;
 import com.programmingtechie.appointment_service.mapper.BillMapper;
 import com.programmingtechie.appointment_service.model.Bill;

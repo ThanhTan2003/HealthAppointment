@@ -59,6 +59,12 @@ public class ServiceTimeFrameController {
         return ResponseEntity.ok(serviceTimeFrameService.getServiceTimeFrameById(id));
     }
 
+    @GetMapping("/get-unit-price/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc') or hasRole('NguoiDung')")
+    public ResponseEntity<Double> getUnitPriceById(@PathVariable String id) {
+        return ResponseEntity.ok(serviceTimeFrameService.getUnitPriceById(id));
+    }
+
     @GetMapping("/public/id/{id}")
     public ResponseEntity<ServiceTimeFrameResponse> getServiceTimeFrameByIdById(@PathVariable String id) {
         return ResponseEntity.ok(serviceTimeFrameService.getServiceTimeFrameById(id));

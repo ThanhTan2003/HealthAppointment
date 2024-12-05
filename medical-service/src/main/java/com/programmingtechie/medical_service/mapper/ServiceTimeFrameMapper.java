@@ -61,6 +61,7 @@ public class ServiceTimeFrameMapper {
 
                 .timeFrameNameFullName(timeFrameResponse.getFullName())
                 .serviceName(serviceTimeFrame.getDoctorService().getService().getName())
+                .unitPrice(serviceTimeFrame.getDoctorService().getUnitPrice())
                 .doctorId(serviceTimeFrame.getDoctorService().getDoctorId())
                 .doctorName("")
                 .roomName(serviceTimeFrame.getRoom().getName())

@@ -425,4 +425,12 @@ public class ServiceTimeFrameService {
         return serviceTimeFrameInAppointmentResponses;
     }
 
+    public Double getUnitPriceById(String id) {
+        ServiceTimeFrame serviceTimeFrame = serviceTimeFrameRepository
+                .findById(id)
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Không tìm thấy khung thời gian dịch vụ với id: " + id));
+
+        return serviceTimeFrame.getDoctorService().getUnitPrice();
+    }
 }

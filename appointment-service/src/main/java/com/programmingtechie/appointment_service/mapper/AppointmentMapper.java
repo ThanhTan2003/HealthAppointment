@@ -6,8 +6,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Random;
 
+import com.programmingtechie.appointment_service.dto.request.AppointmentCreateRequest;
 import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
 import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameResponse;
+import com.programmingtechie.appointment_service.model.Bill;
+import com.programmingtechie.appointment_service.model.Payment;
 import com.programmingtechie.appointment_service.repository.httpClient.MedicalClient;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AppointmentMapper {
     final AppointmentRepository appointmentRepository;
+
     final MedicalClient medicalClient;
 
     public Appointment toAppointmentEntity(AppointmentRequest appointmentRequest) {
@@ -39,7 +43,24 @@ public class AppointmentMapper {
                 .build();
     }
 
-    private String createAppointmentId() {
+    public Appointment toAppointmentEntity(AppointmentCreateRequest appointmentRequest) {
+
+
+        // Chuyển đổi từ AppointmentRequest sang Appointmecnt entity
+        return Appointment.builder()
+                .id(createAppointmentId())
+                .dateTime(LocalDateTime.now())
+                .date(appointmentRequest.getDate())
+                .status("Chờ phê duyệt")
+                .serviceTimeFrameId(appointmentRequest.getServiceTimeFrameId())
+                .patientsId(appointmentRequest.getPatientsId())
+                .customerId(appointmentRequest.getCustomerId())
+                .orderNumber(appointmentRequest.getOrderNumber())
+                .payment(appointmentRequest.getPayment())
+                .build();
+    }
+
+    public String createAppointmentId() {
         String prefix = "LH-";
         Random random = new Random();
         StringBuilder middlePart = new StringBuilder();
@@ -89,7 +110,7 @@ public class AppointmentMapper {
                 .patientsId(appointment.getPatientsId())
                 .replacementDoctorId(appointment.getReplacementDoctorId())
                 .customerId(appointment.getCustomerId())
-                .billId(appointment.getBill() != null ? appointment.getBill().getId() : null)
+                .paymentId(appointment.getPayment() != null ? appointment.getPayment().getId() : null)
                 .build();
     }
 
@@ -125,7 +146,7 @@ public class AppointmentMapper {
                 .patientsId(appointment.getPatientsId())
                 .customerId(appointment.getCustomerId())
                 .replacementDoctorId(appointment.getReplacementDoctorId())
-                .billId(appointment.getBill() != null ? appointment.getBill().getId() : null)
+                .paymentId(appointment.getPayment() != null ? appointment.getPayment().getId() : null)
                 .serviceTimeFrameResponse(serviceTimeFrameResponse)
                 .build();
     }

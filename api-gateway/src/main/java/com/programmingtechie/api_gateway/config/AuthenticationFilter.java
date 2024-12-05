@@ -55,7 +55,9 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         "/medical/time-frame/public(/.*)?",
 
         // Appointment Service
-        "/appointment/public(/.*)?"
+        "/appointment/public(/.*)?",
+        "/appointment/payment/public(/.*)?"
+
     };
 
     @Value("${app.api-prefix}")

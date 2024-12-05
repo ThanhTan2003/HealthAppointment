@@ -1,4 +1,4 @@
-package com.programmingtechie.appointment_service.dto.response;
+package com.programmingtechie.appointment_service.dto.response.Payment;
 
 import java.time.LocalDateTime;
 
@@ -31,4 +31,6 @@ public class BillResponse {
     private String statusCheckout;
 
     private String appointmentId;
+
+    private String VNPayURL;
 }

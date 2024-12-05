@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.programmingtechie.appointment_service.dto.response.Payment.PaymentResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +44,12 @@ public class AppointmentController {
 
         // Trả về response với mã 500
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PostMapping("/register")
+    @PreAuthorize("hasRole('NguoiDung')")
+    public ResponseEntity<PaymentResponse> register(@RequestBody AppointmentRequest appointmentRequest, HttpServletRequest httpServletRequest) {
+        return ResponseEntity.ok(appointmentService.register(appointmentRequest, httpServletRequest));
     }
 
     @PostMapping("/create")

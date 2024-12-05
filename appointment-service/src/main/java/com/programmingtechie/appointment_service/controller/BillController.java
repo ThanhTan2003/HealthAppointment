@@ -4,17 +4,20 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.programmingtechie.appointment_service.dto.response.Payment.IpnResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
 import com.programmingtechie.appointment_service.dto.request.BillRequest;
-import com.programmingtechie.appointment_service.dto.response.BillResponse;
+import com.programmingtechie.appointment_service.dto.response.Payment.BillResponse;
 import com.programmingtechie.appointment_service.dto.response.PageResponse;
 import com.programmingtechie.appointment_service.service.BillService;
 
 import lombok.RequiredArgsConstructor;
+
+import static org.hibernate.query.sqm.tree.SqmNode.log;
 
 @RestController
 @RequestMapping("/api/v1/appointment/bill")

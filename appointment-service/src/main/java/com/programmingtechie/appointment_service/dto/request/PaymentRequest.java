@@ -1,8 +1,5 @@
 package com.programmingtechie.appointment_service.dto.request;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,13 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BillRequest {
-    private LocalDate date;
-
-    private String serviceTimeFrameId;
-
-    private String patientsId;
-
+public class PaymentRequest {
     private String customerId;
 
     private Integer orderNumber;
@@ -33,7 +24,5 @@ public class BillRequest {
 
     private Double paymentAmount;
 
-    private Integer status;
-
-    private LocalDateTime dateTime;
+    private AppointmentRequest appointmentRequest;
 }

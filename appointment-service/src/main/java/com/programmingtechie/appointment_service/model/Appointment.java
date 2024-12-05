@@ -16,7 +16,7 @@ import lombok.*;
 @Table(
         name = "appointment",
         indexes = {
-            @Index(name = "idx_bill", columnList = "bill_id"),
+            @Index(name = "idx_payment", columnList = "payment_id"),
             @Index(name = "idx_date", columnList = "date"),
             @Index(name = "idx_service_time_frame_date", columnList = "service_time_frame_id, date")
         })
@@ -56,8 +56,8 @@ public class Appointment {
     private String replacementDoctorId;
 
     @OneToOne
-    @JoinColumn(name = "bill_id", referencedColumnName = "id")
-    private Bill bill;
+    @JoinColumn(name = "payment_id", referencedColumnName = "id")
+    private Payment payment;
 
     @PrePersist
     private void ensureId() {

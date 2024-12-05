@@ -44,7 +44,7 @@ public class AppointmentResponse {
 
     private String replacementDoctorId;
 
-    private String billId;
+    private String paymentId;
 
     private ServiceTimeFrameInAppointmentResponse serviceTimeFrame;
 }

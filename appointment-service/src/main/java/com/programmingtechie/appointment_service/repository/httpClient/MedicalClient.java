@@ -34,6 +34,9 @@ public interface MedicalClient {
             @RequestParam LocalDate day,
             @RequestParam List<Integer> existingOrderNumbers);
 
+    @GetMapping("/service-time-frame/get-unit-price/{id}")
+    public Double getUnitPriceById(@PathVariable String id);
+
     @PostMapping(value = "/service-time-frame/get-by-ids", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ServiceTimeFrameInAppointmentResponse> getByIds(@RequestBody List<String> ids);
 

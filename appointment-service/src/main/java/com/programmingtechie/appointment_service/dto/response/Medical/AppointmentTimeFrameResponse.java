@@ -23,6 +23,6 @@ public class AppointmentTimeFrameResponse {
     private String patientsId;
     private String customerId;
     private String replacementDoctorId;
-    private String billId;
+    private String paymentId;
     private ServiceTimeFrameResponse serviceTimeFrameResponse;
 }

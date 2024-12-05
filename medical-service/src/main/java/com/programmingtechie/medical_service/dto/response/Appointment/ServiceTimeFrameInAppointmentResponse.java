@@ -26,6 +26,7 @@ public class ServiceTimeFrameInAppointmentResponse {
 
     private String timeFrameNameFullName;
     private String serviceName;
+    private Double unitPrice;
     private String doctorId;
     private String doctorQualificationName;
     private String doctorName;
