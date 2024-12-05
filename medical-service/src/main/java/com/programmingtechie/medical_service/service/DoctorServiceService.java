@@ -128,7 +128,8 @@ public class DoctorServiceService {
                     // Xử lý để ép kiểu về Double nếu giá trị là String hoặc Integer
                     if (value instanceof String) {
                         try {
-                            doctorService.setUnitPrice(Double.valueOf((String) value)); // Chuyển đổi từ String thành Double
+                            doctorService.setUnitPrice(
+                                    Double.valueOf((String) value)); // Chuyển đổi từ String thành Double
                         } catch (NumberFormatException e) {
                             throw new IllegalArgumentException("unitPrice phải là số hợp lệ");
                         }
@@ -151,7 +152,6 @@ public class DoctorServiceService {
         // Chuyển đổi thành DoctorServiceResponse và trả về
         return doctorServiceMapper.toDoctorServiceResponse(doctorService);
     }
-
 
     public void deleteDoctorService(String id) {
         DoctorService doctorService = doctorServiceRepository

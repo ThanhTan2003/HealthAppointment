@@ -6,17 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.programmingtechie.appointment_service.dto.request.*;
-import com.programmingtechie.appointment_service.dto.response.AppointmentCountResponse;
-import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
-import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameInAppointmentResponse;
-import com.programmingtechie.appointment_service.dto.response.Patient.PatientResponse;
-import com.programmingtechie.appointment_service.dto.response.Payment.PaymentResponse;
-import com.programmingtechie.appointment_service.repository.PaymentRepository;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -27,21 +19,28 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.programmingtechie.appointment_service.dto.request.*;
+import com.programmingtechie.appointment_service.dto.response.AppointmentCountResponse;
 import com.programmingtechie.appointment_service.dto.response.AppointmentResponse;
+import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
+import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameInAppointmentResponse;
 import com.programmingtechie.appointment_service.dto.response.PageResponse;
+import com.programmingtechie.appointment_service.dto.response.Patient.PatientResponse;
+import com.programmingtechie.appointment_service.dto.response.Payment.PaymentResponse;
 import com.programmingtechie.appointment_service.mapper.AppointmentMapper;
 import com.programmingtechie.appointment_service.model.Appointment;
 import com.programmingtechie.appointment_service.repository.AppointmentRepository;
 import com.programmingtechie.appointment_service.repository.httpClient.MedicalClient;
 import com.programmingtechie.appointment_service.repository.httpClient.PatientClient;
 
-import jakarta.persistence.criteria.Predicate;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 
 @Service
 @RequiredArgsConstructor
@@ -63,7 +62,7 @@ public class AppointmentService {
         String patientId = appointmentRequest.getPatientsId();
         String customerId = "";
         try {
-            //Boolean patientExists = patientClient.checkPatientExists(patientId);
+            // Boolean patientExists = patientClient.checkPatientExists(patientId);
             PatientResponse patientResponse = patientClient.getByPatientId(patientId);
 
             log.info("patientResponse: " + patientResponse);
@@ -81,8 +80,7 @@ public class AppointmentService {
                 if (id == null) {
                     throw new IllegalArgumentException("Không tìm thấy ID trong token!");
                 }
-                if(!id.equals(customerId))
-                    throw new IllegalArgumentException("Người dùng chưa được xác thực");
+                if (!id.equals(customerId)) throw new IllegalArgumentException("Người dùng chưa được xác thực");
             }
         } catch (IllegalArgumentException e) {
             log.error("Lỗi khi kiểm tra bệnh nhân: " + e.getMessage());
@@ -96,6 +94,11 @@ public class AppointmentService {
         LocalDate date = appointmentRequest.getDate();
         LocalDate today = LocalDate.now();
 
+        if (appointmentRepository.existsByPatientsIdAndServiceTimeFrameIdAndDate(patientId, serviceTimeFrameId, date)) {
+            throw new IllegalArgumentException(
+                    "Hồ sơ bệnh nhân này đã đặt lịch hẹn vào thời điểm này. Vui lòng chọn hồ sơ khác.");
+        }
+
         // Kiểm tra ngày hẹn hợp lệ
         if (date.isBefore(today.plusDays(1))) {
             throw new IllegalArgumentException("Ngày đăng ký lịch hẹn phải sau ít nhất 1 ngày so với ngày hiện tại.");
@@ -106,8 +109,10 @@ public class AppointmentService {
         }
 
         try {
-            List<Integer> existingOrderNumbers = appointmentRepository.findOrderNumbersByServiceTimeFrameIdAndDate(serviceTimeFrameId, date);
-            Integer nextOrderNumber = medicalClient.getNextAvailableOrderNumber(serviceTimeFrameId, date, existingOrderNumbers);
+            List<Integer> existingOrderNumbers =
+                    appointmentRepository.findOrderNumbersByServiceTimeFrameIdAndDate(serviceTimeFrameId, date);
+            Integer nextOrderNumber =
+                    medicalClient.getNextAvailableOrderNumber(serviceTimeFrameId, date, existingOrderNumbers);
             log.info("Next available order number: " + nextOrderNumber);
 
             if (nextOrderNumber == -1) {
@@ -164,8 +169,10 @@ public class AppointmentService {
 
             // Kiểm tra nếu message có dạng thông báo lỗi cụ thể
             if (e.getMessage() != null) {
-                // Trường hợp thông báo lỗi có chuỗi xác định như "Dịch vụ bác sĩ không tồn tại!"
-                if (e.getMessage().contains("Dịch vụ bác sĩ không tồn tại!") || e.getMessage().contains("Dịch vụ đã đủ đăng ký!")) {
+                // Trường hợp thông báo lỗi có chuỗi xác định như "Dịch vụ bác sĩ không tồn
+                // tại!"
+                if (e.getMessage().contains("Dịch vụ bác sĩ không tồn tại!")
+                        || e.getMessage().contains("Dịch vụ đã đủ đăng ký!")) {
                     throw new IllegalArgumentException(e.getMessage());
                 }
 
@@ -200,6 +207,14 @@ public class AppointmentService {
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy cuộc hẹn với ID: " + id));
         return appointmentMapper.toAppointmentResponse(appointment);
+    }
+
+    public List<String> getBookedPatientIds(List<String> patientsId, String serviceTimeFrameId, LocalDate date) {
+        return appointmentRepository
+                .findAllByPatientIdInAndServiceTimeFrameIdAndDate(patientsId, serviceTimeFrameId, date)
+                .stream()
+                .map(Appointment::getPatientsId)
+                .collect(Collectors.toList());
     }
 
     public AppointmentResponse updateAppointment(String id, AppointmentRequest appointmentRequest) {
@@ -247,7 +262,8 @@ public class AppointmentService {
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy cuộc hẹn với ID: " + id));
 
-        // Duyệt qua các cặp trường và giá trị trong `updates` để cập nhật thực thể `appointment`
+        // Duyệt qua các cặp trường và giá trị trong `updates` để cập nhật thực thể
+        // `appointment`
         for (Map.Entry<String, Object> entry : updates.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
@@ -308,9 +324,8 @@ public class AppointmentService {
                 .collect(Collectors.toList());
 
         // Lấy danh sách ServiceTimeFrameIds từ các AppointmentResponse
-        List<String> serviceTimeFrameIds = data.stream()
-                .map(AppointmentResponse::getServiceTimeFrameId)
-                .collect(Collectors.toList());
+        List<String> serviceTimeFrameIds =
+                data.stream().map(AppointmentResponse::getServiceTimeFrameId).collect(Collectors.toList());
 
         try {
             // Lấy thông tin ServiceTimeFrame từ MedicalClient
@@ -318,11 +333,13 @@ public class AppointmentService {
 
             // Tạo một map ánh xạ từ serviceTimeFrameId sang ServiceTimeFrame
             Map<String, ServiceTimeFrameInAppointmentResponse> serviceTimeFrameMap = serviceTimeFrames.stream()
-                    .collect(Collectors.toMap(ServiceTimeFrameInAppointmentResponse::getId, serviceTimeFrame -> serviceTimeFrame));
+                    .collect(Collectors.toMap(
+                            ServiceTimeFrameInAppointmentResponse::getId, serviceTimeFrame -> serviceTimeFrame));
 
             // Cập nhật thông tin ServiceTimeFrame vào mỗi AppointmentResponse
             data.forEach(item -> {
-                ServiceTimeFrameInAppointmentResponse serviceTimeFrame = serviceTimeFrameMap.get(item.getServiceTimeFrameId());
+                ServiceTimeFrameInAppointmentResponse serviceTimeFrame =
+                        serviceTimeFrameMap.get(item.getServiceTimeFrameId());
                 if (serviceTimeFrame != null) {
                     item.setServiceTimeFrame(serviceTimeFrame);
                 }
@@ -340,8 +357,6 @@ public class AppointmentService {
                 .data(data)
                 .build();
     }
-
-
 
     public PageResponse<AppointmentResponse> getAppointmentByPatientsId(String id, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -392,7 +407,8 @@ public class AppointmentService {
                 .build();
     }
 
-    // Tính tổng số lượng appointments từ một danh sách các cặp serviceTimeFrameId và date
+    // Tính tổng số lượng appointments từ một danh sách các cặp serviceTimeFrameId
+    // và date
     public List<AppointmentCountResponse> countAppointments(List<AppointmentCountRequest> request) {
         List<AppointmentCountResponse> responses = new ArrayList<>();
 
@@ -400,8 +416,8 @@ public class AppointmentService {
             long count = appointmentRepository.countByServiceTimeFrameIdAndDate(
                     item.getServiceTimeFrameId(), item.getDate());
 
-            AppointmentCountResponse response = new AppointmentCountResponse(
-                    item.getServiceTimeFrameId(), item.getDate(), count);
+            AppointmentCountResponse response =
+                    new AppointmentCountResponse(item.getServiceTimeFrameId(), item.getDate(), count);
 
             responses.add(response);
         }
@@ -432,7 +448,8 @@ public class AppointmentService {
                 predicates.add(criteriaBuilder.equal(root.get("patientsId"), request.getPatientsId()));
             }
             if (request.getReplacementDoctorId() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("replacementDoctorId"), request.getReplacementDoctorId()));
+                predicates.add(
+                        criteriaBuilder.equal(root.get("replacementDoctorId"), request.getReplacementDoctorId()));
             }
 
             // Nếu không có điều kiện nào, trả về true (kết quả hợp lệ)
@@ -512,7 +529,7 @@ public class AppointmentService {
         try {
             PatientResponse patientResponse = patientClient.getByPatientId(patientId);
 
-            //log.info("patientExists: " + patientExists);
+            // log.info("patientExists: " + patientExists);
 
             log.info("patientResponse: " + patientResponse);
             if (patientResponse == null) throw new IllegalArgumentException("Hồ sơ không hợp lệ!");
@@ -529,8 +546,7 @@ public class AppointmentService {
                 if (id == null) {
                     throw new IllegalArgumentException("Không tìm thấy ID trong token!");
                 }
-                if(!id.equals(customerId))
-                    throw new IllegalArgumentException("Người dùng chưa được xác thực");
+                if (!id.equals(customerId)) throw new IllegalArgumentException("Người dùng chưa được xác thực");
             }
         } catch (IllegalArgumentException e) {
             log.error("Lỗi khi kiểm tra bệnh nhân: " + e.getMessage());
@@ -554,8 +570,10 @@ public class AppointmentService {
         }
 
         try {
-            List<Integer> existingOrderNumbers = appointmentRepository.findOrderNumbersByServiceTimeFrameIdAndDate(serviceTimeFrameId, date);
-            Integer nextOrderNumber = medicalClient.getNextAvailableOrderNumber(serviceTimeFrameId, date, existingOrderNumbers);
+            List<Integer> existingOrderNumbers =
+                    appointmentRepository.findOrderNumbersByServiceTimeFrameIdAndDate(serviceTimeFrameId, date);
+            Integer nextOrderNumber =
+                    medicalClient.getNextAvailableOrderNumber(serviceTimeFrameId, date, existingOrderNumbers);
             log.info("Next available order number: " + nextOrderNumber);
 
             if (nextOrderNumber == -1) {
@@ -617,8 +635,10 @@ public class AppointmentService {
 
             // Kiểm tra nếu message có dạng thông báo lỗi cụ thể
             if (e.getMessage() != null) {
-                // Trường hợp thông báo lỗi có chuỗi xác định như "Dịch vụ bác sĩ không tồn tại!"
-                if (e.getMessage().contains("Dịch vụ bác sĩ không tồn tại!") || e.getMessage().contains("Dịch vụ đã đủ đăng ký!")) {
+                // Trường hợp thông báo lỗi có chuỗi xác định như "Dịch vụ bác sĩ không tồn
+                // tại!"
+                if (e.getMessage().contains("Dịch vụ bác sĩ không tồn tại!")
+                        || e.getMessage().contains("Dịch vụ đã đủ đăng ký!")) {
                     throw new IllegalArgumentException(e.getMessage());
                 }
 

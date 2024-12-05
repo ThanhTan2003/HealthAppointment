@@ -1,11 +1,25 @@
 package com.programmingtechie.appointment_service.service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.*;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import jakarta.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.programmingtechie.appointment_service.constant.VNPayIPNResponse;
 import com.programmingtechie.appointment_service.constant.VNPayParams;
 import com.programmingtechie.appointment_service.dto.request.AppointmentCreateRequest;
 import com.programmingtechie.appointment_service.dto.request.PaymentRequest;
 import com.programmingtechie.appointment_service.dto.request.VNPay.VNPayIPNRequest;
-import com.programmingtechie.appointment_service.dto.response.Payment.IpnResponse;
 import com.programmingtechie.appointment_service.dto.response.Payment.PaymentResponse;
 import com.programmingtechie.appointment_service.enums.PaymentStatus;
 import com.programmingtechie.appointment_service.mapper.AppointmentMapper;
@@ -15,23 +29,9 @@ import com.programmingtechie.appointment_service.model.Payment;
 import com.programmingtechie.appointment_service.repository.AppointmentRepository;
 import com.programmingtechie.appointment_service.repository.BillRepository;
 import com.programmingtechie.appointment_service.repository.PaymentRepository;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.*;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -65,7 +65,6 @@ public class PaymentService {
     @Value("${payment.vnpay.secret-key}")
     private String secretKey;
 
-
     String getIpAddress(HttpServletRequest request) {
         String ipAdress;
         try {
@@ -87,7 +86,7 @@ public class PaymentService {
         return String.format(returnUrlFormat, txnRef);
     }
 
-    private Double getPaymentAmount(PaymentRequest paymentRequest){
+    private Double getPaymentAmount(PaymentRequest paymentRequest) {
         Double unitPrice = paymentRequest.getUnitPrice();
         Double surcharge = paymentRequest.getSurcharge();
         Double discount = paymentRequest.getDiscount();
@@ -103,7 +102,8 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentResponse payment(PaymentRequest paymentRequest, HttpServletRequest httpServletRequest) throws UnsupportedEncodingException {
+    public PaymentResponse payment(PaymentRequest paymentRequest, HttpServletRequest httpServletRequest)
+            throws UnsupportedEncodingException {
         String ipAddress = getIpAddress(httpServletRequest);
 
         Double paymentAmount = getPaymentAmount(paymentRequest);
@@ -160,7 +160,8 @@ public class PaymentService {
         }
     }
 
-    public String getPaymentURL(Bill request, HttpServletRequest httpServletRequest) throws UnsupportedEncodingException {
+    public String getPaymentURL(Bill request, HttpServletRequest httpServletRequest)
+            throws UnsupportedEncodingException {
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
 
@@ -176,7 +177,7 @@ public class PaymentService {
         params.put(VNPayParams.TXN_REF, request.getId());
         params.put(VNPayParams.RETURN_URL, buildReturnUrl(request.getId()));
 
-        params.put(VNPayParams.CREATED_DATE,formatter.format(cld.getTime()));
+        params.put(VNPayParams.CREATED_DATE, formatter.format(cld.getTime()));
 
         cld.add(Calendar.MINUTE, paymentTimeout);
 
@@ -197,11 +198,11 @@ public class PaymentService {
             String fieldName = (String) itr.next();
             String fieldValue = (String) params.get(fieldName);
             if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                //Build hash data
+                // Build hash data
                 hashData.append(fieldName);
                 hashData.append('=');
                 hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
-                //Build query
+                // Build query
                 query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
                 query.append('=');
                 query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
@@ -247,7 +248,7 @@ public class PaymentService {
             var fieldName = itr.next();
             var fieldValue = params.get(fieldName);
             if ((fieldValue != null) && (!fieldValue.isEmpty())) {
-                //Build hash data
+                // Build hash data
                 hashPayload.append(fieldName);
                 hashPayload.append("=");
                 hashPayload.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
@@ -261,8 +262,7 @@ public class PaymentService {
         var secureHash = hmacSHA512(secretKey, hashPayload.toString());
         Boolean check = secureHash.equals(reqSecureHash);
 
-        if(!check)
-            throw new IllegalArgumentException("Yêu cầu không hợp lệ");
+        if (!check) throw new IllegalArgumentException("Yêu cầu không hợp lệ");
 
         Bill bill = billRepository.getById(vnPayIpnRequest.getVnp_TxnRef());
 
@@ -270,8 +270,7 @@ public class PaymentService {
 
         log.info("Trang thai: " + vnPayIpnRequest.getVnp_ResponseCode());
 
-        if(!Objects.equals(vnPayIpnRequest.getVnp_ResponseCode(), "00"))
-        {
+        if (!Objects.equals(vnPayIpnRequest.getVnp_ResponseCode(), "00")) {
             billService.deleteBill(bill.getId());
             log.info("Hoa don " + bill.getId() + " giao dich that bai! Da xoa");
             return;
@@ -309,15 +308,12 @@ public class PaymentService {
 
         log.info("Xao bill: " + bill.toString());
         billService.deleteBill(bill.getId());
-
     }
 
     @Transactional
-    public void createAppointmentAfterPayment(AppointmentCreateRequest appointmentCreateRequest)
-    {
+    public void createAppointmentAfterPayment(AppointmentCreateRequest appointmentCreateRequest) {
         Appointment appointment = appointmentMapper.toAppointmentEntity(appointmentCreateRequest);
         appointmentRepository.save(appointment);
         log.info("Them appointment moi thanh cong: " + appointment.toString());
     }
-
 }

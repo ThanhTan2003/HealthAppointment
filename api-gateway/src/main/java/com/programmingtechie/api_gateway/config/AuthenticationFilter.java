@@ -57,7 +57,6 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         // Appointment Service
         "/appointment/public(/.*)?",
         "/appointment/payment/public(/.*)?"
-
     };
 
     @Value("${app.api-prefix}")

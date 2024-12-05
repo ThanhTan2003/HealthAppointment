@@ -1,17 +1,16 @@
 package com.programmingtechie.appointment_service.controller;
 
-import com.programmingtechie.appointment_service.dto.response.Payment.IpnResponse;
-import com.programmingtechie.appointment_service.service.PaymentService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Map;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import com.programmingtechie.appointment_service.service.PaymentService;
 
-import static org.hibernate.query.sqm.tree.SqmNode.log;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/v1/appointment/payment")

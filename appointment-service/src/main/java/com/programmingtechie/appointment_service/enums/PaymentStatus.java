@@ -12,7 +12,7 @@ public enum PaymentStatus {
     REFUNDED(5, "Đã hoàn tiền"),
     CANCELLED(6, "Đã hủy thanh toán");
 
-    private final int value;   // Giá trị trạng thái
+    private final int value; // Giá trị trạng thái
     private final String name; // Tên trạng thái
 
     // Constructor

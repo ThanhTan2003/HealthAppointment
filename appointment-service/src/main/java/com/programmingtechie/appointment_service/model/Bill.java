@@ -16,8 +16,8 @@ import lombok.*;
 @Table(
         name = "bill",
         indexes = {
-                @Index(name = "idx_id", columnList = "id"),
-                @Index(name = "idx_appointment", columnList = "appointment_id")
+            @Index(name = "idx_id", columnList = "id"),
+            @Index(name = "idx_appointment", columnList = "appointment_id")
         })
 public class Bill {
     @Id

@@ -6,18 +6,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Random;
 
-import com.programmingtechie.appointment_service.dto.request.AppointmentCreateRequest;
-import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
-import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameResponse;
-import com.programmingtechie.appointment_service.model.Bill;
-import com.programmingtechie.appointment_service.model.Payment;
-import com.programmingtechie.appointment_service.repository.httpClient.MedicalClient;
 import org.springframework.stereotype.Component;
 
+import com.programmingtechie.appointment_service.dto.request.AppointmentCreateRequest;
 import com.programmingtechie.appointment_service.dto.request.AppointmentRequest;
 import com.programmingtechie.appointment_service.dto.response.AppointmentResponse;
+import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
+import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameResponse;
 import com.programmingtechie.appointment_service.model.Appointment;
 import com.programmingtechie.appointment_service.repository.AppointmentRepository;
+import com.programmingtechie.appointment_service.repository.httpClient.MedicalClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +42,6 @@ public class AppointmentMapper {
     }
 
     public Appointment toAppointmentEntity(AppointmentCreateRequest appointmentRequest) {
-
 
         // Chuyển đổi từ AppointmentRequest sang Appointmecnt entity
         return Appointment.builder()
@@ -110,7 +107,10 @@ public class AppointmentMapper {
                 .patientsId(appointment.getPatientsId())
                 .replacementDoctorId(appointment.getReplacementDoctorId())
                 .customerId(appointment.getCustomerId())
-                .paymentId(appointment.getPayment() != null ? appointment.getPayment().getId() : null)
+                .paymentId(
+                        appointment.getPayment() != null
+                                ? appointment.getPayment().getId()
+                                : null)
                 .build();
     }
 
@@ -124,7 +124,8 @@ public class AppointmentMapper {
         String formattedDate = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
         // Lấy tên ngày trong tuần (e.g. Thứ hai)
-        String dayOfWeek = date.getDayOfWeek().getDisplayName(java.time.format.TextStyle.FULL, Locale.forLanguageTag("vi"));
+        String dayOfWeek =
+                date.getDayOfWeek().getDisplayName(java.time.format.TextStyle.FULL, Locale.forLanguageTag("vi"));
 
         return dayOfWeek + " - " + formattedDate;
     }
@@ -146,7 +147,10 @@ public class AppointmentMapper {
                 .patientsId(appointment.getPatientsId())
                 .customerId(appointment.getCustomerId())
                 .replacementDoctorId(appointment.getReplacementDoctorId())
-                .paymentId(appointment.getPayment() != null ? appointment.getPayment().getId() : null)
+                .paymentId(
+                        appointment.getPayment() != null
+                                ? appointment.getPayment().getId()
+                                : null)
                 .serviceTimeFrameResponse(serviceTimeFrameResponse)
                 .build();
     }

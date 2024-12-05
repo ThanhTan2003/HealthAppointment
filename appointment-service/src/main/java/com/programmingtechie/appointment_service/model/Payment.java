@@ -1,10 +1,8 @@
 package com.programmingtechie.appointment_service.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import lombok.*;
 
 @Entity
 @Getter
@@ -15,8 +13,8 @@ import java.time.LocalDateTime;
 @Table(
         name = "payment",
         indexes = {
-                @Index(name = "idx_id", columnList = "id"),
-                @Index(name = "idx_appointment", columnList = "appointment_id")
+            @Index(name = "idx_id", columnList = "id"),
+            @Index(name = "idx_appointment", columnList = "appointment_id")
         })
 public class Payment {
     @Id
@@ -50,5 +48,4 @@ public class Payment {
     @ManyToOne
     @JoinColumn(name = "appointment_id", referencedColumnName = "id")
     private Appointment appointment;
-
 }

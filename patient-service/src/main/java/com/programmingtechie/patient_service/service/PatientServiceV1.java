@@ -1,9 +1,12 @@
 package com.programmingtechie.patient_service.service;
 
-import java.util.*;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,7 @@ import com.programmingtechie.patient_service.dto.response.PatientResponse;
 import com.programmingtechie.patient_service.mapper.PatientMapper;
 import com.programmingtechie.patient_service.model.Patient;
 import com.programmingtechie.patient_service.repository.PatientRepository;
+import com.programmingtechie.patient_service.repository.httpClient.AppointmentClient;
 import com.programmingtechie.patient_service.repository.httpClient.CustomerIdentityClient;
 
 import lombok.RequiredArgsConstructor;
@@ -32,6 +36,7 @@ public class PatientServiceV1 {
     final PatientRepository patientRepository;
     final PatientMapper patientMapper;
     final CustomerIdentityClient customerIdentityClient;
+    private final AppointmentClient appointmentClient;
 
     public PatientResponse createPatient(PatientCreationRequest patientRequest) {
         Patient patient = patientMapper.mapToPatientRequest(patientRequest);
@@ -143,6 +148,42 @@ public class PatientServiceV1 {
                     .build();
         }
 
+        throw new IllegalArgumentException("Principal không hợp lệ hoặc không phải là JWT");
+    }
+
+    public PageResponse<PatientResponse> getUnbookedPatientRecords(
+            String serviceTimeFrameId, LocalDate date, int page, int size) {
+        var context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("Người dùng chưa được xác thực");
+        }
+        if (authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+            String customerId = jwt.getClaim("id");
+            if (customerId == null) {
+                throw new IllegalArgumentException("Không tìm thấy ID trong token!");
+            }
+            Pageable pageable = PageRequest.of(page - 1, size);
+            Page<Patient> pageData = patientRepository.findPatientByCustomerId(customerId, pageable);
+            List<String> allPatientIds =
+                    pageData.getContent().stream().map(Patient::getId).collect(Collectors.toList());
+            // Gọi Appointment Service để lấy danh sách patientIds đã đặt lịch
+            List<String> bookedPatientIds =
+                    appointmentClient.getBookedPatientIds(allPatientIds, serviceTimeFrameId, date);
+            // Lọc những hồ sơ chưa đặt lịch
+            List<Patient> unbookedPatients = pageData.getContent().stream()
+                    .filter(patient -> !bookedPatientIds.contains(patient.getId()))
+                    .collect(Collectors.toList());
+            return PageResponse.<PatientResponse>builder()
+                    .currentPage(page)
+                    .pageSize(unbookedPatients.size())
+                    .totalPages(pageData.getTotalPages())
+                    .totalElements(unbookedPatients.size())
+                    .data(unbookedPatients.stream()
+                            .map(patientMapper::mapToPatientResponse)
+                            .collect(Collectors.toList()))
+                    .build();
+        }
         throw new IllegalArgumentException("Principal không hợp lệ hoặc không phải là JWT");
     }
 

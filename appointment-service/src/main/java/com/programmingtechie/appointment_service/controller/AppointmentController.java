@@ -6,8 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.programmingtechie.appointment_service.dto.response.Payment.PaymentResponse;
 import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +21,7 @@ import com.programmingtechie.appointment_service.dto.response.AppointmentCountRe
 import com.programmingtechie.appointment_service.dto.response.AppointmentResponse;
 import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
 import com.programmingtechie.appointment_service.dto.response.PageResponse;
+import com.programmingtechie.appointment_service.dto.response.Payment.PaymentResponse;
 import com.programmingtechie.appointment_service.service.AppointmentService;
 
 import lombok.RequiredArgsConstructor;
@@ -48,7 +49,8 @@ public class AppointmentController {
 
     @PostMapping("/register")
     @PreAuthorize("hasRole('NguoiDung')")
-    public ResponseEntity<PaymentResponse> register(@RequestBody AppointmentRequest appointmentRequest, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<PaymentResponse> register(
+            @RequestBody AppointmentRequest appointmentRequest, HttpServletRequest httpServletRequest) {
         return ResponseEntity.ok(appointmentService.register(appointmentRequest, httpServletRequest));
     }
 
@@ -90,6 +92,14 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.getMyAppointment(page, size));
     }
 
+    @GetMapping("/patient-exists")
+    public List<String> getBookedPatientIds(
+            @RequestParam List<String> patientsId,
+            @RequestParam String serviceTimeFrameId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return appointmentService.getBookedPatientIds(patientsId, serviceTimeFrameId, date);
+    }
+
     @PatchMapping("/{id}/update")
     @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
     public ResponseEntity<AppointmentResponse> updateAppointment(
@@ -118,7 +128,7 @@ public class AppointmentController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "status", defaultValue = "") String status,
-            @RequestParam(value = "id", defaultValue = "") String id){
+            @RequestParam(value = "id", defaultValue = "") String id) {
         return ResponseEntity.ok(appointmentService.getAllAppointments(page, size, status, id));
     }
 
@@ -139,7 +149,8 @@ public class AppointmentController {
         return ResponseEntity.ok(results);
     }
 
-    // API để tính tổng số lượng appointments từ một danh sách các cặp serviceTimeFrameId và date
+    // API để tính tổng số lượng appointments từ một danh sách các cặp
+    // serviceTimeFrameId và date
     @PostMapping("/public/count-appointments")
     public ResponseEntity<List<AppointmentCountResponse>> countAppointments(
             @RequestBody List<AppointmentCountRequest> request) {
@@ -161,42 +172,48 @@ public class AppointmentController {
 // @PutMapping("/update/{id}")
 // @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
 // public ResponseEntity<AppointmentResponse> updateAppointment(
-//        @PathVariable String id, @RequestBody AppointmentRequest appointmentRequest) {
-//    return ResponseEntity.ok(appointmentService.updateAppointment(id, appointmentRequest));
+// @PathVariable String id, @RequestBody AppointmentRequest appointmentRequest)
+// {
+// return ResponseEntity.ok(appointmentService.updateAppointment(id,
+// appointmentRequest));
 // }
 //
 // @PutMapping("/{id}/update-status")
 // @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
 // public ResponseEntity<AppointmentResponse> updateAppointmentStatus(
-//        @PathVariable String id, @RequestBody Map<String, String> request) {
-//    String status = request.get("status");
-//    AppointmentResponse response = appointmentService.updateAppointmentStatus(id, status);
-//    return ResponseEntity.ok(response);
+// @PathVariable String id, @RequestBody Map<String, String> request) {
+// String status = request.get("status");
+// AppointmentResponse response = appointmentService.updateAppointmentStatus(id,
+// status);
+// return ResponseEntity.ok(response);
 // }
 //
 // @PutMapping("/{id}/update-service-time-frame")
 // @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
 // public ResponseEntity<AppointmentResponse> updateServiceTimeFrameId(
-//        @PathVariable String id, @RequestBody Map<String, String> request) {
-//    String serviceTimeFrameId = request.get("serviceTimeFrameId");
-//    AppointmentResponse response = appointmentService.updateServiceTimeFrameId(id, serviceTimeFrameId);
-//    return ResponseEntity.ok(response);
+// @PathVariable String id, @RequestBody Map<String, String> request) {
+// String serviceTimeFrameId = request.get("serviceTimeFrameId");
+// AppointmentResponse response =
+// appointmentService.updateServiceTimeFrameId(id, serviceTimeFrameId);
+// return ResponseEntity.ok(response);
 // }
 //
 // @PutMapping("/{id}/update-replacement-doctor")
 // @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
 // public ResponseEntity<AppointmentResponse> updateReplacementDoctorId(
-//        @PathVariable String id, @RequestBody Map<String, String> request) {
-//    String replacementDoctorId = request.get("replacementDoctorId");
-//    AppointmentResponse response = appointmentService.updateReplacementDoctorId(id, replacementDoctorId);
-//    return ResponseEntity.ok(response);
+// @PathVariable String id, @RequestBody Map<String, String> request) {
+// String replacementDoctorId = request.get("replacementDoctorId");
+// AppointmentResponse response =
+// appointmentService.updateReplacementDoctorId(id, replacementDoctorId);
+// return ResponseEntity.ok(response);
 // }
 //
 // @PutMapping("/{id}/update-order-number")
 // @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
 // public ResponseEntity<AppointmentResponse> updateAppointmentOrderNumber(
-//        @PathVariable String id, @RequestBody Map<String, Integer> request) {
-//    Integer orderNumber = request.get("orderNumber");
-//    AppointmentResponse response = appointmentService.updateAppointmentOrderNumber(id, orderNumber);
-//    return ResponseEntity.ok(response);
+// @PathVariable String id, @RequestBody Map<String, Integer> request) {
+// Integer orderNumber = request.get("orderNumber");
+// AppointmentResponse response =
+// appointmentService.updateAppointmentOrderNumber(id, orderNumber);
+// return ResponseEntity.ok(response);
 // }

@@ -9,8 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInAppointmentResponse;
-import com.programmingtechie.medical_service.dto.response.ServiceResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
 import com.programmingtechie.medical_service.dto.request.ServiceTimeFrameRequest;
+import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInAppointmentResponse;
 import com.programmingtechie.medical_service.dto.response.PageResponse;
 import com.programmingtechie.medical_service.dto.response.ServiceTimeFrameResponse;
 import com.programmingtechie.medical_service.service.ServiceTimeFrameService;
@@ -153,13 +152,14 @@ public class ServiceTimeFrameController {
     public ResponseEntity<Integer> getNextAvailableOrderNumber(
             @PathVariable String serviceTimeFrameId,
             @RequestParam LocalDate day,
-            @RequestParam List<Integer> existingOrderNumbers){
+            @RequestParam List<Integer> existingOrderNumbers) {
 
         // Gọi Service để lấy số thứ tự tiếp theo
         LocalDate parsedDate;
-        Integer nextOrderNumber = serviceTimeFrameService.getNextAvailableOrderNumber(serviceTimeFrameId, day, existingOrderNumbers);
+        Integer nextOrderNumber =
+                serviceTimeFrameService.getNextAvailableOrderNumber(serviceTimeFrameId, day, existingOrderNumbers);
 
-        return ResponseEntity.ok(nextOrderNumber);  // Trả về số thứ tự tiếp theo
+        return ResponseEntity.ok(nextOrderNumber); // Trả về số thứ tự tiếp theo
     }
 
     @PostMapping("/get-by-ids")

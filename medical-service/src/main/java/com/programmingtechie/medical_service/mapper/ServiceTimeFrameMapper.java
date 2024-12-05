@@ -1,12 +1,12 @@
 package com.programmingtechie.medical_service.mapper;
 
-import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInAppointmentResponse;
-import com.programmingtechie.medical_service.dto.response.TimeFrameResponse;
 import org.springframework.stereotype.Component;
 
+import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInAppointmentResponse;
 import com.programmingtechie.medical_service.dto.response.DoctorServiceResponse;
 import com.programmingtechie.medical_service.dto.response.RoomResponse;
 import com.programmingtechie.medical_service.dto.response.ServiceTimeFrameResponse;
+import com.programmingtechie.medical_service.dto.response.TimeFrameResponse;
 import com.programmingtechie.medical_service.model.ServiceTimeFrame;
 
 import lombok.RequiredArgsConstructor;
@@ -41,7 +41,8 @@ public class ServiceTimeFrameMapper {
                 .build();
     }
 
-    public ServiceTimeFrameInAppointmentResponse toServiceTimeFrameInAppointmentResponse(ServiceTimeFrame serviceTimeFrame) {
+    public ServiceTimeFrameInAppointmentResponse toServiceTimeFrameInAppointmentResponse(
+            ServiceTimeFrame serviceTimeFrame) {
         DoctorServiceResponse doctorServiceResponse =
                 doctorServiceMapper.toDoctorServiceResponse(serviceTimeFrame.getDoctorService());
         RoomResponse roomResponse = roomMapper.toRoomResponse(serviceTimeFrame.getRoom());
@@ -58,7 +59,6 @@ public class ServiceTimeFrameMapper {
                 .status(serviceTimeFrame.getStatus())
                 .doctorServiceId(serviceTimeFrame.getDoctorService().getId())
                 .roomId(serviceTimeFrame.getRoom().getId())
-
                 .timeFrameNameFullName(timeFrameResponse.getFullName())
                 .serviceName(serviceTimeFrame.getDoctorService().getService().getName())
                 .unitPrice(serviceTimeFrame.getDoctorService().getUnitPrice())
