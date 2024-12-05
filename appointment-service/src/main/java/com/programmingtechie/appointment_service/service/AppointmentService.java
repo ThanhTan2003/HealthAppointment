@@ -25,7 +25,10 @@ import org.springframework.web.client.HttpServerErrorException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.programmingtechie.appointment_service.dto.request.*;
+import com.programmingtechie.appointment_service.dto.request.AppointmentCountRequest;
+import com.programmingtechie.appointment_service.dto.request.AppointmentRequest;
+import com.programmingtechie.appointment_service.dto.request.AppointmentSearchRequest;
+import com.programmingtechie.appointment_service.dto.request.PaymentRequest;
 import com.programmingtechie.appointment_service.dto.response.AppointmentCountResponse;
 import com.programmingtechie.appointment_service.dto.response.AppointmentResponse;
 import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
@@ -559,6 +562,11 @@ public class AppointmentService {
         String serviceTimeFrameId = appointmentRequest.getServiceTimeFrameId();
         LocalDate date = appointmentRequest.getDate();
         LocalDate today = LocalDate.now();
+
+        if (appointmentRepository.existsByPatientsIdAndServiceTimeFrameIdAndDate(patientId, serviceTimeFrameId, date)) {
+            throw new IllegalArgumentException(
+                    "Hồ sơ bệnh nhân này đã đặt lịch hẹn vào thời điểm này. Vui lòng chọn hồ sơ khác.");
+        }
 
         // Kiểm tra ngày hẹn hợp lệ
         if (date.isBefore(today.plusDays(1))) {
