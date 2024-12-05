@@ -88,6 +88,11 @@ public class AppointmentService {
         LocalDate date = appointmentRequest.getDate();
         LocalDate today = LocalDate.now();
 
+        if (appointmentRepository.existsByPatientsIdAndServiceTimeFrameIdAndDate(patientId, serviceTimeFrameId, date)) {
+            throw new IllegalArgumentException(
+                    "Hồ sơ bệnh nhân này đã đặt lịch hẹn vào thời điểm này. Vui lòng chọn hồ sơ khác.");
+        }
+
         // Kiểm tra ngày hẹn hợp lệ
         if (date.isBefore(today.plusDays(1))) {
             throw new IllegalArgumentException("Ngày đăng ký lịch hẹn phải sau ít nhất 1 ngày so với ngày hiện tại.");
@@ -158,7 +163,8 @@ public class AppointmentService {
 
             // Kiểm tra nếu message có dạng thông báo lỗi cụ thể
             if (e.getMessage() != null) {
-                // Trường hợp thông báo lỗi có chuỗi xác định như "Dịch vụ bác sĩ không tồn tại!"
+                // Trường hợp thông báo lỗi có chuỗi xác định như "Dịch vụ bác sĩ không tồn
+                // tại!"
                 if (e.getMessage().contains("Dịch vụ bác sĩ không tồn tại!")
                         || e.getMessage().contains("Dịch vụ đã đủ đăng ký!")) {
                     throw new IllegalArgumentException(e.getMessage());
@@ -195,6 +201,14 @@ public class AppointmentService {
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy cuộc hẹn với ID: " + id));
         return appointmentMapper.toAppointmentResponse(appointment);
+    }
+
+    public List<String> getBookedPatientIds(List<String> patientsId, String serviceTimeFrameId, LocalDate date) {
+        return appointmentRepository
+                .findAllByPatientIdInAndServiceTimeFrameIdAndDate(patientsId, serviceTimeFrameId, date)
+                .stream()
+                .map(Appointment::getPatientsId)
+                .collect(Collectors.toList());
     }
 
     public AppointmentResponse updateAppointment(String id, AppointmentRequest appointmentRequest) {
@@ -242,7 +256,8 @@ public class AppointmentService {
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy cuộc hẹn với ID: " + id));
 
-        // Duyệt qua các cặp trường và giá trị trong `updates` để cập nhật thực thể `appointment`
+        // Duyệt qua các cặp trường và giá trị trong `updates` để cập nhật thực thể
+        // `appointment`
         for (Map.Entry<String, Object> entry : updates.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
@@ -350,7 +365,8 @@ public class AppointmentService {
                 .build();
     }
 
-    // Tính tổng số lượng appointments từ một danh sách các cặp serviceTimeFrameId và date
+    // Tính tổng số lượng appointments từ một danh sách các cặp serviceTimeFrameId
+    // và date
     public List<AppointmentCountResponse> countAppointments(List<AppointmentCountRequest> request) {
         List<AppointmentCountResponse> responses = new ArrayList<>();
 

@@ -28,8 +28,22 @@ public interface AppointmentRepository
     Page<Appointment> findByCustomerId(String customerId, Pageable pageable);
 
     Page<Appointment> findByCustomerIdAndPatientsId(String customerId, String patientId, Pageable pageable);
-}
 
+    @Query(
+            "SELECT COUNT(a) > 0 FROM Appointment a WHERE a.patientsId = :patientsId AND a.serviceTimeFrameId = :serviceTimeFrameId AND a.date = :date")
+    boolean existsByPatientsIdAndServiceTimeFrameIdAndDate(
+            @Param("patientsId") String patientsId,
+            @Param("serviceTimeFrameId") String serviceTimeFrameId,
+            @Param("date") LocalDate date);
+
+    @Query(
+            "SELECT a FROM Appointment a WHERE a.patientsId IN :patientIds AND a.serviceTimeFrameId = :serviceTimeFrameId AND a.date = :date")
+    List<Appointment> findAllByPatientIdInAndServiceTimeFrameIdAndDate(
+            @Param("patientIds") List<String> patientIds,
+            @Param("serviceTimeFrameId") String serviceTimeFrameId,
+            @Param("date") LocalDate date);
+}
 // JpaSpecificationExecutor là một interface trong Spring Data JPA,
-// được sử dụng để hỗ trợ tìm kiếm linh hoạt (dynamic queries) dựa trên các điều kiện được định nghĩa bằng
+// được sử dụng để hỗ trợ tìm kiếm linh hoạt (dynamic queries) dựa trên các điều
+// kiện được định nghĩa bằng
 // Specification

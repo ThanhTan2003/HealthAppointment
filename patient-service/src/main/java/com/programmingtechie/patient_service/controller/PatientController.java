@@ -1,5 +1,8 @@
 package com.programmingtechie.patient_service.controller;
 
+import java.time.LocalDate;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -80,6 +83,17 @@ public class PatientController {
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         return patientServiceV1.getMyPatientRecord(page, size);
+    }
+
+    @GetMapping("/customer/unbooked-patient-details")
+    @PreAuthorize(
+            "hasRole('QuanTriVienHeThong') or hasRole('NguoiDung') or returnObject.email == authentication.principal.claims['email']")
+    public PageResponse<PatientResponse> getUnbookedPatientRecords(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+            @RequestParam String serviceTimeFrameId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return patientServiceV1.getUnbookedPatientRecords(serviceTimeFrameId, date, page, size);
     }
 
     @GetMapping("/customer/patient-details/{customerId}")
