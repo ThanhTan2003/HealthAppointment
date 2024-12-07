@@ -15,6 +15,8 @@ public class PaymentResponse {
 
     private PaymentRequest paymentRequest;
 
+    private String billId;
+
     private String ipAddress;
 
     private String VNPayURL;

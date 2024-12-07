@@ -146,6 +146,7 @@ public class PaymentService {
 
         PaymentResponse paymentResponse = PaymentResponse.builder()
                 .paymentRequest(paymentRequest)
+                .billId(bill.getId())
                 .ipAddress(ipAddress)
                 .VNPayURL(paymentURL)
                 .build();
