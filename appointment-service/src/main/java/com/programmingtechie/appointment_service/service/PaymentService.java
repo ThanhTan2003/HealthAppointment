@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import javax.crypto.Mac;
@@ -76,6 +77,20 @@ public class PaymentService {
             ipAdress = "Invalid IP:" + e.getMessage();
         }
         return ipAdress;
+    }
+
+    public String getRandomNumber(int len) {
+        Random rnd = new Random();
+        String chars = "0123456789";
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; i++) {
+            sb.append(chars.charAt(rnd.nextInt(chars.length())));
+        }
+        Boolean exists = paymentRepository.existsByIdAndDate(sb.toString(), LocalDate.now());
+        if (!exists) return sb.toString();
+
+        log.info("Ma bill: " + sb);
+        return getRandomNumber(len);
     }
 
     private String buildPaymentDetail(String id) {
@@ -283,8 +298,8 @@ public class PaymentService {
                 .totalAmount(bill.getTotalAmount())
                 .discount(bill.getDiscount())
                 .paymentAmount(bill.getPaymentAmount())
-                .transactionNo(bill.getTransactionNo())
-                .responseCode(bill.getResponseCode())
+                .transactionNo(vnPayIpnRequest.getVnp_TransactionNo())
+                .responseCode(vnPayIpnRequest.getVnp_ResponseCode())
                 .transactionStatus(bill.getTransactionStatus())
                 .build();
 
@@ -296,7 +311,8 @@ public class PaymentService {
                 .date(bill.getDate())
                 .orderNumber(bill.getOrderNumber())
                 .serviceTimeFrameId(bill.getServiceTimeFrameId())
-                .patientsId(bill.getCustomerId())
+                .patientsId(bill.getPatientsId())
+                .customerId(bill.getCustomerId())
                 .payment(payment)
                 .build();
 

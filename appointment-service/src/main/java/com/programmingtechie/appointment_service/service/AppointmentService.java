@@ -39,6 +39,7 @@ import com.programmingtechie.appointment_service.dto.response.Payment.PaymentRes
 import com.programmingtechie.appointment_service.mapper.AppointmentMapper;
 import com.programmingtechie.appointment_service.model.Appointment;
 import com.programmingtechie.appointment_service.repository.AppointmentRepository;
+import com.programmingtechie.appointment_service.repository.BillRepository;
 import com.programmingtechie.appointment_service.repository.httpClient.MedicalClient;
 import com.programmingtechie.appointment_service.repository.httpClient.PatientClient;
 
@@ -50,6 +51,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
+    private final BillRepository billRepository;
 
     private final AppointmentMapper appointmentMapper;
 
@@ -96,6 +98,11 @@ public class AppointmentService {
         String serviceTimeFrameId = appointmentRequest.getServiceTimeFrameId();
         LocalDate date = appointmentRequest.getDate();
         LocalDate today = LocalDate.now();
+
+        if (billRepository.existsByPatientsIdAndServiceTimeFrameIdAndDate(patientId, serviceTimeFrameId, date)) {
+            throw new IllegalArgumentException(
+                    "Hồ sơ bệnh nhân này đã đặt lịch hẹn vào thời điểm này. Vui lòng chọn hồ sơ khác.");
+        }
 
         if (appointmentRepository.existsByPatientsIdAndServiceTimeFrameIdAndDate(patientId, serviceTimeFrameId, date)) {
             throw new IllegalArgumentException(
@@ -209,7 +216,36 @@ public class AppointmentService {
         Appointment appointment = appointmentRepository
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy cuộc hẹn với ID: " + id));
-        return appointmentMapper.toAppointmentResponse(appointment);
+
+        AppointmentResponse appointmentResponse = appointmentMapper.toAppointmentResponse(appointment);
+
+        List<String> ids = new ArrayList<>();
+
+        ids.add(appointmentResponse.getServiceTimeFrameId());
+
+        List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrame = medicalClient.getByIds(ids);
+
+        if (serviceTimeFrame != null) appointmentResponse.setServiceTimeFrame(serviceTimeFrame.get(0));
+
+        return appointmentResponse;
+    }
+
+    public AppointmentResponse getAppointmentByPaymentId(String id) {
+        Appointment appointment = appointmentRepository
+                .findByPaymentId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy cuộc hẹn với ID hóa đơn: " + id));
+
+        AppointmentResponse appointmentResponse = appointmentMapper.toAppointmentResponse(appointment);
+
+        List<String> ids = new ArrayList<>();
+
+        ids.add(appointmentResponse.getServiceTimeFrameId());
+
+        List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrame = medicalClient.getByIds(ids);
+
+        if (serviceTimeFrame != null) appointmentResponse.setServiceTimeFrame(serviceTimeFrame.get(0));
+
+        return appointmentResponse;
     }
 
     public List<String> getBookedPatientIds(List<String> patientsId, String serviceTimeFrameId, LocalDate date) {
@@ -674,5 +710,14 @@ public class AppointmentService {
                 throw new IllegalArgumentException("Đã xảy ra lỗi khi tạo lịch hẹn. Vui lòng kiểm tra lại");
             }
         }
+    }
+
+    public AppointmentResponse confirmAppointment(String id) {
+        Appointment appointment = appointmentRepository
+                .findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy cuộc hẹn với ID: " + id));
+        appointment.setStatus("Đã xác nhận");
+        appointment = appointmentRepository.save(appointment);
+        return appointmentMapper.toAppointmentResponse(appointment);
     }
 }

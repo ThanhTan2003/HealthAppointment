@@ -99,6 +99,7 @@ public class AppointmentMapper {
                 .dateTime(appointment.getDateTime())
                 .date(appointment.getDate())
                 .dateName(appointment.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
+                .dateFullName(getFormattedDateName(appointment.getDate()))
                 .status(appointment.getStatus())
                 .orderNumber(appointment.getOrderNumber())
                 .lastUpdated(appointment.getLastUpdated())
@@ -134,8 +135,12 @@ public class AppointmentMapper {
         if (appointment == null) {
             throw new IllegalArgumentException("Appointment không được null");
         }
-        ServiceTimeFrameResponse serviceTimeFrameResponse =
-                medicalClient.getAppointmentTimeFrame(appointment.getServiceTimeFrameId());
+        ServiceTimeFrameResponse serviceTimeFrameResponse = null;
+        try {
+            serviceTimeFrameResponse = medicalClient.getAppointmentTimeFrame(appointment.getServiceTimeFrameId());
+        } catch (Exception e) {
+            log.info("Lỗi giao tiếp đến Medical service: " + e.getMessage());
+        }
         return AppointmentTimeFrameResponse.builder()
                 .id(appointment.getId())
                 .dateTime(appointment.getDateTime())

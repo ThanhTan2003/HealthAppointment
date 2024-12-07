@@ -66,6 +66,12 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.getAppointmentById(id));
     }
 
+    @GetMapping("/payment-id/{id}")
+    @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc') or hasRole('NguoiDung')")
+    public ResponseEntity<AppointmentResponse> getAppointmentByPaymentId(@PathVariable String id) {
+        return ResponseEntity.ok(appointmentService.getAppointmentByPaymentId(id));
+    }
+
     @GetMapping("/patients-id/{id}")
     @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc') or hasRole('NguoiDung')")
     public ResponseEntity<PageResponse<AppointmentResponse>> getAppointmentByPatientsId(
@@ -105,6 +111,13 @@ public class AppointmentController {
     public ResponseEntity<AppointmentResponse> updateAppointment(
             @PathVariable String id, @RequestBody Map<String, Object> updates) {
         AppointmentResponse response = appointmentService.updateAppointment(id, updates);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/confirm")
+    @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
+    public ResponseEntity<AppointmentResponse> confirmAppointment(@PathVariable String id) {
+        AppointmentResponse response = appointmentService.confirmAppointment(id);
         return ResponseEntity.ok(response);
     }
 

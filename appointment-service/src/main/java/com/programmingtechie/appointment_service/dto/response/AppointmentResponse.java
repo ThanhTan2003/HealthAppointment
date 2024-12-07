@@ -23,6 +23,8 @@ public class AppointmentResponse {
 
     private String dateName;
 
+    private String dateFullName;
+
     private String status;
 
     private Integer orderNumber;
@@ -30,12 +32,6 @@ public class AppointmentResponse {
     private LocalDateTime lastUpdated;
 
     private String serviceTimeFrameId;
-
-    private String timeFrameFullName;
-
-    private String serviceName;
-
-    private String doctorName;
 
     private String medicalRecordsId;
 

@@ -1,5 +1,7 @@
 package com.programmingtechie.appointment_service.model;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.*;
 
 import lombok.*;
@@ -20,6 +22,9 @@ public class Payment {
     @Id
     @Column(name = "id", nullable = false, length = 36)
     private String id;
+
+    @Column(name = "date")
+    private LocalDate date;
 
     @Column(name = "unit_price")
     private Double unitPrice;
