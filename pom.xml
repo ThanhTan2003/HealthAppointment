@@ -23,13 +23,13 @@
 	</developers>
     <modules>
 		<module>api-gateway</module>
-
 		<module>doctor-service</module>
 		<module>patient-service</module>
 		<module>medical-service</module>
 		<module>appointment-service</module>
-
+		<module>notification-service</module>
 		<module>identity-service</module>
+		<module>HIS</module>
 	</modules>
     <scm>
 		<connection/>
@@ -89,9 +89,25 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>io.github.cdimascio</groupId>
 			<artifactId>dotenv-java</artifactId>
 			<version>3.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-tracing-bridge-otel</artifactId>
+		</dependency>
+
+		<!-- OpenTelemetry OTLP exporter -->
+		<dependency>
+			<groupId>io.opentelemetry</groupId>
+			<artifactId>opentelemetry-exporter-otlp</artifactId>
 		</dependency>
 	</dependencies>
 

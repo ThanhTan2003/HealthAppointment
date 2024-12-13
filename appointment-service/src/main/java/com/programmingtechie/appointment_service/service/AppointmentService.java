@@ -1,15 +1,19 @@
 package com.programmingtechie.appointment_service.service;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.appointment_service.dto.response.AppointmentSyncResponse;
+import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameInSyncResponse;
+import com.programmingtechie.appointment_service.repository.httpClient.HisClient;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -46,6 +50,9 @@ import com.programmingtechie.appointment_service.repository.httpClient.PatientCl
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -61,6 +68,35 @@ public class AppointmentService {
 
     final PatientClient patientClient;
     final MedicalClient medicalClient;
+    final HisClient hisClient;
+
+    @Value("${appointment.secretKey}")
+    private String appointmentSecretKey;
+
+    public String generateHmac(String message, String secretKey) throws Exception {
+        Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        sha256Hmac.init(secretKeySpec);
+        byte[] hashBytes = sha256Hmac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(hashBytes); // Trả về chuỗi base64 của HMAC SHA-256
+    }
+
+    public boolean verifyHmac(String message, String receivedHmac, String secretKey) throws Exception {
+        String generatedHmac = generateHmac(message, secretKey);
+        return generatedHmac.equals(receivedHmac); // So sánh HMAC đã gửi với HMAC đã tạo
+    }
+
+    public String createMessage(List<String> params) {
+        StringBuilder messageBuilder = new StringBuilder();
+
+        for (int i = 0; i < params.size(); i++) {
+            messageBuilder.append(params.get(i));
+            if (i < params.size() - 1) {
+                messageBuilder.append(",");
+            }
+        }
+        return messageBuilder.toString();
+    }
 
     @Transactional
     public AppointmentResponse createAppointment(AppointmentRequest appointmentRequest) {
@@ -719,5 +755,265 @@ public class AppointmentService {
         appointment.setStatus("Đã xác nhận");
         appointment = appointmentRepository.save(appointment);
         return appointmentMapper.toAppointmentResponse(appointment);
+    }
+
+
+    public PaymentResponse createAppointment1(AppointmentRequest appointmentRequest, HttpServletRequest httpServletRequest) {
+        //createAppointment(appointmentRequest);
+
+        String patientId = appointmentRequest.getPatientsId();
+        String customerId = "";
+        try {
+            PatientResponse patientResponse = patientClient.getByPatientId(patientId);
+
+            // log.info("patientExists: " + patientExists);
+
+            log.info("patientResponse: " + patientResponse);
+            if (patientResponse == null) throw new IllegalArgumentException("Hồ sơ không hợp lệ!");
+            customerId = patientResponse.getCustomerId();
+
+            var context = SecurityContextHolder.getContext();
+            Authentication authentication = context.getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                throw new IllegalArgumentException("Người dùng chưa được xác thực");
+            }
+            if (authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+                // Lấy thông tin từ Jwt
+                String id = jwt.getClaim("id");
+                if (id == null) {
+                    throw new IllegalArgumentException("Không tìm thấy ID trong token!");
+                }
+                if (!id.equals(customerId)) throw new IllegalArgumentException("Người dùng chưa được xác thực");
+            }
+        } catch (IllegalArgumentException e) {
+            log.error("Lỗi khi kiểm tra bệnh nhân: " + e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
+        } catch (Exception e) {
+            log.error("Lỗi kết nối đến Patient Service: " + e.getMessage());
+            throw new IllegalArgumentException("Đã xảy ra lỗi. Vui lòng thử lại sau!");
+        }
+
+        String serviceTimeFrameId = appointmentRequest.getServiceTimeFrameId();
+        LocalDate date = appointmentRequest.getDate();
+        LocalDate today = LocalDate.now();
+
+        if (appointmentRepository.existsByPatientsIdAndServiceTimeFrameIdAndDate(patientId, serviceTimeFrameId, date)) {
+            throw new IllegalArgumentException(
+                    "Hồ sơ bệnh nhân này đã đặt lịch hẹn vào thời điểm này. Vui lòng chọn hồ sơ khác.");
+        }
+
+        // Kiểm tra ngày hẹn hợp lệ
+        if (date.isBefore(today.plusDays(1))) {
+            throw new IllegalArgumentException("Ngày đăng ký lịch hẹn phải sau ít nhất 1 ngày so với ngày hiện tại.");
+        }
+
+        if (date.isAfter(today.plusMonths(1))) {
+            throw new IllegalArgumentException("Ngày đăng ký lịch hẹn không được quá 1 tháng kể từ ngày hiện tại.");
+        }
+
+        try {
+            List<Integer> existingOrderNumbers =
+                    appointmentRepository.findOrderNumbersByServiceTimeFrameIdAndDate(serviceTimeFrameId, date);
+            Integer nextOrderNumber =
+                    medicalClient.getNextAvailableOrderNumber(serviceTimeFrameId, date, existingOrderNumbers);
+            log.info("Next available order number: " + nextOrderNumber);
+
+            if (nextOrderNumber == -1) {
+                throw new IllegalArgumentException("Dịch vụ bác sĩ không tồn tại!");
+            } else if (nextOrderNumber == 0) {
+                throw new IllegalArgumentException("Dịch vụ đã đủ đăng ký!");
+            }
+
+            Double unitPrice = medicalClient.getUnitPriceById(appointmentRequest.getServiceTimeFrameId());
+
+            // Đăng ký và yêu cầu thanh toán
+            PaymentRequest paymentRequest = PaymentRequest.builder()
+                    .customerId(customerId)
+                    .unitPrice(unitPrice)
+                    .orderNumber(nextOrderNumber)
+                    .appointmentRequest(appointmentRequest)
+                    .build();
+
+            log.info("(paymentRequest: " + paymentRequest.toString());
+            return paymentService.payment(paymentRequest, httpServletRequest);
+
+        } catch (HttpClientErrorException e) {
+            // Lỗi client (4xx)
+            log.error("Lỗi từ client: " + e.getMessage());
+            log.error("Full error response: " + e.getResponseBodyAsString());
+
+            try {
+                // Trích xuất thông báo lỗi từ JSON
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode errorJson = objectMapper.readTree(e.getResponseBodyAsString());
+                String errorMessage = errorJson.path("message").asText();
+
+                log.error("Thông báo lỗi từ client: " + errorMessage);
+                throw new IllegalArgumentException(errorMessage); // Ném thông báo lỗi chi tiết
+            } catch (JsonProcessingException ex) {
+                log.error("Không thể trích xuất thông báo lỗi từ JSON: " + ex.getMessage());
+                throw new IllegalArgumentException("Đã xảy ra lỗi khi tạo lịch hẹn.");
+            }
+        } catch (HttpServerErrorException e) {
+            // Lỗi server (5xx)
+            log.error("Lỗi từ server: " + e.getMessage());
+            log.error("Full error response: " + e.getResponseBodyAsString());
+
+            try {
+                // Trích xuất thông báo lỗi từ JSON nếu có
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode errorJson = objectMapper.readTree(e.getResponseBodyAsString());
+                String errorMessage = errorJson.path("message").asText();
+
+                log.error("Thông báo lỗi từ server: " + errorMessage);
+                throw new IllegalArgumentException("Lỗi từ dịch vụ. Vui lòng thử lại sau.");
+            } catch (JsonProcessingException ex) {
+                log.error("Không thể trích xuất thông báo lỗi từ JSON: " + ex.getMessage());
+                throw new IllegalArgumentException("Lỗi từ dịch vụ. Vui lòng thử lại sau.");
+            }
+        } catch (Exception e) {
+            // In log lỗi chung
+            log.error("Lỗi khi tạo lịch hẹn: " + e.getMessage());
+
+            // Kiểm tra nếu message có dạng thông báo lỗi cụ thể
+            if (e.getMessage() != null) {
+                // Trường hợp thông báo lỗi có chuỗi xác định như "Dịch vụ bác sĩ không tồn
+                // tại!"
+                if (e.getMessage().contains("Dịch vụ bác sĩ không tồn tại!")
+                        || e.getMessage().contains("Dịch vụ đã đủ đăng ký!")) {
+                    throw new IllegalArgumentException(e.getMessage());
+                }
+
+                // Trường hợp thông báo lỗi có định dạng JSON
+                try {
+                    // Phân tích lỗi JSON để lấy thông báo cụ thể từ trường "message"
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    JsonNode errorJson = objectMapper.readTree(e.getMessage());
+                    String errorMessage = errorJson.path("message").asText();
+
+                    // Ném lại thông báo lỗi đã trích xuất từ JSON
+                    if (!errorMessage.isEmpty()) {
+                        throw new IllegalArgumentException(errorMessage);
+                    } else {
+                        // Nếu không tìm thấy message trong JSON, ném lỗi mặc định
+                        throw new IllegalArgumentException("Đã xảy ra lỗi khi tạo lịch hẹn. Vui lòng kiểm tra lại");
+                    }
+                } catch (JsonProcessingException ex) {
+                    log.error("Không thể trích xuất thông báo lỗi từ JSON: " + ex.getMessage());
+                    throw new IllegalArgumentException("Lỗi từ dịch vụ. Vui lòng thử lại sau.");
+                }
+            } else {
+                // Nếu không có message hoặc không xác định được thông báo
+                log.error("Thông báo lỗi không rõ ràng hoặc không có thông báo lỗi.");
+                throw new IllegalArgumentException("Đã xảy ra lỗi khi tạo lịch hẹn. Vui lòng kiểm tra lại");
+            }
+        }
+    }
+
+
+    public PageResponse<AppointmentSyncResponse> getAppointmentsForHIS(
+            LocalDateTime startDate,
+            LocalDateTime endDate,
+            LocalDateTime expiryDateTime,
+            Integer page,
+            Integer size,
+            String hmac) {
+
+        // Kiểm tra nếu expiryDateTime đã qua thời gian hiện tại
+        if (expiryDateTime.isBefore(LocalDateTime.now())) {
+            log.error("Request expired! Expiry time: " + expiryDateTime + " Current time: " + LocalDateTime.now());
+            throw new IllegalArgumentException("Yêu cầu đã quá hạn!");
+        }
+
+        // Kiểm tra page có hợp lệ không
+        if (page <= 0) {
+            throw new IllegalArgumentException("Page must be greater than 0.");
+        }
+
+        // Tạo params và message
+        List<String> params = new ArrayList<>();
+        params.add(startDate.toString());
+        params.add(endDate.toString());
+        params.add(expiryDateTime.toString());
+        params.add(page.toString());
+        params.add(size.toString());
+
+        String message = createMessage(params);
+
+        // Kiểm tra HMAC
+        Boolean isCkeck = false;
+        try {
+            isCkeck = verifyHmac(message, hmac, appointmentSecretKey);
+        } catch (Exception e) {
+            log.error("Error verifying HMAC: ", e);
+            throw new IllegalArgumentException("Xác thực HMAC không thành công.");
+        }
+
+        log.info("Ket qua xac thuc: " + isCkeck);
+        if (!isCkeck) {
+            throw new IllegalArgumentException("Xác thực HMAC không thành công.");
+        }
+
+        // Khởi tạo Pageable
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        // Lấy danh sách các Appointment thỏa mãn điều kiện
+        Page<Appointment> appointments = appointmentRepository.findByStatusAndLastUpdatedBetween(startDate, endDate, pageable);
+
+        // Chuyển đổi Appointment thành AppointmentSyncResponse
+        List<AppointmentSyncResponse> data = appointments.stream()
+                .map(appointmentMapper::toAppointmentSyncResponse)
+                .collect(Collectors.toList());
+
+
+
+        List<String> serviceTimeFrameIds = new ArrayList<>();
+
+        for (Appointment item : appointments) {
+            serviceTimeFrameIds.add(item.getServiceTimeFrameId());
+        }
+
+        // Loại bỏ giá trị trùng lặp bằng cách chuyển List thành Set và sau đó chuyển lại thành List
+        serviceTimeFrameIds = new ArrayList<>(new HashSet<>(serviceTimeFrameIds));
+
+        // Lấy thông tin ServiceTimeFrame từ medicalClient
+        List<ServiceTimeFrameInSyncResponse> serviceTimeFrameInSyncResponses = medicalClient.getByIdsPublic(serviceTimeFrameIds);
+
+        // Tạo một Map từ ServiceTimeFrameInSyncResponse để tìm kiếm nhanh
+        Map<String, ServiceTimeFrameInSyncResponse> serviceTimeFrameMap = serviceTimeFrameInSyncResponses.stream()
+                .collect(Collectors.toMap(ServiceTimeFrameInSyncResponse::getId, item -> item));
+
+        for (int i = 0; i < data.size(); i++) {
+            AppointmentSyncResponse appointmentSyncResponse = data.get(i);
+
+            // Nếu serviceTimeFrameId có trong Appointment gốc
+            String serviceTimeFrameId = appointments.getContent().get(i).getServiceTimeFrameId();
+            ServiceTimeFrameInSyncResponse serviceTimeFrame = serviceTimeFrameMap.get(serviceTimeFrameId);
+
+            if (serviceTimeFrame != null) {
+                appointmentSyncResponse.setRoomId(serviceTimeFrame.getRoomId());
+                appointmentSyncResponse.setServiceId(serviceTimeFrame.getServiceId());
+                appointmentSyncResponse.setDoctorId(serviceTimeFrame.getDoctorId());
+            }
+        }
+
+
+        // Log thông tin về dữ liệu
+        log.info("Total appointments: " + data.size());
+        log.info("Total pages: " + appointments.getTotalPages());
+
+        // Trả về PageResponse
+        return PageResponse.<AppointmentSyncResponse>builder()
+                .currentPage(page)
+                .pageSize(size)
+                .totalPages(appointments.getTotalPages())
+                .totalElements(appointments.getTotalElements())
+                .data(data)
+                .build();
+    }
+
+
+
+    public void syncAppointmentsFromHIS() {
     }
 }

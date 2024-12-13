@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.programmingtechie.appointment_service.dto.response.AppointmentSyncResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -58,6 +59,12 @@ public class AppointmentController {
     @PreAuthorize("hasRole('NguoiDung')")
     public ResponseEntity<AppointmentResponse> createAppointment(@RequestBody AppointmentRequest appointmentRequest) {
         return ResponseEntity.ok(appointmentService.createAppointment(appointmentRequest));
+    }
+
+    @PostMapping("/create1")
+    @PreAuthorize("hasRole('NguoiDung')")
+    public ResponseEntity<PaymentResponse> createAppointment1(@RequestBody AppointmentRequest appointmentRequest, HttpServletRequest httpServletRequest) {
+        return ResponseEntity.ok(appointmentService.createAppointment1(appointmentRequest, httpServletRequest));
     }
 
     @GetMapping("/id/{id}")
@@ -180,53 +187,30 @@ public class AppointmentController {
         AppointmentCountResponse response = appointmentService.countAppointmentsByParams(serviceTimeFrameId, date);
         return ResponseEntity.ok(response);
     }
+
+    // API bên hệ thống Đặt Lịch yêu cầu HIS thực hiện đồng bộ và lấy danh sách Appointment
+    @GetMapping("/appointment/sync/from-his")
+    public ResponseEntity<Void> requestSyncFromHIS() {
+        // Gọi service để thực hiện logic đồng bộ
+        appointmentService.syncAppointmentsFromHIS();
+        return ResponseEntity.ok().build();
+    }
+
+
+    // API bên hệ thống Đặt Lịch tiếp nhận yêu cầu từ HIS và gửi dữ liệu Appointment về cho HIS
+    @GetMapping("/public/appointment/sync/from-his")
+    public ResponseEntity<PageResponse<AppointmentSyncResponse>> getAppointmentsForHIS(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam("expiryDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime expiryDateTime,
+            @RequestParam("page") int page,
+            @RequestParam("size") int size,
+            @RequestParam("hmac") String hmac) {
+
+        PageResponse<AppointmentSyncResponse> pageResponse = appointmentService.getAppointmentsForHIS(startDate, endDate, expiryDateTime, page, size, hmac);
+
+        return ResponseEntity.ok(pageResponse);
+    }
+
 }
 
-// @PutMapping("/update/{id}")
-// @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
-// public ResponseEntity<AppointmentResponse> updateAppointment(
-// @PathVariable String id, @RequestBody AppointmentRequest appointmentRequest)
-// {
-// return ResponseEntity.ok(appointmentService.updateAppointment(id,
-// appointmentRequest));
-// }
-//
-// @PutMapping("/{id}/update-status")
-// @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
-// public ResponseEntity<AppointmentResponse> updateAppointmentStatus(
-// @PathVariable String id, @RequestBody Map<String, String> request) {
-// String status = request.get("status");
-// AppointmentResponse response = appointmentService.updateAppointmentStatus(id,
-// status);
-// return ResponseEntity.ok(response);
-// }
-//
-// @PutMapping("/{id}/update-service-time-frame")
-// @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
-// public ResponseEntity<AppointmentResponse> updateServiceTimeFrameId(
-// @PathVariable String id, @RequestBody Map<String, String> request) {
-// String serviceTimeFrameId = request.get("serviceTimeFrameId");
-// AppointmentResponse response =
-// appointmentService.updateServiceTimeFrameId(id, serviceTimeFrameId);
-// return ResponseEntity.ok(response);
-// }
-//
-// @PutMapping("/{id}/update-replacement-doctor")
-// @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
-// public ResponseEntity<AppointmentResponse> updateReplacementDoctorId(
-// @PathVariable String id, @RequestBody Map<String, String> request) {
-// String replacementDoctorId = request.get("replacementDoctorId");
-// AppointmentResponse response =
-// appointmentService.updateReplacementDoctorId(id, replacementDoctorId);
-// return ResponseEntity.ok(response);
-// }
-//
-// @PutMapping("/{id}/update-order-number")
-// @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
-// public ResponseEntity<AppointmentResponse> updateAppointmentOrderNumber(
-// @PathVariable String id, @RequestBody Map<String, Integer> request) {
-// Integer orderNumber = request.get("orderNumber");
-// AppointmentResponse response =
-// appointmentService.updateAppointmentOrderNumber(id, orderNumber);
-// return ResponseEntity.ok(response);
-// }

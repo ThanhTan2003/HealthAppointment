@@ -1,5 +1,6 @@
 package com.programmingtechie.medical_service.mapper;
 
+import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInSyncResponse;
 import org.springframework.stereotype.Component;
 
 import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInAppointmentResponse;
@@ -65,6 +66,15 @@ public class ServiceTimeFrameMapper {
                 .doctorId(serviceTimeFrame.getDoctorService().getDoctorId())
                 .doctorName("")
                 .roomName(serviceTimeFrame.getRoom().getName())
+                .build();
+    }
+
+    public ServiceTimeFrameInSyncResponse toServiceTimeFrameInSyncResponse(ServiceTimeFrame serviceTimeFrame) {
+        return ServiceTimeFrameInSyncResponse.builder()
+                .id(serviceTimeFrame.getId())
+                .roomId(serviceTimeFrame.getRoom().getId())
+                .serviceId(serviceTimeFrame.getDoctorService().getService().getId())
+                .doctorId(serviceTimeFrame.getDoctorService().getDoctorId())
                 .build();
     }
 }

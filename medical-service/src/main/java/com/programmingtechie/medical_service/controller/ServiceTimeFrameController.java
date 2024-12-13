@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInSyncResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -166,5 +167,10 @@ public class ServiceTimeFrameController {
     @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public ResponseEntity<List<ServiceTimeFrameInAppointmentResponse>> getByIds(@RequestBody List<String> ids) {
         return ResponseEntity.ok(serviceTimeFrameService.getByIds(ids));
+    }
+
+    @PostMapping("/public/get-by-ids")
+    public ResponseEntity<List<ServiceTimeFrameInSyncResponse>> getByIdsPublic(@RequestBody List<String> ids) {
+        return ResponseEntity.ok(serviceTimeFrameService.getByIdsPublic(ids));
     }
 }

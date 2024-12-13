@@ -3,8 +3,10 @@ package com.programmingtechie.appointment_service.repository.httpClient;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameInSyncResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.programmingtechie.appointment_service.config.AuthenticationRequestInterceptor;
@@ -39,4 +41,7 @@ public interface MedicalClient {
 
     @PostMapping(value = "/service-time-frame/get-by-ids", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ServiceTimeFrameInAppointmentResponse> getByIds(@RequestBody List<String> ids);
+
+    @PostMapping("/service-time-frame/public/get-by-ids")
+    public List<ServiceTimeFrameInSyncResponse> getByIdsPublic(@RequestBody List<String> ids);
 }

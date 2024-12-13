@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInSyncResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -440,5 +441,13 @@ public class ServiceTimeFrameService {
                         () -> new IllegalArgumentException("Không tìm thấy khung thời gian dịch vụ với id: " + id));
 
         return serviceTimeFrame.getDoctorService().getUnitPrice();
+    }
+
+    public List<ServiceTimeFrameInSyncResponse> getByIdsPublic(List<String> ids) {
+        List<ServiceTimeFrame> serviceTimeFrames = serviceTimeFrameRepository.findAllById(ids);
+
+        return serviceTimeFrames.stream()
+                .map(serviceTimeFrameMapper::toServiceTimeFrameInSyncResponse)
+                .collect(Collectors.toList());
     }
 }

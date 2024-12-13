@@ -116,6 +116,11 @@ public class PaymentService {
         return Math.max(paymentAmount, 0.0);
     }
 
+    public void createAppointment(Bill bill)
+    {
+
+    }
+
     @Transactional
     public PaymentResponse payment(PaymentRequest paymentRequest, HttpServletRequest httpServletRequest)
             throws UnsupportedEncodingException {

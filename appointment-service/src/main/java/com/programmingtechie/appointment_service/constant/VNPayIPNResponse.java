@@ -12,5 +12,5 @@ public class VNPayIPNResponse {
     public static final String TRANSACTION_NO = "vnp_TransactionNo"; // Mã giao dịch tại VNPAY
     public static final String TXN_REF = "vnp_TxnRef"; // Mã tham chiếu giao dịch
     public static final String SECURE_HASH_TYPE = "vnp_SecureHashType"; // Loại mã hóa chữ ký
-    public static final String SECURE_HASH = "vnp_SecureHash"; // Chữ ký bảo mật
+    public static final String SECURE_HASH = "vnp_SecureHashType"; // Chữ ký bảo mật
 }

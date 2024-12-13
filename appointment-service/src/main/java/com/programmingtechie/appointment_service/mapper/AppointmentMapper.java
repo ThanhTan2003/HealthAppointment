@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Random;
 
+import com.programmingtechie.appointment_service.dto.response.AppointmentSyncResponse;
 import org.springframework.stereotype.Component;
 
 import com.programmingtechie.appointment_service.dto.request.AppointmentCreateRequest;
@@ -157,6 +158,22 @@ public class AppointmentMapper {
                                 ? appointment.getPayment().getId()
                                 : null)
                 .serviceTimeFrameResponse(serviceTimeFrameResponse)
+                .build();
+    }
+
+    public AppointmentSyncResponse toAppointmentSyncResponse(Appointment appointment)
+    {
+        return AppointmentSyncResponse.builder()
+                .id(appointment.getId())
+                .dateTime(appointment.getDateTime())
+                .date(appointment.getDate())
+                .status(appointment.getStatus())
+                .orderNumber(appointment.getOrderNumber())
+                .lastUpdated(appointment.getLastUpdated())
+                .medicalRecordsId(appointment.getMedicalRecordsId())
+                .patientsId(appointment.getPatientsId())
+                .customerId(appointment.getCustomerId())
+                .replacementDoctorId(appointment.getReplacementDoctorId())
                 .build();
     }
 }
