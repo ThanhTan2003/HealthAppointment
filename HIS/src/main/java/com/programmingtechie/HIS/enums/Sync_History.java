@@ -1,5 +1,6 @@
 package com.programmingtechie.HIS.enums;
 
+import com.programmingtechie.HIS.model.HealthCheckResultsDeleted;
 import lombok.Getter;
 
 @Getter
@@ -9,7 +10,8 @@ public enum Sync_History {
     SPECIALTY("specialty"),
     DOCTOR_SPECIALTY("doctor_specialty"),
     SERVICE("service"),
-    APPOINTMENT("appointment");
+    APPOINTMENT("appointment"),
+    HEALTH_CHECK_RESULTS_DELETED("health_check_result_deleted");
 
     private final String name;
 

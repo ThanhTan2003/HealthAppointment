@@ -16,7 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/appointment")
+@RequestMapping("/api/v1/his/appointment")
 @RequiredArgsConstructor
 public class AppointmentController {
 
@@ -36,22 +36,23 @@ public class AppointmentController {
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @GetMapping("/his/sync/appointments")
+    @GetMapping("/sync")
     public ResponseEntity<Void> syncAppointmentsFromAppointmentSystem() {
         // Logic để HIS gọi hệ thống Đặt Lịch lấy dữ liệu
         appointmentService.syncAppointmentsFromAppointmentSystem();
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/create/health-check-result")
-    public void createHealthCheckResult(HealthCheckResultRequest request)
-    {
-        appointmentService.createHealthCheckResult(request);
-    }
     @GetMapping("/get-all")
     public PageResponse<AppointmentResponse> getAll(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         return appointmentService.getAll(page, size);
+    }
+
+    @GetMapping("/id/{id}")
+    public AppointmentResponse getById(@PathVariable String id)
+    {
+        return appointmentService.getById(id);
     }
 }

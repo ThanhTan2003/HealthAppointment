@@ -21,7 +21,7 @@ public interface AppointmentRepository
             value = "SELECT * FROM Appointment a WHERE "
                     + "unaccent(LOWER(a.status)) LIKE unaccent(LOWER(CONCAT('%', :status, '%'))) AND "
                     + "unaccent(LOWER(a.id)) LIKE unaccent(LOWER(CONCAT('%', :id, '%'))) "
-                    + "ORDER BY a.status ASC",
+                    + "ORDER BY a.status ASC, a.date DESC",
             nativeQuery = true)
     Page<Appointment> getAllAppointment(Pageable pageable, @Param("status") String status, @Param("id") String id);
 

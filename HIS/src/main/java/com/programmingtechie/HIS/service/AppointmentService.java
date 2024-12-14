@@ -3,6 +3,7 @@ package com.programmingtechie.HIS.service;
 import com.programmingtechie.HIS.dto.request.HealthCheckResultRequest;
 import com.programmingtechie.HIS.dto.response.AppointmentResponse;
 import com.programmingtechie.HIS.dto.response.AppointmentSyncResponse;
+import com.programmingtechie.HIS.dto.response.FileUploadResponse;
 import com.programmingtechie.HIS.dto.response.PageResponse;
 import com.programmingtechie.HIS.enums.Sync_History;
 import com.programmingtechie.HIS.mapper.AppointmentMapper;
@@ -192,20 +193,6 @@ public class AppointmentService {
         }
     }
 
-    public void createHealthCheckResult(HealthCheckResultRequest request) {
-        Appointment appointment = appointmentRepository.findById(request.getAppointmentId()).orElseThrow(null);
-        if(appointment == null)
-            throw new IllegalArgumentException("Không tìm thấy lịch hẹn hợp lệ!");
-
-        HealthCheckResult healthCheckResult = HealthCheckResult.builder()
-                .appointment(appointment)
-                .name(request.getName())
-                .url(minioChannel.upload(request.getFile()))
-                .build();
-
-        healthCheckResultRepository.save(healthCheckResult);
-    }
-
     public PageResponse<AppointmentResponse> getAll(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Appointment> pageData = appointmentRepository.findAll(pageable);
@@ -221,5 +208,13 @@ public class AppointmentService {
                 .totalElements(pageData.getTotalElements())
                 .data(appointmentResponses)
                 .build();
+    }
+
+    public AppointmentResponse getById(String id) {
+        Appointment appointment = appointmentRepository.findById(id).orElse(null);
+        if(appointment == null)
+            return null;
+        return appointmentMapper.toAppointmentResponse(appointment);
+
     }
 }

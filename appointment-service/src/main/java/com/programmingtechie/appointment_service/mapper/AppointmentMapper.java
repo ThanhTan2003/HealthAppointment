@@ -3,10 +3,12 @@ package com.programmingtechie.appointment_service.mapper;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
 import com.programmingtechie.appointment_service.dto.response.AppointmentSyncResponse;
+import com.programmingtechie.appointment_service.dto.response.His.HealthCheckResultResponse;
 import org.springframework.stereotype.Component;
 
 import com.programmingtechie.appointment_service.dto.request.AppointmentCreateRequest;
@@ -26,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AppointmentMapper {
     final AppointmentRepository appointmentRepository;
+
+    final HealthCheckResultMapper healthCheckResultMapper;
 
     final MedicalClient medicalClient;
 
@@ -105,10 +109,41 @@ public class AppointmentMapper {
                 .orderNumber(appointment.getOrderNumber())
                 .lastUpdated(appointment.getLastUpdated())
                 .serviceTimeFrameId(appointment.getServiceTimeFrameId())
-                .medicalRecordsId(appointment.getMedicalRecordsId())
                 .patientsId(appointment.getPatientsId())
                 .replacementDoctorId(appointment.getReplacementDoctorId())
                 .customerId(appointment.getCustomerId())
+                .checkResultResponseList(null)
+                .paymentId(
+                        appointment.getPayment() != null
+                                ? appointment.getPayment().getId()
+                                : null)
+                .build();
+    }
+
+    public AppointmentResponse toAppointmentResponseAndHealthCheckResultResponse(Appointment appointment) {
+        if (appointment == null) {
+            throw new IllegalArgumentException("Appointment không được null");
+        }
+
+        // Lấy tên ngày (Tên thứ) và định dạng ngày
+        String dateName = getFormattedDateName(appointment.getDate());
+
+        List<HealthCheckResultResponse> healthCheckResultResponses = appointment.getHealthCheckResults().stream().map(healthCheckResultMapper::toHealthCheckResultResponse).toList();
+
+        return AppointmentResponse.builder()
+                .id(appointment.getId())
+                .dateTime(appointment.getDateTime())
+                .date(appointment.getDate())
+                .dateName(appointment.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
+                .dateFullName(getFormattedDateName(appointment.getDate()))
+                .status(appointment.getStatus())
+                .orderNumber(appointment.getOrderNumber())
+                .lastUpdated(appointment.getLastUpdated())
+                .serviceTimeFrameId(appointment.getServiceTimeFrameId())
+                .patientsId(appointment.getPatientsId())
+                .replacementDoctorId(appointment.getReplacementDoctorId())
+                .customerId(appointment.getCustomerId())
+                .checkResultResponseList(healthCheckResultResponses)
                 .paymentId(
                         appointment.getPayment() != null
                                 ? appointment.getPayment().getId()
@@ -149,7 +184,6 @@ public class AppointmentMapper {
                 .status(appointment.getStatus())
                 .orderNumber(appointment.getOrderNumber())
                 .lastUpdated(appointment.getLastUpdated())
-                .medicalRecordsId(appointment.getMedicalRecordsId())
                 .patientsId(appointment.getPatientsId())
                 .customerId(appointment.getCustomerId())
                 .replacementDoctorId(appointment.getReplacementDoctorId())
@@ -170,7 +204,6 @@ public class AppointmentMapper {
                 .status(appointment.getStatus())
                 .orderNumber(appointment.getOrderNumber())
                 .lastUpdated(appointment.getLastUpdated())
-                .medicalRecordsId(appointment.getMedicalRecordsId())
                 .patientsId(appointment.getPatientsId())
                 .customerId(appointment.getCustomerId())
                 .replacementDoctorId(appointment.getReplacementDoctorId())

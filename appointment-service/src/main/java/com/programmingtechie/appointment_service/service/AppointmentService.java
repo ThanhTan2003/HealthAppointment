@@ -253,7 +253,7 @@ public class AppointmentService {
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy cuộc hẹn với ID: " + id));
 
-        AppointmentResponse appointmentResponse = appointmentMapper.toAppointmentResponse(appointment);
+        AppointmentResponse appointmentResponse = appointmentMapper.toAppointmentResponseAndHealthCheckResultResponse(appointment);
 
         List<String> ids = new ArrayList<>();
 

@@ -2,6 +2,7 @@ package com.programmingtechie.appointment_service.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.persistence.*;
 
@@ -43,9 +44,6 @@ public class Appointment {
     @Column(name = "service_time_frame_id", length = 36)
     private String serviceTimeFrameId;
 
-    @Column(name = "medical_records_id", length = 36)
-    private String medicalRecordsId;
-
     @Column(name = "patients_id", length = 36)
     private String patientsId;
 
@@ -58,6 +56,10 @@ public class Appointment {
     @OneToOne
     @JoinColumn(name = "payment_id", referencedColumnName = "id")
     private Payment payment;
+
+    // Mối quan hệ One-to-Many với HealthCheckResult
+    @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<HealthCheckResult> healthCheckResults;
 
     @PrePersist
     private void ensureId() {

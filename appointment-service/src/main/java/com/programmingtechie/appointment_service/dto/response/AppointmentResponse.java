@@ -2,7 +2,9 @@ package com.programmingtechie.appointment_service.dto.response;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
+import com.programmingtechie.appointment_service.dto.response.His.HealthCheckResultResponse;
 import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameInAppointmentResponse;
 
 import lombok.AllArgsConstructor;
@@ -44,4 +46,6 @@ public class AppointmentResponse {
     private String paymentId;
 
     private ServiceTimeFrameInAppointmentResponse serviceTimeFrame;
+
+    private List<HealthCheckResultResponse> checkResultResponseList;
 }

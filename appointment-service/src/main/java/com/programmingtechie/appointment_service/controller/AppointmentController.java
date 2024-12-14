@@ -198,7 +198,7 @@ public class AppointmentController {
 
 
     // API bên hệ thống Đặt Lịch tiếp nhận yêu cầu từ HIS và gửi dữ liệu Appointment về cho HIS
-    @GetMapping("/public/appointment/sync/from-his")
+    @GetMapping("/public/sync/from-his")
     public ResponseEntity<PageResponse<AppointmentSyncResponse>> getAppointmentsForHIS(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,

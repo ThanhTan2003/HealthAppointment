@@ -25,6 +25,8 @@ public class AppointmentResponse {
 
     private LocalDate date;
 
+    private String dateName;
+
     private String status;
 
     private Integer orderNumber;
@@ -47,5 +49,5 @@ public class AppointmentResponse {
 
     private String replacementDoctorId;
 
-    private List<HealthCheckResult> healthCheckResults;
+    private List<HealthCheckResultResponse> healthCheckResults;
 }

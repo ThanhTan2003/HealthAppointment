@@ -19,7 +19,7 @@ import java.util.List;
         name = "appointment-client",
         url = "${app.services.appointment}")
 public interface AppointmentClient {
-    @GetMapping("/public/appointment/sync/from-his")
+    @GetMapping("/public/sync/from-his")
     public PageResponse<AppointmentSyncResponse> getAppointmentsForHIS(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
