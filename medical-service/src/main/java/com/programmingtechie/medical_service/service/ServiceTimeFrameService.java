@@ -6,6 +6,8 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.medical_service.APIAuthentication.HmacUtils;
+import com.programmingtechie.medical_service.APIAuthentication.SecretKeys;
 import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInSyncResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,6 +50,10 @@ public class ServiceTimeFrameService {
 
     private final AppointmentClient appointmentClient;
     private final DoctorClient doctorClient;
+
+    final HmacUtils hmacUtils;
+
+    final SecretKeys secretKeys;
 
     public PageResponse<ServiceTimeFrameResponse> getAllServiceTimeFrames(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -401,7 +407,31 @@ public class ServiceTimeFrameService {
         return -1; // Không có số thứ tự hợp lệ
     }
 
-    public List<ServiceTimeFrameInAppointmentResponse> getByIds(List<String> ids) {
+    public List<ServiceTimeFrameInAppointmentResponse> getByIds(LocalDateTime expiryDateTime, String hmac, List<String> ids) {
+
+        // Kiểm tra nếu expiryDateTime đã qua thời gian hiện tại
+        if (expiryDateTime.isBefore(LocalDateTime.now())) {
+            log.error("Request expired! Expiry time: " + expiryDateTime + " Current time: " + LocalDateTime.now());
+            throw new IllegalArgumentException("Yêu cầu đã quá hạn!");
+        }
+
+        List<String> params = new ArrayList<>();
+        params.add(expiryDateTime.toString());
+        params.add(String.valueOf(ids));
+
+        String message = hmacUtils.createMessage(params);
+
+        Boolean isCheck = false;
+        try{
+            isCheck = hmacUtils.verifyHmac(message, hmac, secretKeys.getMedicalSecretKey());
+        }catch (Exception e)
+        {
+            log.info(e.toString());
+            throw new IllegalArgumentException("Đã xảy ra lỗi. Vui lòng thử lại!");
+        }
+        if(!isCheck)
+            throw new IllegalArgumentException("Yêu cầu không hợp lệ!");
+
         // Lấy danh sách ServiceTimeFrame từ repository
         List<ServiceTimeFrame> serviceTimeFrames = serviceTimeFrameRepository.findAllById(ids);
 

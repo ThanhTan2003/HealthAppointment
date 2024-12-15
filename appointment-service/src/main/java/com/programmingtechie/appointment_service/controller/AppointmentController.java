@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
@@ -89,7 +90,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/customer/patientId/{patientId}")
-    @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc') or hasRole('NguoiDung')")
+    @PreAuthorize("hasRole('NguoiDung')")
     public ResponseEntity<PageResponse<AppointmentTimeFrameResponse>> getAppointmentByCustomerIdAndPatientsId(
             @PathVariable String patientId,
             @RequestParam(value = "page", defaultValue = "1") int page,
@@ -98,11 +99,17 @@ public class AppointmentController {
     }
 
     @GetMapping("/customer/get-all")
-    @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc') or hasRole('NguoiDung')")
+    @PreAuthorize("hasRole('NguoiDung')")
     public ResponseEntity<PageResponse<AppointmentTimeFrameResponse>> getMyAppointment(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
         return ResponseEntity.ok(appointmentService.getMyAppointment(page, size));
+    }
+
+    @GetMapping("/customer/id/{id}")
+    @PreAuthorize("hasRole('NguoiDung')")
+    public ResponseEntity<AppointmentResponse> getAppointmentByIdByCutomer(@PathVariable String id) {
+        return ResponseEntity.ok(appointmentService.getAppointmentByIdByCustomer(id));
     }
 
     @GetMapping("/patient-exists")

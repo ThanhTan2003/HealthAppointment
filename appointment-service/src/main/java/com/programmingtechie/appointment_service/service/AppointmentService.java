@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.appointment_service.APIAuthentication.HmacUtils;
+import com.programmingtechie.appointment_service.APIAuthentication.SecretKeys;
 import com.programmingtechie.appointment_service.dto.response.AppointmentSyncResponse;
 import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameInSyncResponse;
 import com.programmingtechie.appointment_service.repository.httpClient.HisClient;
@@ -70,33 +72,9 @@ public class AppointmentService {
     final MedicalClient medicalClient;
     final HisClient hisClient;
 
-    @Value("${appointment.secretKey}")
-    private String appointmentSecretKey;
+    final HmacUtils hmacUtils;
 
-    public String generateHmac(String message, String secretKey) throws Exception {
-        Mac sha256Hmac = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        sha256Hmac.init(secretKeySpec);
-        byte[] hashBytes = sha256Hmac.doFinal(message.getBytes(StandardCharsets.UTF_8));
-        return Base64.getEncoder().encodeToString(hashBytes); // Trả về chuỗi base64 của HMAC SHA-256
-    }
-
-    public boolean verifyHmac(String message, String receivedHmac, String secretKey) throws Exception {
-        String generatedHmac = generateHmac(message, secretKey);
-        return generatedHmac.equals(receivedHmac); // So sánh HMAC đã gửi với HMAC đã tạo
-    }
-
-    public String createMessage(List<String> params) {
-        StringBuilder messageBuilder = new StringBuilder();
-
-        for (int i = 0; i < params.size(); i++) {
-            messageBuilder.append(params.get(i));
-            if (i < params.size() - 1) {
-                messageBuilder.append(",");
-            }
-        }
-        return messageBuilder.toString();
-    }
+    final SecretKeys secretKeys;
 
     @Transactional
     public AppointmentResponse createAppointment(AppointmentRequest appointmentRequest) {
@@ -259,7 +237,22 @@ public class AppointmentService {
 
         ids.add(appointmentResponse.getServiceTimeFrameId());
 
-        List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrame = medicalClient.getByIds(ids);
+        LocalDateTime expiryDateTime = hmacUtils.createExpiryDateTime(LocalDateTime.now(), 10);
+        List<String> params = new ArrayList<>();
+        params.add(expiryDateTime.toString());
+        params.add(String.valueOf(ids));
+
+        String message = hmacUtils.createMessage(params);
+        String hmac = "";
+        try{
+            hmac = hmacUtils.generateHmac(message, secretKeys.getMedicalSecretKey());
+        }catch (Exception e)
+        {
+            log.info(e.toString());
+            throw new IllegalArgumentException("Đã xãảy ra lỗi. Vui lòng thử lại");
+        }
+
+        List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrame = medicalClient.getByIds(expiryDateTime, hmac, ids);
 
         if (serviceTimeFrame != null) appointmentResponse.setServiceTimeFrame(serviceTimeFrame.get(0));
 
@@ -277,7 +270,22 @@ public class AppointmentService {
 
         ids.add(appointmentResponse.getServiceTimeFrameId());
 
-        List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrame = medicalClient.getByIds(ids);
+        LocalDateTime expiryDateTime = hmacUtils.createExpiryDateTime(LocalDateTime.now(), 10);
+        List<String> params = new ArrayList<>();
+        params.add(expiryDateTime.toString());
+        params.add(String.valueOf(ids));
+
+        String message = hmacUtils.createMessage(params);
+        String hmac = "";
+        try{
+            hmac = hmacUtils.generateHmac(message, secretKeys.getMedicalSecretKey());
+        }catch (Exception e)
+        {
+            log.info(e.toString());
+            throw new IllegalArgumentException("Đã xãảy ra lỗi. Vui lòng thử lại");
+        }
+
+        List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrame = medicalClient.getByIds(expiryDateTime, hmac, ids);
 
         if (serviceTimeFrame != null) appointmentResponse.setServiceTimeFrame(serviceTimeFrame.get(0));
 
@@ -403,8 +411,22 @@ public class AppointmentService {
                 data.stream().map(AppointmentResponse::getServiceTimeFrameId).collect(Collectors.toList());
 
         try {
+            LocalDateTime expiryDateTime = hmacUtils.createExpiryDateTime(LocalDateTime.now(), 10);
+            List<String> params = new ArrayList<>();
+            params.add(expiryDateTime.toString());
+            params.add(String.valueOf(serviceTimeFrameIds));
+
+            String message = hmacUtils.createMessage(params);
+            String hmac = "";
+            try{
+                hmac = hmacUtils.generateHmac(message, secretKeys.getMedicalSecretKey());
+            }catch (Exception e)
+            {
+                log.info(e.toString());
+                throw new IllegalArgumentException("Đã xãảy ra lỗi. Vui lòng thử lại");
+            }
             // Lấy thông tin ServiceTimeFrame từ MedicalClient
-            List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrames = medicalClient.getByIds(serviceTimeFrameIds);
+            List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrames = medicalClient.getByIds(expiryDateTime, hmac, serviceTimeFrameIds);
 
             // Tạo một map ánh xạ từ serviceTimeFrameId sang ServiceTimeFrame
             Map<String, ServiceTimeFrameInAppointmentResponse> serviceTimeFrameMap = serviceTimeFrames.stream()
@@ -938,12 +960,12 @@ public class AppointmentService {
         params.add(page.toString());
         params.add(size.toString());
 
-        String message = createMessage(params);
+        String message = hmacUtils.createMessage(params);
 
         // Kiểm tra HMAC
         Boolean isCkeck = false;
         try {
-            isCkeck = verifyHmac(message, hmac, appointmentSecretKey);
+            isCkeck = hmacUtils.verifyHmac(message, hmac, secretKeys.getAppointmentSecretKey());
         } catch (Exception e) {
             log.error("Error verifying HMAC: ", e);
             throw new IllegalArgumentException("Xác thực HMAC không thành công.");
@@ -1015,5 +1037,50 @@ public class AppointmentService {
 
 
     public void syncAppointmentsFromHIS() {
+    }
+
+    public AppointmentResponse getAppointmentByIdByCustomer(String appointmentId) {
+        AppointmentResponse appointmentResponse = null;
+        var context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("Người dùng chưa được xác thực");
+        }
+        if (authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+            // Lấy thông tin từ Jwt
+            String id = jwt.getClaim("id");
+            if (id == null) {
+                throw new IllegalArgumentException("Yêu cầu không hợp lệ!");
+            }
+            Appointment appointment = appointmentRepository
+                    .findByIdAndCustomerId(appointmentId, id)
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy cuộc hẹn phù hợp: "));
+
+            appointmentResponse = appointmentMapper.toAppointmentResponseAndHealthCheckResultResponse(appointment);
+
+            List<String> ids = new ArrayList<>();
+
+            ids.add(appointmentResponse.getServiceTimeFrameId());
+
+            LocalDateTime expiryDateTime = hmacUtils.createExpiryDateTime(LocalDateTime.now(), 10);
+            List<String> params = new ArrayList<>();
+            params.add(expiryDateTime.toString());
+            params.add(String.valueOf(ids));
+
+            String message = hmacUtils.createMessage(params);
+            String hmac = "";
+            try{
+                hmac = hmacUtils.generateHmac(message, secretKeys.getMedicalSecretKey());
+            }catch (Exception e)
+            {
+                log.info(e.toString());
+                throw new IllegalArgumentException("Đã xãảy ra lỗi. Vui lòng thử lại");
+            }
+            List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrame = medicalClient.getByIds(expiryDateTime, hmac, ids);
+
+            if (serviceTimeFrame != null) appointmentResponse.setServiceTimeFrame(serviceTimeFrame.get(0));
+        }
+
+        return appointmentResponse;
     }
 }
