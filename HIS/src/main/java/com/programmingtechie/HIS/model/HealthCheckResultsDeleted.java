@@ -1,9 +1,10 @@
 package com.programmingtechie.HIS.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
+
+import jakarta.persistence.*;
+
+import lombok.*;
 
 @Entity
 @Getter
@@ -26,6 +27,7 @@ public class HealthCheckResultsDeleted {
             this.lastUpdated = LocalDateTime.now();
         }
     }
+
     @PreUpdate
     private void updateTimestamp() {
         this.lastUpdated = LocalDateTime.now();

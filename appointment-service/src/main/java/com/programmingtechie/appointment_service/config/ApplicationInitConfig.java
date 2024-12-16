@@ -1,17 +1,19 @@
 package com.programmingtechie.appointment_service.config;
 
-import com.programmingtechie.appointment_service.enums.Sync_History;
-import com.programmingtechie.appointment_service.model.SyncHistory;
-import com.programmingtechie.appointment_service.repository.SyncHistoryRepository;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.time.LocalDateTime;
+import com.programmingtechie.appointment_service.enums.Sync_History;
+import com.programmingtechie.appointment_service.model.SyncHistory;
+import com.programmingtechie.appointment_service.repository.SyncHistoryRepository;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @RequiredArgsConstructor

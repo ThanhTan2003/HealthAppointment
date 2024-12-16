@@ -1,9 +1,9 @@
 package com.programmingtechie.medical_service.mapper;
 
-import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInSyncResponse;
 import org.springframework.stereotype.Component;
 
 import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInAppointmentResponse;
+import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInSyncResponse;
 import com.programmingtechie.medical_service.dto.response.DoctorServiceResponse;
 import com.programmingtechie.medical_service.dto.response.RoomResponse;
 import com.programmingtechie.medical_service.dto.response.ServiceTimeFrameResponse;

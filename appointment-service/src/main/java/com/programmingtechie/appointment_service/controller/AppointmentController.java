@@ -6,13 +6,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.programmingtechie.appointment_service.dto.response.AppointmentSyncResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
@@ -21,6 +19,7 @@ import com.programmingtechie.appointment_service.dto.request.AppointmentCountReq
 import com.programmingtechie.appointment_service.dto.request.AppointmentRequest;
 import com.programmingtechie.appointment_service.dto.response.AppointmentCountResponse;
 import com.programmingtechie.appointment_service.dto.response.AppointmentResponse;
+import com.programmingtechie.appointment_service.dto.response.AppointmentSyncResponse;
 import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
 import com.programmingtechie.appointment_service.dto.response.PageResponse;
 import com.programmingtechie.appointment_service.dto.response.Payment.PaymentResponse;
@@ -64,7 +63,8 @@ public class AppointmentController {
 
     @PostMapping("/create1")
     @PreAuthorize("hasRole('NguoiDung')")
-    public ResponseEntity<PaymentResponse> createAppointment1(@RequestBody AppointmentRequest appointmentRequest, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<PaymentResponse> createAppointment1(
+            @RequestBody AppointmentRequest appointmentRequest, HttpServletRequest httpServletRequest) {
         return ResponseEntity.ok(appointmentService.createAppointment1(appointmentRequest, httpServletRequest));
     }
 
@@ -203,21 +203,20 @@ public class AppointmentController {
         return ResponseEntity.ok().build();
     }
 
-
     // API bên hệ thống Đặt Lịch tiếp nhận yêu cầu từ HIS và gửi dữ liệu Appointment về cho HIS
     @GetMapping("/public/sync/from-his")
     public ResponseEntity<PageResponse<AppointmentSyncResponse>> getAppointmentsForHIS(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-            @RequestParam("expiryDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime expiryDateTime,
+            @RequestParam("expiryDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                    LocalDateTime expiryDateTime,
             @RequestParam("page") int page,
             @RequestParam("size") int size,
             @RequestParam("hmac") String hmac) {
 
-        PageResponse<AppointmentSyncResponse> pageResponse = appointmentService.getAppointmentsForHIS(startDate, endDate, expiryDateTime, page, size, hmac);
+        PageResponse<AppointmentSyncResponse> pageResponse =
+                appointmentService.getAppointmentsForHIS(startDate, endDate, expiryDateTime, page, size, hmac);
 
         return ResponseEntity.ok(pageResponse);
     }
-
 }
-

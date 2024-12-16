@@ -1,19 +1,19 @@
 package com.programmingtechie.HIS.controller;
 
-import com.programmingtechie.HIS.dto.request.HealthCheckResultRequest;
-import com.programmingtechie.HIS.dto.response.AppointmentResponse;
-import com.programmingtechie.HIS.dto.response.PageResponse;
-import com.programmingtechie.HIS.model.Appointment;
-import com.programmingtechie.HIS.service.AppointmentService;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
-import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import com.programmingtechie.HIS.dto.response.AppointmentResponse;
+import com.programmingtechie.HIS.dto.response.PageResponse;
+import com.programmingtechie.HIS.service.AppointmentService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/his/appointment")
@@ -21,6 +21,7 @@ import java.util.Map;
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
 
@@ -51,8 +52,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/id/{id}")
-    public AppointmentResponse getById(@PathVariable String id)
-    {
+    public AppointmentResponse getById(@PathVariable String id) {
         return appointmentService.getById(id);
     }
 }

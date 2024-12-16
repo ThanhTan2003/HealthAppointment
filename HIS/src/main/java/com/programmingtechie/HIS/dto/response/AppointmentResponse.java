@@ -1,18 +1,18 @@
 package com.programmingtechie.HIS.dto.response;
 
-import com.programmingtechie.HIS.model.Doctor;
-import com.programmingtechie.HIS.model.HealthCheckResult;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import jakarta.persistence.*;
+
 import com.programmingtechie.HIS.model.Room;
 import com.programmingtechie.HIS.model.Service;
-import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Builder

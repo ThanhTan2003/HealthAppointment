@@ -1,18 +1,19 @@
 package com.programmingtechie.HIS.mapper;
 
-import com.programmingtechie.HIS.dto.response.AppointmentResponse;
-import com.programmingtechie.HIS.dto.response.HealthCheckResultResponse;
-import com.programmingtechie.HIS.model.Appointment;
-import com.programmingtechie.HIS.model.HealthCheckResult;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import org.springframework.stereotype.Component;
+
+import com.programmingtechie.HIS.dto.response.AppointmentResponse;
+import com.programmingtechie.HIS.dto.response.HealthCheckResultResponse;
+import com.programmingtechie.HIS.model.Appointment;
+import com.programmingtechie.HIS.model.HealthCheckResult;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
@@ -21,9 +22,8 @@ public class AppointmentMapper {
     final DoctorMapper doctorMapper;
     final HealthCheckResultMapper healthCheckResultMapper;
 
-    public AppointmentResponse toAppointmentResponse(Appointment appointment)
-    {
-        AppointmentResponse appointmentResponse =  AppointmentResponse.builder()
+    public AppointmentResponse toAppointmentResponse(Appointment appointment) {
+        AppointmentResponse appointmentResponse = AppointmentResponse.builder()
                 .id(appointment.getId())
                 .dateTime(appointment.getDateTime())
                 .date(appointment.getDate())
@@ -40,8 +40,7 @@ public class AppointmentMapper {
                 .replacementDoctorId(appointment.getReplacementDoctorId())
                 .build();
         List<HealthCheckResultResponse> healthCheckResultList = new ArrayList<>();
-        for(HealthCheckResult item: appointment.getHealthCheckResults())
-        {
+        for (HealthCheckResult item : appointment.getHealthCheckResults()) {
             HealthCheckResultResponse healthCheckResult = healthCheckResultMapper.toHealthCheckResultResponse(item);
             healthCheckResultList.add(healthCheckResult);
         }

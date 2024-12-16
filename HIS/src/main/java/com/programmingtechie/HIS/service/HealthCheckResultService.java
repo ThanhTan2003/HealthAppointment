@@ -1,5 +1,19 @@
 package com.programmingtechie.HIS.service;
 
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.programmingtechie.HIS.dto.request.HealthCheckResultRequest;
 import com.programmingtechie.HIS.dto.response.FileUploadResponse;
 import com.programmingtechie.HIS.dto.response.HealthCheckResultResponse;
@@ -12,23 +26,11 @@ import com.programmingtechie.HIS.model.Appointment;
 import com.programmingtechie.HIS.model.HealthCheckResult;
 import com.programmingtechie.HIS.model.HealthCheckResultsDeleted;
 import com.programmingtechie.HIS.repository.*;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -74,9 +76,9 @@ public class HealthCheckResultService {
     }
 
     public void createHealthCheckResult(HealthCheckResultRequest request) {
-        Appointment appointment = appointmentRepository.findById(request.getAppointmentId()).orElseThrow(null);
-        if(appointment == null)
-            throw new IllegalArgumentException("Không tìm thấy lịch hẹn hợp lệ!");
+        Appointment appointment =
+                appointmentRepository.findById(request.getAppointmentId()).orElseThrow(null);
+        if (appointment == null) throw new IllegalArgumentException("Không tìm thấy lịch hẹn hợp lệ!");
 
         FileUploadResponse fileUploadResponse = minioChannel.uploadFileWithUUID(request.getFile());
 
@@ -101,9 +103,9 @@ public class HealthCheckResultService {
     }
 
     public Void deleteHealthCheckResult(String id) {
-        HealthCheckResult healthCheckResult = healthCheckResultRepository.findById(id).orElseThrow(null);
-        if(healthCheckResult == null)
-            return null;
+        HealthCheckResult healthCheckResult =
+                healthCheckResultRepository.findById(id).orElseThrow(null);
+        if (healthCheckResult == null) return null;
 
         String fileName = healthCheckResult.getFileName();
         String bucketName = healthCheckResult.getBucketName();
@@ -111,15 +113,20 @@ public class HealthCheckResultService {
         minioChannel.deleteFile(fileName);
         healthCheckResultRepository.delete(healthCheckResult);
 
-        HealthCheckResultsDeleted healthCheckResultsDeleted = HealthCheckResultsDeleted.builder()
-                .id(id)
-                .build();
+        HealthCheckResultsDeleted healthCheckResultsDeleted =
+                HealthCheckResultsDeleted.builder().id(id).build();
         healthCheckResultsDeletedRepository.save(healthCheckResultsDeleted);
 
         return null;
     }
 
-    public PageResponse<HealthCheckResultResponse> getHealthCheckResultResponseForMedicalAppointmentSystem(LocalDateTime startDate, LocalDateTime endDate, LocalDateTime expiryDateTime, Integer page, Integer size, String hmac) {
+    public PageResponse<HealthCheckResultResponse> getHealthCheckResultResponseForMedicalAppointmentSystem(
+            LocalDateTime startDate,
+            LocalDateTime endDate,
+            LocalDateTime expiryDateTime,
+            Integer page,
+            Integer size,
+            String hmac) {
         // Kiểm tra nếu expiryDateTime đã qua thời gian hiện tại
         if (expiryDateTime.isBefore(LocalDateTime.now())) {
             log.error("Request expired! Expiry time: " + expiryDateTime + " Current time: " + LocalDateTime.now());
@@ -159,7 +166,8 @@ public class HealthCheckResultService {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         // Lấy danh sách các Appointment thỏa mãn điều kiện
-        Page<HealthCheckResult> healthCheckResults = healthCheckResultRepository.findByLastUpdatedBetween(startDate, endDate, pageable);
+        Page<HealthCheckResult> healthCheckResults =
+                healthCheckResultRepository.findByLastUpdatedBetween(startDate, endDate, pageable);
 
         // Chuyển đổi Appointment thành AppointmentSyncResponse
         List<HealthCheckResultResponse> data = healthCheckResults.stream()
@@ -180,13 +188,13 @@ public class HealthCheckResultService {
                 .build();
     }
 
-    public Void deletedHealthCheckResultsDeletedForMedicalAppointmentSystem(LocalDateTime endDate, LocalDateTime expiryDateTime, String hmac) {
+    public Void deletedHealthCheckResultsDeletedForMedicalAppointmentSystem(
+            LocalDateTime endDate, LocalDateTime expiryDateTime, String hmac) {
         // Kiểm tra nếu expiryDateTime đã qua thời gian hiện tại
         if (expiryDateTime.isBefore(LocalDateTime.now())) {
             log.error("Request expired! Expiry time: " + expiryDateTime + " Current time: " + LocalDateTime.now());
             throw new IllegalArgumentException("Yêu cầu đã quá hạn!");
         }
-
 
         // Tạo params và message
         List<String> params = new ArrayList<>();
@@ -244,7 +252,8 @@ public class HealthCheckResultService {
         return minioChannel.generateFileUrl(fileName, bucketName);
     }
 
-    public PageResponse<HealthCheckResultsDeletedResponse> getHealthCheckResultsDeletedForMedicalAppointmentSystem(LocalDateTime endDate, LocalDateTime expiryDateTime, Integer page, Integer size, String hmac) {
+    public PageResponse<HealthCheckResultsDeletedResponse> getHealthCheckResultsDeletedForMedicalAppointmentSystem(
+            LocalDateTime endDate, LocalDateTime expiryDateTime, Integer page, Integer size, String hmac) {
         // Kiểm tra nếu expiryDateTime đã qua thời gian hiện tại
         if (expiryDateTime.isBefore(LocalDateTime.now())) {
             log.error("Request expired! Expiry time: " + expiryDateTime + " Current time: " + LocalDateTime.now());
@@ -257,7 +266,6 @@ public class HealthCheckResultService {
         params.add(expiryDateTime.toString());
         params.add(page.toString());
         params.add(size.toString());
-
 
         String message = createMessage(params);
 
@@ -279,7 +287,8 @@ public class HealthCheckResultService {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         // Lấy danh sách các Appointment thỏa mãn điều kiện
-        Page<HealthCheckResultsDeleted> healthCheckResults = healthCheckResultsDeletedRepository.findByLastUpdatedBefore(endDate, pageable);
+        Page<HealthCheckResultsDeleted> healthCheckResults =
+                healthCheckResultsDeletedRepository.findByLastUpdatedBefore(endDate, pageable);
 
         // Chuyển đổi Appointment thành AppointmentSyncResponse
         List<HealthCheckResultsDeletedResponse> data = healthCheckResults.stream()

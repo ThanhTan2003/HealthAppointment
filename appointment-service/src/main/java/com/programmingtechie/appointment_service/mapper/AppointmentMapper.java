@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
-import com.programmingtechie.appointment_service.dto.response.AppointmentSyncResponse;
-import com.programmingtechie.appointment_service.dto.response.His.HealthCheckResultResponse;
 import org.springframework.stereotype.Component;
 
 import com.programmingtechie.appointment_service.dto.request.AppointmentCreateRequest;
 import com.programmingtechie.appointment_service.dto.request.AppointmentRequest;
 import com.programmingtechie.appointment_service.dto.response.AppointmentResponse;
+import com.programmingtechie.appointment_service.dto.response.AppointmentSyncResponse;
+import com.programmingtechie.appointment_service.dto.response.His.HealthCheckResultResponse;
 import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
 import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameResponse;
 import com.programmingtechie.appointment_service.model.Appointment;
@@ -128,7 +128,9 @@ public class AppointmentMapper {
         // Lấy tên ngày (Tên thứ) và định dạng ngày
         String dateName = getFormattedDateName(appointment.getDate());
 
-        List<HealthCheckResultResponse> healthCheckResultResponses = appointment.getHealthCheckResults().stream().map(healthCheckResultMapper::toHealthCheckResultResponse).toList();
+        List<HealthCheckResultResponse> healthCheckResultResponses = appointment.getHealthCheckResults().stream()
+                .map(healthCheckResultMapper::toHealthCheckResultResponse)
+                .toList();
 
         return AppointmentResponse.builder()
                 .id(appointment.getId())
@@ -195,8 +197,7 @@ public class AppointmentMapper {
                 .build();
     }
 
-    public AppointmentSyncResponse toAppointmentSyncResponse(Appointment appointment)
-    {
+    public AppointmentSyncResponse toAppointmentSyncResponse(Appointment appointment) {
         return AppointmentSyncResponse.builder()
                 .id(appointment.getId())
                 .dateTime(appointment.getDateTime())

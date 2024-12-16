@@ -1,20 +1,22 @@
 package com.programmingtechie.appointment_service.mapper;
 
-import com.programmingtechie.appointment_service.dto.response.His.HealthCheckResultResponse;
-import com.programmingtechie.appointment_service.model.HealthCheckResult;
-import com.programmingtechie.appointment_service.repository.httpClient.HisClient;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.programmingtechie.appointment_service.dto.response.His.HealthCheckResultResponse;
+import com.programmingtechie.appointment_service.model.HealthCheckResult;
+import com.programmingtechie.appointment_service.repository.httpClient.HisClient;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
@@ -50,8 +52,7 @@ public class HealthCheckResultMapper {
         return messageBuilder.toString();
     }
 
-    public HealthCheckResultResponse toHealthCheckResultResponse(HealthCheckResult healthCheckResult)
-    {
+    public HealthCheckResultResponse toHealthCheckResultResponse(HealthCheckResult healthCheckResult) {
         LocalDateTime expiryDateTime = LocalDateTime.now().plusMinutes(10);
         List<String> params = new ArrayList<>();
         params.add(healthCheckResult.getFileName());
@@ -67,15 +68,14 @@ public class HealthCheckResultMapper {
             log.error("Error generating HMAC", e);
         }
         String URL = null;
-        try{
-            URL = hisClient.generateFileUrlPublic(healthCheckResult.getFileName(), healthCheckResult.getBucketName(), expiryDateTime, Hmac);
-        }
-        catch (Exception e)
-        {
+        try {
+            URL = hisClient.generateFileUrlPublic(
+                    healthCheckResult.getFileName(), healthCheckResult.getBucketName(), expiryDateTime, Hmac);
+        } catch (Exception e) {
             log.error(e.getMessage().toString());
-            //throw new IllegalArgumentException("Đã xảy ra lỗi. Vui lòng thử lại!");
+            // throw new IllegalArgumentException("Đã xảy ra lỗi. Vui lòng thử lại!");
         }
-        return  HealthCheckResultResponse.builder()
+        return HealthCheckResultResponse.builder()
                 .id(healthCheckResult.getId())
                 .name(healthCheckResult.getName())
                 .URL(URL)

@@ -9,10 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInSyncResponse;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +18,7 @@ import org.springframework.web.context.request.WebRequest;
 
 import com.programmingtechie.medical_service.dto.request.ServiceTimeFrameRequest;
 import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInAppointmentResponse;
+import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInSyncResponse;
 import com.programmingtechie.medical_service.dto.response.PageResponse;
 import com.programmingtechie.medical_service.dto.response.ServiceTimeFrameResponse;
 import com.programmingtechie.medical_service.service.ServiceTimeFrameService;
@@ -167,10 +166,12 @@ public class ServiceTimeFrameController {
 
     @PostMapping("/get-by-ids")
     public List<ServiceTimeFrameInAppointmentResponse> getByIds(
-            @RequestParam("expiryDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime expiryDateTime,
+            @RequestParam("expiryDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                    LocalDateTime expiryDateTime,
             @RequestParam("hmac") String hmac,
             @RequestBody List<String> ids) {
-        return ResponseEntity.ok(serviceTimeFrameService.getByIds(expiryDateTime, hmac, ids)).getBody();
+        return ResponseEntity.ok(serviceTimeFrameService.getByIds(expiryDateTime, hmac, ids))
+                .getBody();
     }
 
     @PostMapping("/public/get-by-ids")

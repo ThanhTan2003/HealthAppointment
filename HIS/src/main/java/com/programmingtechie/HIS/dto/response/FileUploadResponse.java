@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FileUploadResponse {
-    private String fileName;  // Tên tệp duy nhất đã tải lên
+    private String fileName; // Tên tệp duy nhất đã tải lên
     private String bucketName; // Tên bucket chứa tệp
 }

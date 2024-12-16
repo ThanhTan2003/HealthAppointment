@@ -1,12 +1,11 @@
 package com.programmingtechie.HIS.enums;
 
-import com.programmingtechie.HIS.model.HealthCheckResultsDeleted;
 import lombok.Getter;
 
 @Getter
 public enum Sync_History {
     DOCTOR("doctor"),
-    DOCTOR_QUALIFICATION( "doctor_qualification"),
+    DOCTOR_QUALIFICATION("doctor_qualification"),
     SPECIALTY("specialty"),
     DOCTOR_SPECIALTY("doctor_specialty"),
     SERVICE("service"),

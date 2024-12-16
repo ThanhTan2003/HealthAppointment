@@ -1,13 +1,14 @@
 package com.programmingtechie.appointment_service.model;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import lombok.*;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import lombok.*;
 
 @Entity
 @Table(name = "sync_history")

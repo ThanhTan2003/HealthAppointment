@@ -1,9 +1,10 @@
 package com.programmingtechie.HIS.minio.properties;
 
-import io.minio.MinioClient;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import io.minio.MinioClient;
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor

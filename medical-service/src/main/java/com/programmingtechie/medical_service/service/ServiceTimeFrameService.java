@@ -6,18 +6,18 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.programmingtechie.medical_service.APIAuthentication.HmacUtils;
-import com.programmingtechie.medical_service.APIAuthentication.SecretKeys;
-import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInSyncResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.programmingtechie.medical_service.APIAuthentication.HmacUtils;
+import com.programmingtechie.medical_service.APIAuthentication.SecretKeys;
 import com.programmingtechie.medical_service.dto.request.AppointmentCountRequest;
 import com.programmingtechie.medical_service.dto.request.ServiceTimeFrameRequest;
 import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInAppointmentResponse;
+import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInSyncResponse;
 import com.programmingtechie.medical_service.dto.response.AppointmentCountResponse;
 import com.programmingtechie.medical_service.dto.response.Doctor.DoctorResponse;
 import com.programmingtechie.medical_service.dto.response.PageResponse;
@@ -407,7 +407,8 @@ public class ServiceTimeFrameService {
         return -1; // Không có số thứ tự hợp lệ
     }
 
-    public List<ServiceTimeFrameInAppointmentResponse> getByIds(LocalDateTime expiryDateTime, String hmac, List<String> ids) {
+    public List<ServiceTimeFrameInAppointmentResponse> getByIds(
+            LocalDateTime expiryDateTime, String hmac, List<String> ids) {
 
         // Kiểm tra nếu expiryDateTime đã qua thời gian hiện tại
         if (expiryDateTime.isBefore(LocalDateTime.now())) {
@@ -422,15 +423,13 @@ public class ServiceTimeFrameService {
         String message = hmacUtils.createMessage(params);
 
         Boolean isCheck = false;
-        try{
+        try {
             isCheck = hmacUtils.verifyHmac(message, hmac, secretKeys.getMedicalSecretKey());
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             log.info(e.toString());
             throw new IllegalArgumentException("Đã xảy ra lỗi. Vui lòng thử lại!");
         }
-        if(!isCheck)
-            throw new IllegalArgumentException("Yêu cầu không hợp lệ!");
+        if (!isCheck) throw new IllegalArgumentException("Yêu cầu không hợp lệ!");
 
         // Lấy danh sách ServiceTimeFrame từ repository
         List<ServiceTimeFrame> serviceTimeFrames = serviceTimeFrameRepository.findAllById(ids);

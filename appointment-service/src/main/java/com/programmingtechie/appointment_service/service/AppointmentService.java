@@ -1,21 +1,14 @@
 package com.programmingtechie.appointment_service.service;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.programmingtechie.appointment_service.APIAuthentication.HmacUtils;
-import com.programmingtechie.appointment_service.APIAuthentication.SecretKeys;
-import com.programmingtechie.appointment_service.dto.response.AppointmentSyncResponse;
-import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameInSyncResponse;
-import com.programmingtechie.appointment_service.repository.httpClient.HisClient;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,14 +24,18 @@ import org.springframework.web.client.HttpServerErrorException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.programmingtechie.appointment_service.APIAuthentication.HmacUtils;
+import com.programmingtechie.appointment_service.APIAuthentication.SecretKeys;
 import com.programmingtechie.appointment_service.dto.request.AppointmentCountRequest;
 import com.programmingtechie.appointment_service.dto.request.AppointmentRequest;
 import com.programmingtechie.appointment_service.dto.request.AppointmentSearchRequest;
 import com.programmingtechie.appointment_service.dto.request.PaymentRequest;
 import com.programmingtechie.appointment_service.dto.response.AppointmentCountResponse;
 import com.programmingtechie.appointment_service.dto.response.AppointmentResponse;
+import com.programmingtechie.appointment_service.dto.response.AppointmentSyncResponse;
 import com.programmingtechie.appointment_service.dto.response.Medical.AppointmentTimeFrameResponse;
 import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameInAppointmentResponse;
+import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameInSyncResponse;
 import com.programmingtechie.appointment_service.dto.response.PageResponse;
 import com.programmingtechie.appointment_service.dto.response.Patient.PatientResponse;
 import com.programmingtechie.appointment_service.dto.response.Payment.PaymentResponse;
@@ -46,14 +43,12 @@ import com.programmingtechie.appointment_service.mapper.AppointmentMapper;
 import com.programmingtechie.appointment_service.model.Appointment;
 import com.programmingtechie.appointment_service.repository.AppointmentRepository;
 import com.programmingtechie.appointment_service.repository.BillRepository;
+import com.programmingtechie.appointment_service.repository.httpClient.HisClient;
 import com.programmingtechie.appointment_service.repository.httpClient.MedicalClient;
 import com.programmingtechie.appointment_service.repository.httpClient.PatientClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 
 @Service
 @RequiredArgsConstructor
@@ -231,7 +226,8 @@ public class AppointmentService {
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy cuộc hẹn với ID: " + id));
 
-        AppointmentResponse appointmentResponse = appointmentMapper.toAppointmentResponseAndHealthCheckResultResponse(appointment);
+        AppointmentResponse appointmentResponse =
+                appointmentMapper.toAppointmentResponseAndHealthCheckResultResponse(appointment);
 
         List<String> ids = new ArrayList<>();
 
@@ -244,15 +240,15 @@ public class AppointmentService {
 
         String message = hmacUtils.createMessage(params);
         String hmac = "";
-        try{
+        try {
             hmac = hmacUtils.generateHmac(message, secretKeys.getMedicalSecretKey());
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             log.info(e.toString());
             throw new IllegalArgumentException("Đã xãảy ra lỗi. Vui lòng thử lại");
         }
 
-        List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrame = medicalClient.getByIds(expiryDateTime, hmac, ids);
+        List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrame =
+                medicalClient.getByIds(expiryDateTime, hmac, ids);
 
         if (serviceTimeFrame != null) appointmentResponse.setServiceTimeFrame(serviceTimeFrame.get(0));
 
@@ -277,15 +273,15 @@ public class AppointmentService {
 
         String message = hmacUtils.createMessage(params);
         String hmac = "";
-        try{
+        try {
             hmac = hmacUtils.generateHmac(message, secretKeys.getMedicalSecretKey());
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             log.info(e.toString());
             throw new IllegalArgumentException("Đã xãảy ra lỗi. Vui lòng thử lại");
         }
 
-        List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrame = medicalClient.getByIds(expiryDateTime, hmac, ids);
+        List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrame =
+                medicalClient.getByIds(expiryDateTime, hmac, ids);
 
         if (serviceTimeFrame != null) appointmentResponse.setServiceTimeFrame(serviceTimeFrame.get(0));
 
@@ -418,15 +414,15 @@ public class AppointmentService {
 
             String message = hmacUtils.createMessage(params);
             String hmac = "";
-            try{
+            try {
                 hmac = hmacUtils.generateHmac(message, secretKeys.getMedicalSecretKey());
-            }catch (Exception e)
-            {
+            } catch (Exception e) {
                 log.info(e.toString());
                 throw new IllegalArgumentException("Đã xãảy ra lỗi. Vui lòng thử lại");
             }
             // Lấy thông tin ServiceTimeFrame từ MedicalClient
-            List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrames = medicalClient.getByIds(expiryDateTime, hmac, serviceTimeFrameIds);
+            List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrames =
+                    medicalClient.getByIds(expiryDateTime, hmac, serviceTimeFrameIds);
 
             // Tạo một map ánh xạ từ serviceTimeFrameId sang ServiceTimeFrame
             Map<String, ServiceTimeFrameInAppointmentResponse> serviceTimeFrameMap = serviceTimeFrames.stream()
@@ -779,9 +775,9 @@ public class AppointmentService {
         return appointmentMapper.toAppointmentResponse(appointment);
     }
 
-
-    public PaymentResponse createAppointment1(AppointmentRequest appointmentRequest, HttpServletRequest httpServletRequest) {
-        //createAppointment(appointmentRequest);
+    public PaymentResponse createAppointment1(
+            AppointmentRequest appointmentRequest, HttpServletRequest httpServletRequest) {
+        // createAppointment(appointmentRequest);
 
         String patientId = appointmentRequest.getPatientsId();
         String customerId = "";
@@ -932,7 +928,6 @@ public class AppointmentService {
         }
     }
 
-
     public PageResponse<AppointmentSyncResponse> getAppointmentsForHIS(
             LocalDateTime startDate,
             LocalDateTime endDate,
@@ -980,14 +975,13 @@ public class AppointmentService {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         // Lấy danh sách các Appointment thỏa mãn điều kiện
-        Page<Appointment> appointments = appointmentRepository.findByStatusAndLastUpdatedBetween(startDate, endDate, pageable);
+        Page<Appointment> appointments =
+                appointmentRepository.findByStatusAndLastUpdatedBetween(startDate, endDate, pageable);
 
         // Chuyển đổi Appointment thành AppointmentSyncResponse
         List<AppointmentSyncResponse> data = appointments.stream()
                 .map(appointmentMapper::toAppointmentSyncResponse)
                 .collect(Collectors.toList());
-
-
 
         List<String> serviceTimeFrameIds = new ArrayList<>();
 
@@ -999,7 +993,8 @@ public class AppointmentService {
         serviceTimeFrameIds = new ArrayList<>(new HashSet<>(serviceTimeFrameIds));
 
         // Lấy thông tin ServiceTimeFrame từ medicalClient
-        List<ServiceTimeFrameInSyncResponse> serviceTimeFrameInSyncResponses = medicalClient.getByIdsPublic(serviceTimeFrameIds);
+        List<ServiceTimeFrameInSyncResponse> serviceTimeFrameInSyncResponses =
+                medicalClient.getByIdsPublic(serviceTimeFrameIds);
 
         // Tạo một Map từ ServiceTimeFrameInSyncResponse để tìm kiếm nhanh
         Map<String, ServiceTimeFrameInSyncResponse> serviceTimeFrameMap = serviceTimeFrameInSyncResponses.stream()
@@ -1019,7 +1014,6 @@ public class AppointmentService {
             }
         }
 
-
         // Log thông tin về dữ liệu
         log.info("Total appointments: " + data.size());
         log.info("Total pages: " + appointments.getTotalPages());
@@ -1034,10 +1028,7 @@ public class AppointmentService {
                 .build();
     }
 
-
-
-    public void syncAppointmentsFromHIS() {
-    }
+    public void syncAppointmentsFromHIS() {}
 
     public AppointmentResponse getAppointmentByIdByCustomer(String appointmentId) {
         AppointmentResponse appointmentResponse = null;
@@ -1069,14 +1060,14 @@ public class AppointmentService {
 
             String message = hmacUtils.createMessage(params);
             String hmac = "";
-            try{
+            try {
                 hmac = hmacUtils.generateHmac(message, secretKeys.getMedicalSecretKey());
-            }catch (Exception e)
-            {
+            } catch (Exception e) {
                 log.info(e.toString());
                 throw new IllegalArgumentException("Đã xãảy ra lỗi. Vui lòng thử lại");
             }
-            List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrame = medicalClient.getByIds(expiryDateTime, hmac, ids);
+            List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrame =
+                    medicalClient.getByIds(expiryDateTime, hmac, ids);
 
             if (serviceTimeFrame != null) appointmentResponse.setServiceTimeFrame(serviceTimeFrame.get(0));
         }

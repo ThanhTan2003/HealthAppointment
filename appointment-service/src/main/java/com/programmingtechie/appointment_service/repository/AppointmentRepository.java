@@ -58,9 +58,10 @@ public interface AppointmentRepository
 
     Optional<Appointment> findByPaymentId(String id);
 
-    @Query(value = "SELECT * FROM appointment a WHERE " +
-            "unaccent(LOWER(a.status)) LIKE unaccent(LOWER('Đã xác nhận')) " +
-            "AND a.last_updated BETWEEN :startDate AND :endDate",
+    @Query(
+            value = "SELECT * FROM appointment a WHERE "
+                    + "unaccent(LOWER(a.status)) LIKE unaccent(LOWER('Đã xác nhận')) "
+                    + "AND a.last_updated BETWEEN :startDate AND :endDate",
             nativeQuery = true)
     Page<Appointment> findByStatusAndLastUpdatedBetween(
             LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);

@@ -1,11 +1,13 @@
 package com.programmingtechie.HIS.mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.programmingtechie.HIS.dto.response.SpecialtyResponse;
 import com.programmingtechie.HIS.model.DoctorSpecialty;
 import com.programmingtechie.HIS.model.Specialty;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

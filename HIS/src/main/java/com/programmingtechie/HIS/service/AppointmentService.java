@@ -1,9 +1,22 @@
 package com.programmingtechie.HIS.service;
 
-import com.programmingtechie.HIS.dto.request.HealthCheckResultRequest;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.programmingtechie.HIS.dto.response.AppointmentResponse;
 import com.programmingtechie.HIS.dto.response.AppointmentSyncResponse;
-import com.programmingtechie.HIS.dto.response.FileUploadResponse;
 import com.programmingtechie.HIS.dto.response.PageResponse;
 import com.programmingtechie.HIS.enums.Sync_History;
 import com.programmingtechie.HIS.mapper.AppointmentMapper;
@@ -11,25 +24,11 @@ import com.programmingtechie.HIS.minio.integration.MinioChannel;
 import com.programmingtechie.HIS.model.*;
 import com.programmingtechie.HIS.repository.*;
 import com.programmingtechie.HIS.repository.httpClient.AppointmentClient;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,7 +80,8 @@ public class AppointmentService {
 
     public void syncAppointmentsFromAppointmentSystem() {
         String appointmentValue = Sync_History.APPOINTMENT.name();
-        SyncHistory syncHistory = syncHistoryRepository.findById(appointmentValue).get();
+        SyncHistory syncHistory =
+                syncHistoryRepository.findById(appointmentValue).get();
         log.info(syncHistory.toString());
 
         LocalDateTime startDate = syncHistory.getDateTime();
@@ -111,12 +111,11 @@ public class AppointmentService {
         log.info("Hmac: " + Hmac);
 
         PageResponse<AppointmentSyncResponse> pageResponse = null;
-        try{
-            pageResponse = appointmentClient.getAppointmentsForHIS(startDate, endDate, expiryDateTime, page, size, Hmac);
+        try {
+            pageResponse =
+                    appointmentClient.getAppointmentsForHIS(startDate, endDate, expiryDateTime, page, size, Hmac);
             saveAppointmentsToHIS(pageResponse.getData());
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             log.error(e.getMessage().toString());
             throw new IllegalArgumentException("Đã xảy ra lỗi. Vui lòng thử lại!");
         }
@@ -140,16 +139,15 @@ public class AppointmentService {
             } catch (Exception e) {
                 log.error("Error generating HMAC for page " + page, e);
             }
-            //log.info("message: " + message);
-            //log.info("Hmac: " + Hmac);
+            // log.info("message: " + message);
+            // log.info("Hmac: " + Hmac);
 
             // Gửi yêu cầu tiếp theo
-            try{
-                pageResponse = appointmentClient.getAppointmentsForHIS(startDate, endDate, expiryDateTime, page, size, Hmac);
+            try {
+                pageResponse =
+                        appointmentClient.getAppointmentsForHIS(startDate, endDate, expiryDateTime, page, size, Hmac);
                 saveAppointmentsToHIS(pageResponse.getData());
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 log.error(e.getMessage().toString());
                 throw new IllegalArgumentException("Đã xảy ra lỗi. Vui lòng thử lại!");
             }
@@ -163,11 +161,16 @@ public class AppointmentService {
         // Lưu dữ liệu vào HIS (có thể là gọi một service hoặc repository để lưu vào cơ sở dữ liệu)
         for (AppointmentSyncResponse appointmentSyncResponse : appointments) {
             // Tìm kiếm các đối tượng liên quan từ các repository
-            Doctor doctor = doctorRepository.findById(appointmentSyncResponse.getDoctorId()).orElse(null);
-            com.programmingtechie.HIS.model.Service service = serviceRepository.findById(appointmentSyncResponse.getServiceId()).orElse(null);
-            Room room = roomRepository.findById(appointmentSyncResponse.getRoomId()).orElse(null);
+            Doctor doctor = doctorRepository
+                    .findById(appointmentSyncResponse.getDoctorId())
+                    .orElse(null);
+            com.programmingtechie.HIS.model.Service service = serviceRepository
+                    .findById(appointmentSyncResponse.getServiceId())
+                    .orElse(null);
+            Room room =
+                    roomRepository.findById(appointmentSyncResponse.getRoomId()).orElse(null);
 
-//            // Tạo đối tượng Appointment từ AppointmentSyncResponse
+            //            // Tạo đối tượng Appointment từ AppointmentSyncResponse
             Appointment appointment = Appointment.builder()
                     .id(appointmentSyncResponse.getId())
                     .dateTime(appointmentSyncResponse.getDateTime()) // Lấy thời gian từ AppointmentSyncResponse
@@ -185,10 +188,10 @@ public class AppointmentService {
                     .replacementDoctorId(appointmentSyncResponse.getReplacementDoctorId())
                     .build();
 
-//            // In log thông tin trước khi lưu
+            //            // In log thông tin trước khi lưu
             log.info("Saving appointment: " + appointmentSyncResponse);
-//
-//            // Lưu đối tượng Appointment vào cơ sở dữ liệu
+            //
+            //            // Lưu đối tượng Appointment vào cơ sở dữ liệu
             appointmentRepository.save(appointment);
         }
     }
@@ -212,9 +215,7 @@ public class AppointmentService {
 
     public AppointmentResponse getById(String id) {
         Appointment appointment = appointmentRepository.findById(id).orElse(null);
-        if(appointment == null)
-            return null;
+        if (appointment == null) return null;
         return appointmentMapper.toAppointmentResponse(appointment);
-
     }
 }

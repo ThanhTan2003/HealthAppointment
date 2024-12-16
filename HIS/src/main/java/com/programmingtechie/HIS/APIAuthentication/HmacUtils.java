@@ -1,13 +1,13 @@
 package com.programmingtechie.HIS.APIAuthentication;
 
-import org.springframework.stereotype.Component;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.stereotype.Component;
 
 @Component
 public class HmacUtils {
@@ -37,8 +37,7 @@ public class HmacUtils {
         return messageBuilder.toString();
     }
 
-    public LocalDateTime createExpiryDateTime(LocalDateTime localDateTime, Integer minute)
-    {
+    public LocalDateTime createExpiryDateTime(LocalDateTime localDateTime, Integer minute) {
         return localDateTime.plusMinutes(minute);
     }
 }
