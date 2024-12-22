@@ -66,11 +66,6 @@ public class ServiceTimeFrameController {
         return ResponseEntity.ok(serviceTimeFrameService.getUnitPriceById(id));
     }
 
-    @GetMapping("/public/id/{id}")
-    public ResponseEntity<ServiceTimeFrameResponse> getServiceTimeFrameByIdById(@PathVariable String id) {
-        return ResponseEntity.ok(serviceTimeFrameService.getServiceTimeFrameById(id));
-    }
-
     @PostMapping("/create")
     @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public ResponseEntity<ServiceTimeFrameResponse> createServiceTimeFrame(
@@ -165,6 +160,7 @@ public class ServiceTimeFrameController {
     }
 
     @PostMapping("/get-by-ids")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc') or hasRole('NguoiDung')")
     public List<ServiceTimeFrameInAppointmentResponse> getByIds(
             @RequestParam("expiryDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
                     LocalDateTime expiryDateTime,

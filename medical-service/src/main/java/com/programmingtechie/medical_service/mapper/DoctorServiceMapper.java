@@ -20,6 +20,7 @@ public class DoctorServiceMapper {
     final DoctorClient doctorClient;
 
     public DoctorServiceResponse toDoctorServiceResponse(DoctorService doctorService) {
+        DoctorResponse doctorResponses = doctorClient.getByIdDoctorForCustomer(doctorService.getDoctorId());
         return DoctorServiceResponse.builder()
                 .id(doctorService.getId())
                 .doctorId(doctorService.getDoctorId())
@@ -27,6 +28,7 @@ public class DoctorServiceMapper {
                 .isActive(doctorService.getIsActive())
                 .service(doctorService.getService())
                 .unitPrice(doctorService.getUnitPrice() != null ? doctorService.getUnitPrice() : 0)
+                .doctorResponse(doctorResponses)
                 .build();
     }
 

@@ -23,10 +23,7 @@ public interface MedicalClient {
     @GetMapping(value = "/service-time-frame/exists/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public Boolean checkServiceTimeFrameExists(@PathVariable String id);
 
-    @GetMapping(value = "/id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ServiceTimeFrameResponse getServiceTimeFrameById(@PathVariable String id);
-
-    @GetMapping(value = "/service-time-frame/public/id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/service-time-frame/id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ServiceTimeFrameResponse getAppointmentTimeFrame(@PathVariable String id);
 
     @GetMapping(

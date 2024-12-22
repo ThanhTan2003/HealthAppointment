@@ -1,13 +1,13 @@
 package com.programmingtechie.patient_service.mapper;
 
 import java.time.LocalDateTime;
-import java.util.Random;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.programmingtechie.patient_service.dto.request.PatientCreationRequest;
+import com.programmingtechie.patient_service.dto.request.PatientUpdateRequest;
 import com.programmingtechie.patient_service.dto.response.CustomerIdentityResponse;
 import com.programmingtechie.patient_service.dto.response.PatientAndCustomerInfoResponse;
 import com.programmingtechie.patient_service.dto.response.PatientResponse;
@@ -63,7 +63,6 @@ public class PatientMapper {
             }
 
             return Patient.builder()
-                    .id(generatePatientID())
                     .fullName(patientRequest.getFullName())
                     .dateOfBirth(patientRequest.getDateOfBirth())
                     .gender(patientRequest.getGender())
@@ -82,6 +81,44 @@ public class PatientMapper {
                     .note(patientRequest.getNote())
                     .customerId(id)
                     .lastUpdated(LocalDateTime.now())
+                    .build();
+        }
+        throw new IllegalArgumentException("Principal không hợp lệ hoặc không phải là JWT");
+    }
+
+    public Patient mapToPatientUpdateRequest(String patientId, PatientUpdateRequest patientUpdateRequest) {
+        var context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("Người dùng chưa được xác thực");
+        }
+        if (authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+            // Lấy thông tin từ Jwt
+            String id = jwt.getClaim("id");
+            if (id == null) {
+                throw new IllegalArgumentException("Không tìm thấy ID trong token!");
+            }
+
+            return Patient.builder()
+                    .id(patientId)
+                    .fullName(patientUpdateRequest.getFullName())
+                    .dateOfBirth(patientUpdateRequest.getDateOfBirth())
+                    .gender(patientUpdateRequest.getGender())
+                    .insuranceId(patientUpdateRequest.getInsuranceId())
+                    .identificationCode(patientUpdateRequest.getIdentificationCode())
+                    .nation(patientUpdateRequest.getNation())
+                    .occupation(patientUpdateRequest.getOccupation())
+                    .phoneNumber(patientUpdateRequest.getPhoneNumber())
+                    .email(patientUpdateRequest.getEmail())
+                    .country(patientUpdateRequest.getCountry())
+                    .province(patientUpdateRequest.getProvince())
+                    .district(patientUpdateRequest.getDistrict())
+                    .ward(patientUpdateRequest.getWard())
+                    .address(patientUpdateRequest.getAddress())
+                    .relationship(patientUpdateRequest.getRelationship())
+                    .note(patientUpdateRequest.getNote())
+                    .customerId(id)
                     .build();
         }
         throw new IllegalArgumentException("Principal không hợp lệ hoặc không phải là JWT");
@@ -122,32 +159,4 @@ public class PatientMapper {
         // }
         return patientResponse;
     }
-
-    // Tạo mã ngẫu nhiên
-    private static String generatePatientID() {
-        String prefix = "BN-";
-        String middlePart = generateRandomDigits(0); // 6 chữ số ngẫu nhiên
-        String suffixPart = generateRandomAlphanumeric(20); // 6 ký tự chữ hoa hoặc số ngẫu nhiên
-        return prefix + middlePart + suffixPart;
-    }
-
-    private static String generateRandomDigits(int length) {
-        Random random = new Random();
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            result.append(random.nextInt(10)); // Tạo số ngẫu nhiên từ 0 đến 9
-        }
-        return result.toString();
-    }
-
-    private static String generateRandomAlphanumeric(int length) {
-        String characters = "06BDYZVR2XJAW5KLTQSI9MC8UHE1OFG34NP7";
-        Random random = new Random();
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            result.append(characters.charAt(random.nextInt(characters.length())));
-        }
-        return result.toString();
-    }
-    // Kết thúc tạo mã ngẫu nhiên
 }

@@ -49,27 +49,8 @@ public class PatientServiceV1 {
                 .findById(patientId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin!"));
 
-        patient = Patient.builder()
-                .fullName(patientUpdateRequest.getFullName())
-                .dateOfBirth(patientUpdateRequest.getDateOfBirth())
-                .gender(patientUpdateRequest.getGender())
-                .insuranceId(patientUpdateRequest.getInsuranceId())
-                .identificationCode(patientUpdateRequest.getIdentificationCode())
-                .nation(patientUpdateRequest.getNation())
-                .occupation(patientUpdateRequest.getOccupation())
-                .phoneNumber(patientUpdateRequest.getPhoneNumber())
-                .email(patientUpdateRequest.getEmail())
-                .country(patientUpdateRequest.getCountry())
-                .province(patientUpdateRequest.getProvince())
-                .district(patientUpdateRequest.getDistrict())
-                .ward(patientUpdateRequest.getWard())
-                .address(patientUpdateRequest.getAddress())
-                .relationship(patientUpdateRequest.getRelationship())
-                .note(patientUpdateRequest.getNote())
-                .build();
-
+        patient = patientMapper.mapToPatientUpdateRequest(patient.getId(), patientUpdateRequest);
         patientRepository.save(patient);
-
         return patientMapper.mapToPatientResponse(patient);
     }
 

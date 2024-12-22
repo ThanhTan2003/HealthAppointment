@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 public class ServiceTimeFrameResponse {
     private String id;
     private String dayOfWeek;
-    private Integer startTime;
-    private Integer endTime;
     private Integer maximumQuantity;
     private Integer startNumber;
     private Integer endNumber;
@@ -21,4 +19,7 @@ public class ServiceTimeFrameResponse {
     private String status;
     private String doctorServiceId;
     private String roomId;
+    private TimeFrameResponse timeFrameResponse;
+    private DoctorServiceResponse doctorServiceResponse;
+    private RoomResponse roomResponse;
 }

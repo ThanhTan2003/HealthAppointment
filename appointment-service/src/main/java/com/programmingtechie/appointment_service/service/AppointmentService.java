@@ -584,6 +584,33 @@ public class AppointmentService {
         throw new IllegalArgumentException("Principal không hợp lệ hoặc không phải là JWT");
     }
 
+    public PageResponse<AppointmentTimeFrameResponse> getMyAppointmentByStatus(String status, int page, int size) {
+        var context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("Người dùng chưa được xác thực");
+        }
+        if (authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+            // Lấy thông tin từ Jwt
+            String id = jwt.getClaim("id");
+            if (id == null) {
+                throw new IllegalArgumentException("Không tìm thấy ID trong token!");
+            }
+            Pageable pageable = PageRequest.of(page - 1, size);
+            Page<Appointment> pageData = appointmentRepository.findByCustomerIdAndStatus(id, status, pageable);
+            return PageResponse.<AppointmentTimeFrameResponse>builder()
+                    .currentPage(page)
+                    .pageSize(pageData.getSize())
+                    .totalPages(pageData.getTotalPages())
+                    .totalElements(pageData.getTotalElements())
+                    .data(pageData.getContent().stream()
+                            .map(appointmentMapper::mapToAppointmentTimeFrameResponse)
+                            .collect(Collectors.toList()))
+                    .build();
+        }
+        throw new IllegalArgumentException("Principal không hợp lệ hoặc không phải là JWT");
+    }
+
     public PageResponse<AppointmentTimeFrameResponse> getAppointmentByCustomerIdAndPatientsId(
             String patientId, int page, int size) {
         var context = SecurityContextHolder.getContext();
@@ -976,7 +1003,7 @@ public class AppointmentService {
 
         // Lấy danh sách các Appointment thỏa mãn điều kiện
         Page<Appointment> appointments =
-                appointmentRepository.findByStatusAndLastUpdatedBetween(startDate, endDate, pageable);
+                appointmentRepository.findByStatusConfirmedAndLastUpdatedBetween(startDate, endDate, pageable);
 
         // Chuyển đổi Appointment thành AppointmentSyncResponse
         List<AppointmentSyncResponse> data = appointments.stream()

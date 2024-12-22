@@ -63,8 +63,16 @@ public interface AppointmentRepository
                     + "unaccent(LOWER(a.status)) LIKE unaccent(LOWER('Đã xác nhận')) "
                     + "AND a.last_updated BETWEEN :startDate AND :endDate",
             nativeQuery = true)
-    Page<Appointment> findByStatusAndLastUpdatedBetween(
+    Page<Appointment> findByStatusConfirmedAndLastUpdatedBetween(
             LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+
+    @Query(
+            value = "SELECT * FROM appointment a WHERE "
+                    + "a.customer_id = :customerId AND "
+                    + "unaccent(LOWER(a.status)) LIKE unaccent(LOWER(CONCAT('%', :status, '%')))",
+            nativeQuery = true)
+    Page<Appointment> findByCustomerIdAndStatus(
+            @Param("customerId") String customerId, @Param("status") String status, Pageable pageable);
 
     Optional<Appointment> findByIdAndCustomerId(String appointmentId, String id);
 }

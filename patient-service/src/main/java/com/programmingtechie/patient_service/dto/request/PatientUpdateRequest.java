@@ -26,5 +26,6 @@ public class PatientUpdateRequest {
     private String address;
     private String relationship;
     private String note;
+    private String customerId;
     private LocalDateTime lastUpdated;
 }

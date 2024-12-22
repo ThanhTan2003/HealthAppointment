@@ -6,13 +6,24 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.TimeZone;
+import java.util.UUID;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +41,7 @@ import com.programmingtechie.appointment_service.model.Payment;
 import com.programmingtechie.appointment_service.repository.AppointmentRepository;
 import com.programmingtechie.appointment_service.repository.BillRepository;
 import com.programmingtechie.appointment_service.repository.PaymentRepository;
+import com.programmingtechie.event.dto.NotificationEvent;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +57,8 @@ public class PaymentService {
     private final BillService billService;
 
     private final AppointmentMapper appointmentMapper;
+
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public static final String VERSION = "2.1.0";
     public static final String COMMAND = "pay";
@@ -325,8 +339,17 @@ public class PaymentService {
 
         createAppointmentAfterPayment(appointmentCreateRequest);
 
-        log.info("Xao bill: " + bill.toString());
+        log.info("Xoa bill: " + bill.toString());
         billService.deleteBill(bill.getId());
+
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .channel("EMAIL")
+                .recipient("")
+                .subject("Welcome to bookteria")
+                .body("")
+                .build();
+
+        kafkaTemplate.send("notification-delivery", notificationEvent);
     }
 
     @Transactional

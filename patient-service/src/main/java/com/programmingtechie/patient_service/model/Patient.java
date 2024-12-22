@@ -2,6 +2,7 @@ package com.programmingtechie.patient_service.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Random;
 
 import jakarta.persistence.*;
 
@@ -35,7 +36,7 @@ public class Patient {
     @Column(name = "identification_code", nullable = false, length = 12)
     private String identificationCode;
 
-    @Column(name = "nation", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "nation", nullable = true, columnDefinition = "TEXT")
     private String nation;
 
     @Column(name = "occupation", nullable = false, columnDefinition = "TEXT")
@@ -52,13 +53,13 @@ public class Patient {
     @Column(name = "country", nullable = false, columnDefinition = "TEXT")
     private String country;
 
-    @Column(name = "province", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "province", nullable = true, columnDefinition = "TEXT")
     private String province;
 
-    @Column(name = "district", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "district", nullable = true, columnDefinition = "TEXT")
     private String district;
 
-    @Column(name = "ward", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "ward", nullable = true, columnDefinition = "TEXT")
     private String ward;
 
     @Column(name = "address", nullable = false, columnDefinition = "TEXT")
@@ -79,5 +80,36 @@ public class Patient {
     @PreUpdate
     private void updateTimestamp() {
         this.lastUpdated = LocalDateTime.now();
+    }
+
+    @PrePersist
+    private void generatePatientId() {
+        this.id = generatePatientID();
+    }
+
+    private static String generatePatientID() {
+        String prefix = "BN-";
+        String middlePart = generateRandomDigits(0); // 6 chữ số ngẫu nhiên
+        String suffixPart = generateRandomAlphanumeric(20); // 6 ký tự chữ hoa hoặc số ngẫu nhiên
+        return prefix + middlePart + suffixPart;
+    }
+
+    private static String generateRandomDigits(int length) {
+        Random random = new Random();
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            result.append(random.nextInt(10)); // Tạo số ngẫu nhiên từ 0 đến 9
+        }
+        return result.toString();
+    }
+
+    private static String generateRandomAlphanumeric(int length) {
+        String characters = "06BDYZVR2XJAW5KLTQSI9MC8UHE1OFG34NP7";
+        Random random = new Random();
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            result.append(characters.charAt(random.nextInt(characters.length())));
+        }
+        return result.toString();
     }
 }
