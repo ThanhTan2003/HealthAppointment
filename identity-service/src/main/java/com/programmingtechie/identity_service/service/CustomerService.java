@@ -22,6 +22,7 @@ import com.programmingtechie.identity_service.model.Customer;
 import com.programmingtechie.identity_service.model.Role;
 import com.programmingtechie.identity_service.repository.CustomerRepository;
 import com.programmingtechie.identity_service.repository.RoleRepository;
+import java.util.regex.Pattern;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,22 +38,52 @@ public class CustomerService {
 
     final CustomerMapper customerMapper;
 
+
+
     public CustomerResponse createCustomer(CustomerRequest request) {
-        if (customerRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email đã có tài khoản!");
+        // Kiểm tra xem tất cả các thông tin cần thiết đã được cung cấp hay chưa
+        if (request.getFullName() == null || request.getFullName().trim().isEmpty() ||
+                request.getDateOfBirth() == null ||
+                request.getGender() == null || request.getGender().trim().isEmpty() ||
+                request.getPhoneNumber() == null || request.getPhoneNumber().trim().isEmpty() ||
+                request.getEmail() == null || request.getEmail().trim().isEmpty() ||
+                request.getPassword() == null || request.getPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("Vui lòng nhập đầy đủ thông tin!");
         }
 
-        if (!request.getPhoneNumber().isEmpty()) { // Chỉ kiểm tra số điện thoại nếu nó không rỗng
+        // Kiểm tra email đã tồn tại
+        if (customerRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email đã có tài khoản!");
+        }
+
+        // Kiểm tra số điện thoại (10 chữ số)
+        if (!request.getPhoneNumber().isEmpty()) {
+            if (!Pattern.matches("\\d{10}", request.getPhoneNumber())) {
+                throw new IllegalArgumentException("Số điện thoại không hợp lệ!");
+            }
             if (customerRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
                 throw new IllegalArgumentException("Số điện thoại đã có tài khoản!");
             }
         }
 
-        Optional<Role> role = roleRepository.findById("NguoiDung"); // Chọn role "Người dùng"
+        // Kiểm tra định dạng email
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        if (!Pattern.matches(emailRegex, request.getEmail())) {
+            throw new IllegalArgumentException("Email không hợp lệ!");
+        }
+
+        // Kiểm tra mật khẩu (ít nhất 5 ký tự)
+        if (request.getPassword().length() < 5) {
+            throw new IllegalArgumentException("Mật khẩu phải có ít nhất 5 ký tự!");
+        }
+
+        // Kiểm tra vai trò "NguoiDung"
+        Optional<Role> role = roleRepository.findById("NguoiDung");
         if (role.isEmpty()) {
             throw new IllegalArgumentException("Vai trò người dùng không tồn tại!");
         }
 
+        // Tạo khách hàng mới
         Customer customer = Customer.builder()
                 .id(UUID.randomUUID().toString())
                 .fullName(request.getFullName())
@@ -61,15 +92,18 @@ public class CustomerService {
                 .phoneNumber(request.getPhoneNumber())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword())) // Mã hóa mật khẩu
-                .status("Đang hoạt động")
+                .status("Đang hoạt động")
                 .role(role.get())
                 .lastUpdated(LocalDateTime.now())
                 .build();
 
+        // Lưu khách hàng vào cơ sở dữ liệu
         customerRepository.save(customer);
 
+        // Trả về phản hồi
         return customerMapper.toCustomerResponse(customer);
     }
+
 
     public CustomerResponse updateCustomer(String customerId, CustomerRequest request) {
         Customer customer = customerRepository

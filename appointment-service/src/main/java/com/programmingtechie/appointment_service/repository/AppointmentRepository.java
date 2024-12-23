@@ -25,6 +25,12 @@ public interface AppointmentRepository
             nativeQuery = true)
     Page<Appointment> getAllAppointment(Pageable pageable, @Param("status") String status, @Param("id") String id);
 
+    @Query(
+            value = "SELECT * FROM Appointment a WHERE a.patients_id = :patientsId "
+                    + "ORDER BY a.status ASC, a.date DESC",
+            nativeQuery = true)
+    Page<Appointment> getAllAppointmentByPatientsId(Pageable pageable, @Param("patientsId") String patientsId);
+
     @Query("SELECT DISTINCT a.status FROM Appointment a")
     List<String> findDistinctStatuses();
 

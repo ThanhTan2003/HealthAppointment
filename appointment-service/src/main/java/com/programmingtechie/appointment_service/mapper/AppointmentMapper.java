@@ -102,6 +102,7 @@ public class AppointmentMapper {
         return AppointmentResponse.builder()
                 .id(appointment.getId())
                 .dateTime(appointment.getDateTime())
+                .dateTimeFullName(getFormattedDateTime(appointment.getDateTime()))
                 .date(appointment.getDate())
                 .dateName(appointment.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
                 .dateFullName(getFormattedDateName(appointment.getDate()))
@@ -133,6 +134,7 @@ public class AppointmentMapper {
         return AppointmentResponse.builder()
                 .id(appointment.getId())
                 .dateTime(appointment.getDateTime())
+                .dateTimeFullName(getFormattedDateTime(appointment.getDateTime()))
                 .date(appointment.getDate())
                 .dateName(appointment.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
                 .dateFullName(getFormattedDateName(appointment.getDate()))
@@ -165,6 +167,15 @@ public class AppointmentMapper {
                 date.getDayOfWeek().getDisplayName(java.time.format.TextStyle.FULL, Locale.forLanguageTag("vi"));
 
         return dayOfWeek + " - " + formattedDate;
+    }
+
+    public String getFormattedDateTime(LocalDateTime dateTime) {
+        if (dateTime == null) {
+            return "";
+        }
+
+        // Định dạng ngày giờ là dd/MM/yyyy hh:mm:ss
+        return dateTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
     }
 
     public AppointmentTimeFrameResponse mapToAppointmentTimeFrameResponse(Appointment appointment) {

@@ -20,6 +20,13 @@ public interface DoctorRepository extends JpaRepository<Doctor, String> {
 
     Optional<Doctor> findByGender(String gender);
 
+    @Query(value = """
+    SELECT * FROM doctor
+    WHERE id IN :ids
+    ORDER BY unaccent(LOWER(split_part(full_name, ' ', array_length(string_to_array(full_name, ' '), 1)))) ASC
+""", nativeQuery = true)
+    List<Doctor> findByIdInOrderByLastName(@Param("ids") List<String> ids);
+
     List<Doctor> findByIdIn(List<String> ids);
 
     // Tìm danh sách bác sĩ theo Specialty với phân trang

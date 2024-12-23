@@ -35,7 +35,7 @@ public interface MedicalClient {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Integer getNextAvailableOrderNumber(
             @PathVariable String serviceTimeFrameId,
-            @RequestParam LocalDate day,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate day,
             @RequestParam List<Integer> existingOrderNumbers);
 
     @GetMapping("/service-time-frame/get-unit-price/{id}")

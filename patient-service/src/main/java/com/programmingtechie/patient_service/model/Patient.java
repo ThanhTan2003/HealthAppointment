@@ -29,7 +29,7 @@ public class Patient {
     @Column(name = "gender", length = 4)
     private String gender;
 
-    @Column(name = "insurance_id", nullable = false, length = 15)
+    @Column(name = "insurance_id", length = 15)
     private String insuranceId;
 
     @Column(name = "identification_code", nullable = false, length = 12)
@@ -42,7 +42,7 @@ public class Patient {
     private String occupation;
 
     // Số điện thoại liên hệ với người có thông tin trong hồ sơ
-    @Column(name = "phone_number", nullable = false, length = 10, unique = true)
+    @Column(name = "phone_number", nullable = false, length = 10)
     private String phoneNumber;
 
     // Email liên hệ với người có thông tin trong hồ sơ

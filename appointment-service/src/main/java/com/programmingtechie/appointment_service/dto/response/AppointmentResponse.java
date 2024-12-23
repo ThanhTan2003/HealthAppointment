@@ -21,11 +21,13 @@ public class AppointmentResponse {
 
     private LocalDateTime dateTime;
 
+    private String dateTimeFullName;
+
     private LocalDate date;
 
-    private String dateName;
-
     private String dateFullName;
+
+    private String dateName;
 
     private String status;
 

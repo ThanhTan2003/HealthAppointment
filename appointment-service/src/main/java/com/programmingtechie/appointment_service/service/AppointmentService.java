@@ -457,10 +457,50 @@ public class AppointmentService {
 
     public PageResponse<AppointmentResponse> getAppointmentByPatientsId(String id, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Appointment> appointments = appointmentRepository.findAll(pageable);
+        Page<Appointment> appointments = appointmentRepository.getAllAppointmentByPatientsId(pageable, id);
         List<AppointmentResponse> data = appointments.stream()
                 .map(appointmentMapper::toAppointmentResponse)
                 .toList();
+        // Lấy danh sách ServiceTimeFrameIds từ các AppointmentResponse
+        List<String> serviceTimeFrameIds =
+                data.stream().map(AppointmentResponse::getServiceTimeFrameId).collect(Collectors.toList());
+
+        try {
+            LocalDateTime expiryDateTime = hmacUtils.createExpiryDateTime(LocalDateTime.now(), 10);
+            List<String> params = new ArrayList<>();
+            params.add(expiryDateTime.toString());
+            params.add(String.valueOf(serviceTimeFrameIds));
+
+            String message = hmacUtils.createMessage(params);
+            String hmac = "";
+            try{
+                hmac = hmacUtils.generateHmac(message, secretKeys.getMedicalSecretKey());
+            }catch (Exception e)
+            {
+                log.info(e.toString());
+                throw new IllegalArgumentException("Đã xãảy ra lỗi. Vui lòng thử lại");
+            }
+            // Lấy thông tin ServiceTimeFrame từ MedicalClient
+            List<ServiceTimeFrameInAppointmentResponse> serviceTimeFrames = medicalClient.getByIds(expiryDateTime, hmac, serviceTimeFrameIds);
+
+            // Tạo một map ánh xạ từ serviceTimeFrameId sang ServiceTimeFrame
+            Map<String, ServiceTimeFrameInAppointmentResponse> serviceTimeFrameMap = serviceTimeFrames.stream()
+                    .collect(Collectors.toMap(
+                            ServiceTimeFrameInAppointmentResponse::getId, serviceTimeFrame -> serviceTimeFrame));
+
+            // Cập nhật thông tin ServiceTimeFrame vào mỗi AppointmentResponse
+            data.forEach(item -> {
+                ServiceTimeFrameInAppointmentResponse serviceTimeFrame =
+                        serviceTimeFrameMap.get(item.getServiceTimeFrameId());
+                if (serviceTimeFrame != null) {
+                    item.setServiceTimeFrame(serviceTimeFrame);
+                }
+            });
+        } catch (Exception e) {
+            log.info("Lỗi kết nối đến Medical Service: " + e.getMessage());
+        }
+
+        // Trả về kết quả với pagination
         return PageResponse.<AppointmentResponse>builder()
                 .currentPage(page)
                 .pageSize(size)
@@ -621,6 +661,8 @@ public class AppointmentService {
     }
 
     public PaymentResponse register(AppointmentRequest appointmentRequest, HttpServletRequest httpServletRequest) {
+        log.info("Nhan ngay dang ky: " + appointmentRequest.getDate());
+        log.info("request: " + appointmentRequest);
         String patientId = appointmentRequest.getPatientsId();
         String customerId = "";
         try {
