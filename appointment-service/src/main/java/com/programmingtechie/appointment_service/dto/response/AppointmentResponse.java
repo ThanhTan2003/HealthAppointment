@@ -19,6 +19,8 @@ import lombok.NoArgsConstructor;
 public class AppointmentResponse {
     private String id;
 
+    private String dateTimeFullName;
+
     private LocalDateTime dateTime;
 
     private LocalDate date;

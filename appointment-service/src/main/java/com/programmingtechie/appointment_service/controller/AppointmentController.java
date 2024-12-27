@@ -78,7 +78,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/id/{id}")
-    @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
+    @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc') or hasRole('NguoiDung')")
     public ResponseEntity<AppointmentResponse> getAppointmentById(@PathVariable String id) {
         return ResponseEntity.ok(appointmentService.getAppointmentById(id));
     }

@@ -4,11 +4,13 @@ import org.springframework.stereotype.Component;
 
 import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInAppointmentResponse;
 import com.programmingtechie.medical_service.dto.response.Appointment.ServiceTimeFrameInSyncResponse;
+import com.programmingtechie.medical_service.dto.response.Doctor.DoctorResponse;
 import com.programmingtechie.medical_service.dto.response.DoctorServiceResponse;
 import com.programmingtechie.medical_service.dto.response.RoomResponse;
 import com.programmingtechie.medical_service.dto.response.ServiceTimeFrameResponse;
 import com.programmingtechie.medical_service.dto.response.TimeFrameResponse;
 import com.programmingtechie.medical_service.model.ServiceTimeFrame;
+import com.programmingtechie.medical_service.repository.httpClient.DoctorClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +23,18 @@ public class ServiceTimeFrameMapper {
     private final RoomMapper roomMapper;
     private final TimeFrameMapper timeFrameMapper;
 
+    private final DoctorClient doctorClient;
+
     public ServiceTimeFrameResponse toServiceTimeFrameResponse(ServiceTimeFrame serviceTimeFrame) {
         DoctorServiceResponse doctorServiceResponse =
                 doctorServiceMapper.toDoctorServiceResponse(serviceTimeFrame.getDoctorService());
         RoomResponse roomResponse = roomMapper.toRoomResponse(serviceTimeFrame.getRoom());
+
+        DoctorResponse doctorResponse = null;
+        try {
+            doctorResponse = doctorClient.getByIdByCustomer(doctorServiceResponse.getDoctorId());
+        } catch (Exception e) {
+        }
 
         return ServiceTimeFrameResponse.builder()
                 .id(serviceTimeFrame.getId())
@@ -35,6 +45,7 @@ public class ServiceTimeFrameMapper {
                 .isActive(serviceTimeFrame.getIsActive())
                 .status(serviceTimeFrame.getStatus())
                 .doctorServiceId(serviceTimeFrame.getDoctorService().getId())
+                .doctorResponse(doctorResponse)
                 .roomId(serviceTimeFrame.getRoom().getId())
                 .timeFrameResponse(timeFrameMapper.toResponse(serviceTimeFrame.getTimeFrame()))
                 .doctorServiceResponse(doctorServiceResponse)

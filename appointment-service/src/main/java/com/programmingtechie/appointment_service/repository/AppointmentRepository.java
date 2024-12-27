@@ -75,6 +75,12 @@ public interface AppointmentRepository
             @Param("customerId") String customerId, @Param("status") String status, Pageable pageable);
 
     Optional<Appointment> findByIdAndCustomerId(String appointmentId, String id);
+
+    @Query(
+            value = "SELECT * FROM Appointment a WHERE a.patients_id = :patientsId "
+                    + "ORDER BY a.status ASC, a.date DESC",
+            nativeQuery = true)
+    Page<Appointment> getAllAppointmentByPatientsId(Pageable pageable, @Param("patientsId") String patientsId);
 }
 
 // JpaSpecificationExecutor là một interface trong Spring Data JPA,

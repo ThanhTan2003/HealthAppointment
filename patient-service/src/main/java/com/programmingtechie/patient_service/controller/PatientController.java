@@ -48,12 +48,12 @@ public class PatientController {
         return patientServiceV1.updatePatient(patientId, patientUpdateRequest);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/delete-patient/{id}")
     @PostAuthorize("" + "hasRole('NguoiDung') or "
             + "hasRole('GiamDoc') or "
             + "returnObject.email == authentication.principal.claims['email']")
-    public String deletePatient(String patientID) {
-        patientServiceV1.deletePatient(patientID);
+    public String deletePatient(@PathVariable("id") String patientId) {
+        patientServiceV1.deletePatient(patientId);
         return "Xóa hồ sơ thành công";
     }
 

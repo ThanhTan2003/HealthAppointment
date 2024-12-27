@@ -7,7 +7,11 @@ import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.programmingtechie.appointment_service.config.AuthenticationRequestInterceptor;
 import com.programmingtechie.appointment_service.dto.response.Medical.ServiceTimeFrameInAppointmentResponse;
@@ -31,7 +35,7 @@ public interface MedicalClient {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Integer getNextAvailableOrderNumber(
             @PathVariable String serviceTimeFrameId,
-            @RequestParam LocalDate day,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate day,
             @RequestParam List<Integer> existingOrderNumbers);
 
     @GetMapping("/service-time-frame/get-unit-price/{id}")

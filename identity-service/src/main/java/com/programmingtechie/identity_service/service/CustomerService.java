@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,17 +39,42 @@ public class CustomerService {
     final CustomerMapper customerMapper;
 
     public CustomerResponse createCustomer(CustomerRequest request) {
+        if (request.getFullName() == null
+                || request.getFullName().trim().isEmpty()
+                || request.getDateOfBirth() == null
+                || request.getGender() == null
+                || request.getGender().trim().isEmpty()
+                || request.getPhoneNumber() == null
+                || request.getPhoneNumber().trim().isEmpty()
+                || request.getEmail() == null
+                || request.getEmail().trim().isEmpty()
+                || request.getPassword() == null
+                || request.getPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("Vui lòng nhập đầy đủ thông tin!");
+        }
         if (customerRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email đã có tài khoản!");
         }
 
-        if (!request.getPhoneNumber().isEmpty()) { // Chỉ kiểm tra số điện thoại nếu nó không rỗng
+        if (!request.getPhoneNumber().isEmpty()) {
+            if (!Pattern.matches("\\d{10}", request.getPhoneNumber())) {
+                throw new IllegalArgumentException("Số điện thoại không hợp lệ!");
+            }
             if (customerRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
                 throw new IllegalArgumentException("Số điện thoại đã có tài khoản!");
             }
         }
 
-        Optional<Role> role = roleRepository.findById("NguoiDung"); // Chọn role "Người dùng"
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        if (!Pattern.matches(emailRegex, request.getEmail())) {
+            throw new IllegalArgumentException("Email không hợp lệ!");
+        }
+        // Kiểm tra mật khẩu (ít nhất 5 ký tự)
+        if (request.getPassword().length() < 5) {
+            throw new IllegalArgumentException("Mật khẩu phải có ít nhất 5 ký tự!");
+        }
+        // Kiểm tra vai trò "NguoiDung"
+        Optional<Role> role = roleRepository.findById("NguoiDung");
         if (role.isEmpty()) {
             throw new IllegalArgumentException("Vai trò người dùng không tồn tại!");
         }

@@ -68,10 +68,10 @@ public class AppointmentMapper {
         StringBuilder middlePart = new StringBuilder();
         StringBuilder suffixPart = new StringBuilder();
 
-        //        // Tạo 10 chữ số ngẫu nhiên
-        //        for (int i = 0; i < 10; i++) {
-        //            middlePart.append(random.nextInt(10));
-        //        }
+        // // Tạo 10 chữ số ngẫu nhiên
+        // for (int i = 0; i < 10; i++) {
+        // middlePart.append(random.nextInt(10));
+        // }
 
         // Tạo 10 ký tự chữ hoa hoặc số ngẫu nhiên
         String characters = "06BDYZVR2XJAW5KLTQSI9MC8UHE1OFG34NP7";
@@ -102,6 +102,7 @@ public class AppointmentMapper {
         return AppointmentResponse.builder()
                 .id(appointment.getId())
                 .dateTime(appointment.getDateTime())
+                .dateTimeFullName(getFormattedDateTime(appointment.getDateTime()))
                 .date(appointment.getDate())
                 .dateName(appointment.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
                 .dateFullName(getFormattedDateName(appointment.getDate()))
@@ -135,6 +136,7 @@ public class AppointmentMapper {
         return AppointmentResponse.builder()
                 .id(appointment.getId())
                 .dateTime(appointment.getDateTime())
+                .dateTimeFullName(getFormattedDateTime(appointment.getDateTime()))
                 .date(appointment.getDate())
                 .dateName(appointment.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
                 .dateFullName(getFormattedDateName(appointment.getDate()))
@@ -151,6 +153,14 @@ public class AppointmentMapper {
                                 ? appointment.getPayment().getId()
                                 : null)
                 .build();
+    }
+
+    public String getFormattedDateTime(LocalDateTime dateTime) {
+        if (dateTime == null) {
+            return "";
+        }
+        // Định dạng ngày giờ là dd/MM/yyyy hh:mm:ss
+        return dateTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
     }
 
     // Hàm nhận vào LocalDate và trả về chuỗi định dạng "Tên ngày - ngày/ tháng/năm"

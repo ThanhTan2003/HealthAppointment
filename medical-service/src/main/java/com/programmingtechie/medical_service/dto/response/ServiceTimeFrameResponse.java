@@ -1,5 +1,7 @@
 package com.programmingtechie.medical_service.dto.response;
 
+import com.programmingtechie.medical_service.dto.response.Doctor.DoctorResponse;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +24,7 @@ public class ServiceTimeFrameResponse {
     private String doctorServiceId;
     private String roomId;
     private TimeFrameResponse timeFrameResponse;
+    private DoctorResponse doctorResponse;
     private DoctorServiceResponse doctorServiceResponse;
     private RoomResponse roomResponse;
 }

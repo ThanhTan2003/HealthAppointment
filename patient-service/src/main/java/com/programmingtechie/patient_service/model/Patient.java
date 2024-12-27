@@ -30,7 +30,7 @@ public class Patient {
     @Column(name = "gender", length = 4)
     private String gender;
 
-    @Column(name = "insurance_id", nullable = false, length = 15)
+    @Column(name = "insurance_id", length = 15)
     private String insuranceId;
 
     @Column(name = "identification_code", nullable = false, length = 12)
