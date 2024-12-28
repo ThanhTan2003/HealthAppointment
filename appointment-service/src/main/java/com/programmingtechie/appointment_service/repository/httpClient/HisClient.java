@@ -49,5 +49,10 @@ public interface HisClient {
             @RequestParam("bucketName") String bucketName,
             @RequestParam("expiryDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime expiryDateTime,
             @RequestParam("hmac") String hmac);
+
+    @GetMapping("/appointment/sync/from-health-appointment")
+    public Void syncAppointmentsFromHealthAppointment(
+            @RequestParam("expiryDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime expiryDateTime,
+            @RequestParam("hmac") String hmac);
 }
 

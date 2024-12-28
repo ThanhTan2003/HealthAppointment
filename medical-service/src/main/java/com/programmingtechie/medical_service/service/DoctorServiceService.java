@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.medical_service.model.ServiceTimeFrame;
+import com.programmingtechie.medical_service.repository.ServiceTimeFrameRepository;
+import com.programmingtechie.medical_service.repository.ServiceTypeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +33,8 @@ import lombok.RequiredArgsConstructor;
 public class DoctorServiceService {
     private final DoctorServiceRepository doctorServiceRepository;
     private final ServiceRepository serviceRepository;
+
+    private final ServiceTimeFrameRepository serviceTimeFrameRepository;
 
     private final ServiceService serviceService;
 
@@ -63,6 +68,12 @@ public class DoctorServiceService {
 
     @Transactional
     public DoctorServiceResponse createDoctorService(DoctorServiceRequest doctorServiceRequest) {
+
+        com.programmingtechie.medical_service.model.Service service = serviceRepository
+                .findById(doctorServiceRequest.getServiceId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Không tìm thấy dịch vụ với id: " + doctorServiceRequest.getServiceId()));
+
         // Kiểm tra xem sự kết hợp của DoctorId và ServiceId đã tồn tại trong bảng DoctorService chưa
         DoctorService existingDoctorService = doctorServiceRepository.findByDoctorIdAndServiceId(
                 doctorServiceRequest.getDoctorId(), doctorServiceRequest.getServiceId());
@@ -74,7 +85,7 @@ public class DoctorServiceService {
             } else {
                 // Nếu đã tồn tại và isActive = false, chỉ cần set lại isActive = true
                 existingDoctorService.setIsActive(true);
-                existingDoctorService.setUnitPrice(doctorServiceRequest.getUnitPrice());
+                existingDoctorService.setUnitPrice(service.getUnitPrice());
                 existingDoctorService.setLastUpdated(LocalDateTime.now());
 
                 // Lưu lại và trả về thông tin cập nhật
@@ -88,16 +99,11 @@ public class DoctorServiceService {
             throw new IllegalArgumentException("Chưa có thông tin dịch vụ!");
         }
 
-        com.programmingtechie.medical_service.model.Service service = serviceRepository
-                .findById(doctorServiceRequest.getServiceId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Không tìm thấy dịch vụ với id: " + doctorServiceRequest.getServiceId()));
-
         DoctorService doctorService = DoctorService.builder()
                 .doctorId(doctorServiceRequest.getDoctorId())
                 .service(service)
                 .isActive(doctorServiceRequest.getIsActive())
-                .unitPrice(doctorServiceRequest.getUnitPrice())
+                .unitPrice(service.getUnitPrice())
                 .build();
 
         doctorService = doctorServiceRepository.save(doctorService);
@@ -156,8 +162,17 @@ public class DoctorServiceService {
     public void deleteDoctorService(String id) {
         DoctorService doctorService = doctorServiceRepository
                 .findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy dịch vụ bác sĩ với id: " + id));
-        doctorServiceRepository.delete(doctorService);
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy dịch vụ bác sĩ với id: " + id));
+
+        List<ServiceTimeFrame> serviceTimeFrames = serviceTimeFrameRepository.getByDoctorServiceId(id);
+
+        if (serviceTimeFrames.size() > 0)
+            throw new IllegalArgumentException("Đã có lịch khám đang hoạt động. Vui lòng kiểm tra lại!");
+
+
+        doctorService.setIsActive(false);
+        doctorServiceRepository.save(doctorService);
+        //doctorServiceRepository.delete(doctorService);
     }
 
     // Lay danh sach dịch vu cua bac si theo doctorId

@@ -54,4 +54,7 @@ public interface ServiceTimeFrameRepository extends JpaRepository<ServiceTimeFra
     @Query(
             "SELECT COUNT(stf) > 0 FROM ServiceTimeFrame stf WHERE stf.id = :id AND stf.isActive = true AND unaccent(LOWER(stf.status)) = unaccent(LOWER('nhan dang ky'))")
     boolean existsByIdAndIsActiveAndStatus(@Param("id") String id);
+
+    @Query("SELECT stf FROM ServiceTimeFrame stf WHERE stf.doctorService.id = :id and stf.isActive = true")
+    List<ServiceTimeFrame> getByDoctorServiceId(String id);
 }

@@ -28,4 +28,8 @@ public interface AppointmentClient {
             @RequestParam("size") int size,
             @RequestParam("hmac") String hmac);
 
+    @GetMapping("/health-check-result/public/sync/from-his")
+    public Void syncHealthCheckResultFromHis(
+            @RequestParam("expiryDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime expiryDateTime,
+            @RequestParam("hmac") String hmac);
 }

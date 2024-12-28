@@ -818,6 +818,23 @@ public class AppointmentService {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy cuộc hẹn với ID: " + id));
         appointment.setStatus("Đã xác nhận");
         appointment = appointmentRepository.save(appointment);
+
+        LocalDateTime expiryDateTime = LocalDateTime.now().plusMinutes(15);
+
+        List<String> params = new ArrayList<>();
+        params.add(expiryDateTime.toString());
+
+        String message = hmacUtils.createMessage(params);
+
+        String hmac = "";
+        try{
+            hmac = hmacUtils.generateHmac(message, secretKeys.getHisSecretKey());
+        } catch (Exception e) {log.info(e.getMessage());}
+
+        try{
+            hisClient.syncAppointmentsFromHealthAppointment(expiryDateTime, hmac);
+        } catch (Exception e) {log.info(e.getMessage());}
+
         return appointmentMapper.toAppointmentResponse(appointment);
     }
 
@@ -1124,5 +1141,17 @@ public class AppointmentService {
         }
 
         return appointmentResponse;
+    }
+
+    public void setAllStatus() {
+        List<Appointment> appointments = appointmentRepository.findAll();
+        for(Appointment appointment : appointments)
+        {
+            if(appointment.getHealthCheckResults().size() > 0)
+            {
+                appointment.setStatus("Đã khám");
+                appointmentRepository.save(appointment);
+            }
+        }
     }
 }

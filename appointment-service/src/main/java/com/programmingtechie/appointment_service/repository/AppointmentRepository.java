@@ -72,6 +72,7 @@ public interface AppointmentRepository
             LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
     Optional<Appointment> findByIdAndCustomerId(String appointmentId, String id);
+
 }
 
 // JpaSpecificationExecutor là một interface trong Spring Data JPA,

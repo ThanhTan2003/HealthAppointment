@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.programmingtechie.appointment_service.dto.response.AppointmentSyncResponse;
+import com.programmingtechie.appointment_service.repository.httpClient.HisClient;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -132,6 +133,7 @@ public class AppointmentController {
     @PreAuthorize("hasRole('QuanLyLichKhamBenh') or hasRole('GiamDoc')")
     public ResponseEntity<AppointmentResponse> confirmAppointment(@PathVariable String id) {
         AppointmentResponse response = appointmentService.confirmAppointment(id);
+
         return ResponseEntity.ok(response);
     }
 
@@ -203,7 +205,6 @@ public class AppointmentController {
         return ResponseEntity.ok().build();
     }
 
-
     // API bên hệ thống Đặt Lịch tiếp nhận yêu cầu từ HIS và gửi dữ liệu Appointment về cho HIS
     @GetMapping("/public/sync/from-his")
     public ResponseEntity<PageResponse<AppointmentSyncResponse>> getAppointmentsForHIS(
@@ -218,6 +219,5 @@ public class AppointmentController {
 
         return ResponseEntity.ok(pageResponse);
     }
-
 }
 

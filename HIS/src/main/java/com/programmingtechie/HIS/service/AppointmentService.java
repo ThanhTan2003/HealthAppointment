@@ -1,5 +1,7 @@
 package com.programmingtechie.HIS.service;
 
+import com.programmingtechie.HIS.APIAuthentication.HmacUtils;
+import com.programmingtechie.HIS.APIAuthentication.SecretKeys;
 import com.programmingtechie.HIS.dto.request.HealthCheckResultRequest;
 import com.programmingtechie.HIS.dto.response.AppointmentResponse;
 import com.programmingtechie.HIS.dto.response.AppointmentSyncResponse;
@@ -51,33 +53,9 @@ public class AppointmentService {
 
     final AppointmentMapper appointmentMapper;
 
-    @Value("${appointment.secretKey}")
-    private String appointmentSecretKey;
+    final HmacUtils hmacUtils;
 
-    public String generateHmac(String message, String secretKey) throws Exception {
-        Mac sha256Hmac = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        sha256Hmac.init(secretKeySpec);
-        byte[] hashBytes = sha256Hmac.doFinal(message.getBytes(StandardCharsets.UTF_8));
-        return Base64.getEncoder().encodeToString(hashBytes); // Trả về chuỗi base64 của HMAC SHA-256
-    }
-
-    public boolean verifyHmac(String message, String receivedHmac, String secretKey) throws Exception {
-        String generatedHmac = generateHmac(message, secretKey);
-        return generatedHmac.equals(receivedHmac); // So sánh HMAC đã gửi với HMAC đã tạo
-    }
-
-    public String createMessage(List<String> params) {
-        StringBuilder messageBuilder = new StringBuilder();
-
-        for (int i = 0; i < params.size(); i++) {
-            messageBuilder.append(params.get(i));
-            if (i < params.size() - 1) {
-                messageBuilder.append(",");
-            }
-        }
-        return messageBuilder.toString();
-    }
+    final SecretKeys secretKeys;
 
     public void syncAppointmentsFromAppointmentSystem() {
         String appointmentValue = Sync_History.APPOINTMENT.name();
@@ -98,16 +76,16 @@ public class AppointmentService {
         params.add(page.toString());
         params.add(size.toString());
 
-        String message = createMessage(params);
+        String message = hmacUtils.createMessage(params);
 
         String Hmac = "";
         try {
-            Hmac = generateHmac(message, appointmentSecretKey);
+            Hmac = hmacUtils.generateHmac(message, secretKeys.getAppointmentSecretKey());
         } catch (Exception e) {
             log.error("Error generating HMAC", e);
         }
         log.info("message: " + message);
-        log.info("appointment.secretKey: " + appointmentSecretKey);
+        log.info("appointment.secretKey: " + secretKeys.getAppointmentSecretKey());
         log.info("Hmac: " + Hmac);
 
         PageResponse<AppointmentSyncResponse> pageResponse = null;
@@ -134,9 +112,9 @@ public class AppointmentService {
             page++;
             log.info("page: " + page);
             params.set(3, String.valueOf(page)); // Cập nhật lại page trong params
-            message = createMessage(params);
+            message = hmacUtils.createMessage(params);
             try {
-                Hmac = generateHmac(message, appointmentSecretKey);
+                Hmac = hmacUtils.generateHmac(message, secretKeys.getAppointmentSecretKey());
             } catch (Exception e) {
                 log.error("Error generating HMAC for page " + page, e);
             }
@@ -216,5 +194,40 @@ public class AppointmentService {
             return null;
         return appointmentMapper.toAppointmentResponse(appointment);
 
+    }
+
+    public void syncAppointmentsFromHealthAppointment(LocalDateTime expiryDateTime, String hmac) {
+        // Kiểm tra nếu expiryDateTime đã qua thời gian hiện tại
+        if (expiryDateTime.isBefore(LocalDateTime.now())) {
+            log.error("Request expired! Expiry time: " + expiryDateTime + " Current time: " + LocalDateTime.now());
+            throw new IllegalArgumentException("Yêu cầu đã quá hạn!");
+        }
+
+        log.info("NHAN YEU CAU DONG BO LICH HEN TU HE THONG DAT LICH");
+
+        List<String> params = new ArrayList<>();
+        params.add(expiryDateTime.toString());
+
+        String message = hmacUtils.createMessage(params);
+
+        // Kiểm tra HMAC
+        Boolean isCkeck = false;
+        try {
+            isCkeck = hmacUtils.verifyHmac(message, hmac, secretKeys.getHisSecretKey());
+        } catch (Exception e) {
+            log.error("Error verifying HMAC: ", e);
+            throw new IllegalArgumentException("Xác thực HMAC không thành công.");
+        }
+
+        log.info("Ket qua xac thuc: " + isCkeck);
+        if (!isCkeck) {
+            throw new IllegalArgumentException("Xác thực HMAC không thành công.");
+        }
+        try{
+            syncAppointmentsFromAppointmentSystem();
+        } catch (Exception e)
+        {
+            log.info(e.getMessage());
+        }
     }
 }

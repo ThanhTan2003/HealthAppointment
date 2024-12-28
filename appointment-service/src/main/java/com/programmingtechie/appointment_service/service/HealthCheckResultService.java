@@ -1,5 +1,7 @@
 package com.programmingtechie.appointment_service.service;
 
+import com.programmingtechie.appointment_service.APIAuthentication.HmacUtils;
+import com.programmingtechie.appointment_service.APIAuthentication.SecretKeys;
 import com.programmingtechie.appointment_service.dto.response.AppointmentResponse;
 import com.programmingtechie.appointment_service.dto.response.His.HealthCheckResultResponse;
 import com.programmingtechie.appointment_service.dto.response.His.HealthCheckResultsDeletedResponse;
@@ -13,6 +15,7 @@ import com.programmingtechie.appointment_service.repository.SyncHistoryRepositor
 import com.programmingtechie.appointment_service.repository.httpClient.HisClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.juli.logging.Log;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.programmingtechie.appointment_service.enums.Sync_History;
@@ -38,35 +41,11 @@ public class HealthCheckResultService {
 
     final HisClient hisClient;
 
-    @Value("${his.secretKey}")
-    private String hisSecretKey;
+    final HmacUtils hmacUtils;
+    final SecretKeys secretKeys;
 
-    public String generateHmac(String message, String secretKey) throws Exception {
-        Mac sha256Hmac = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        sha256Hmac.init(secretKeySpec);
-        byte[] hashBytes = sha256Hmac.doFinal(message.getBytes(StandardCharsets.UTF_8));
-        return Base64.getEncoder().encodeToString(hashBytes); // Trả về chuỗi base64 của HMAC SHA-256
-    }
 
-    public boolean verifyHmac(String message, String receivedHmac, String secretKey) throws Exception {
-        String generatedHmac = generateHmac(message, secretKey);
-        return generatedHmac.equals(receivedHmac); // So sánh HMAC đã gửi với HMAC đã tạo
-    }
 
-    public String createMessage(List<String> params) {
-        StringBuilder messageBuilder = new StringBuilder();
-
-        for (int i = 0; i < params.size(); i++) {
-            messageBuilder.append(params.get(i));
-            if (i < params.size() - 1) {
-                messageBuilder.append(",");
-            }
-        }
-        return messageBuilder.toString();
-    }
-
-    @Transactional
     public Void syncHealthCheckResult() {
         String appointmentValue = Sync_History.HEALTH_CHECK_RESULTS.getName();
         log.info("id: " + appointmentValue);
@@ -76,6 +55,7 @@ public class HealthCheckResultService {
         log.info(syncHistory.toString());
 
         LocalDateTime startDate = syncHistory.getDateTime();
+
         LocalDateTime endDate = LocalDateTime.now();
         LocalDateTime expiryDateTime = endDate.plusMinutes(15);
 
@@ -89,22 +69,23 @@ public class HealthCheckResultService {
         params.add(page.toString());
         params.add(size.toString());
 
-        String message = createMessage(params);
+        String message = hmacUtils.createMessage(params);
 
         String Hmac = "";
         log.info("----------1. Lay du lieu ve------------");
         try {
-            Hmac = generateHmac(message, hisSecretKey);
+            Hmac = hmacUtils.generateHmac(message, secretKeys.getHisSecretKey());
         } catch (Exception e) {
             log.error("Error generating HMAC", e);
         }
         log.info("message: " + message);
-        log.info("appointment.secretKey: " + hisSecretKey);
+        log.info("appointment.secretKey: " + secretKeys.getHisSecretKey());
         log.info("Hmac: " + Hmac);
 
         PageResponse<HealthCheckResultResponse> pageResponse = null;
         try{
             pageResponse = hisClient.getHealthCheckResultResponseForMedicalAppointmentSystem(startDate, endDate, expiryDateTime, page, size, Hmac);
+            log.info("Du lieu: " + pageResponse.getData().toString());
             saveHealthCheckResultForMedicalAppointmentSystem(pageResponse.getData());
         }
         catch (Exception e)
@@ -126,9 +107,9 @@ public class HealthCheckResultService {
             page++;
             log.info("page: " + page);
             params.set(3, String.valueOf(page)); // Cập nhật lại page trong params
-            message = createMessage(params);
+            message = hmacUtils.createMessage(params);
             try {
-                Hmac = generateHmac(message, hisSecretKey);
+                Hmac = hmacUtils.generateHmac(message, secretKeys.getHisSecretKey());
             } catch (Exception e) {
                 log.error("Error generating HMAC for page " + page, e);
             }
@@ -158,6 +139,42 @@ public class HealthCheckResultService {
         return null;
     }
 
+    public Void syncHealthCheckResultFromHIS(LocalDateTime expiryDateTime, String hmac) {
+        // Kiểm tra nếu expiryDateTime đã qua thời gian hiện tại
+        if (expiryDateTime.isBefore(LocalDateTime.now())) {
+            log.error("Request expired! Expiry time: " + expiryDateTime + " Current time: " + LocalDateTime.now());
+            throw new IllegalArgumentException("Yêu cầu đã quá hạn!");
+        }
+        log.info("NHAN YEU CAU DONG BO DU LIEU KET QUA KHAM BENH TU HIS");
+
+        List<String> params = new ArrayList<>();
+        params.add(expiryDateTime.toString());
+
+        String message = hmacUtils.createMessage(params);
+
+        // Kiểm tra HMAC
+        Boolean isCkeck = false;
+        try {
+            isCkeck = hmacUtils.verifyHmac(message, hmac, secretKeys.getAppointmentSecretKey());
+        } catch (Exception e) {
+            log.error("Error verifying HMAC: ", e);
+            throw new IllegalArgumentException("Xác thực HMAC không thành công.");
+        }
+
+        log.info("Ket qua xac thuc: " + isCkeck);
+        if (!isCkeck) {
+            throw new IllegalArgumentException("Xác thực HMAC không thành công.");
+        }
+        try{
+
+            syncHealthCheckResult();
+        } catch (Exception e)
+        {
+            log.info(e.getMessage());
+        }
+        return null;
+    }
+
     public void deleteHealthCheckResults(LocalDateTime endDate, LocalDateTime expiryDateTime)
     {
         Integer page = 1;
@@ -169,11 +186,11 @@ public class HealthCheckResultService {
         params.add(page.toString());
         params.add(size.toString());
 
-        String message = createMessage(params);
+        String message = hmacUtils.createMessage(params);
 
         String Hmac = "";
         try {
-            Hmac = generateHmac(message, hisSecretKey);
+            Hmac = hmacUtils.generateHmac(message, secretKeys.getHisSecretKey());
         } catch (Exception e) {
             log.error("Error generating HMAC", e);
         }
@@ -211,9 +228,9 @@ public class HealthCheckResultService {
             page++;
             log.info("page: " + page);
             params.set(3, String.valueOf(page)); // Cập nhật lại page trong params
-            message = createMessage(params);
+            message = hmacUtils.createMessage(params);
             try {
-                Hmac = generateHmac(message, hisSecretKey);
+                Hmac = hmacUtils.generateHmac(message, secretKeys.getHisSecretKey());
             } catch (Exception e) {
                 log.error("Error generating HMAC for page " + page, e);
             }
@@ -240,7 +257,15 @@ public class HealthCheckResultService {
             String id = item.getId();
             HealthCheckResult healthCheckResult = healthCheckResultRepository.findById(id).orElse(null);
             if(healthCheckResult != null)
+            {
                 healthCheckResultRepository.delete(healthCheckResult);
+                Appointment appointment = healthCheckResult.getAppointment();
+                if(appointment.getHealthCheckResults().size() <=0)
+                {
+                    appointment.setStatus("Đã xác nhận");
+                }
+            }
+
         }
     }
 
@@ -250,11 +275,11 @@ public class HealthCheckResultService {
         params.add(endDate.toString());
         params.add(expiryDateTime.toString());
 
-        String message = createMessage(params);
+        String message = hmacUtils.createMessage(params);
 
         String Hmac = "";
         try {
-            Hmac = generateHmac(message, hisSecretKey);
+            Hmac = hmacUtils.generateHmac(message, secretKeys.getHisSecretKey());
         } catch (Exception e) {
             log.error("Error generating HMAC", e);
         }
@@ -286,6 +311,8 @@ public class HealthCheckResultService {
             log.info("Saving healthCheckResult: " + healthCheckResult);
 
             healthCheckResultRepository.save(healthCheckResult);
+
+            appointment.setStatus("Đã khám");
         }
     }
 }

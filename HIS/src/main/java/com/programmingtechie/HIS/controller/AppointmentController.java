@@ -6,6 +6,7 @@ import com.programmingtechie.HIS.dto.response.PageResponse;
 import com.programmingtechie.HIS.model.Appointment;
 import com.programmingtechie.HIS.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +41,15 @@ public class AppointmentController {
     public ResponseEntity<Void> syncAppointmentsFromAppointmentSystem() {
         // Logic để HIS gọi hệ thống Đặt Lịch lấy dữ liệu
         appointmentService.syncAppointmentsFromAppointmentSystem();
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/sync/from-health-appointment")
+    public ResponseEntity<Void> syncAppointmentsFromHealthAppointment(
+            @RequestParam("expiryDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime expiryDateTime,
+            @RequestParam("hmac") String hmac) {
+        // Logic để HIS gọi hệ thống Đặt Lịch lấy dữ liệu
+        appointmentService.syncAppointmentsFromHealthAppointment(expiryDateTime, hmac);
         return ResponseEntity.ok().build();
     }
 

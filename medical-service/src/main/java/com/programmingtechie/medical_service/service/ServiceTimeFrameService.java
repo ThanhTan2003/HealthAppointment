@@ -204,6 +204,7 @@ public class ServiceTimeFrameService {
                 .findById(id)
                 .orElseThrow(
                         () -> new IllegalArgumentException("Không tìm thấy khung thời gian dịch vụ với id: " + id));
+        serviceTimeFrame.setIsActive(false);
         serviceTimeFrameRepository.delete(serviceTimeFrame);
     }
 

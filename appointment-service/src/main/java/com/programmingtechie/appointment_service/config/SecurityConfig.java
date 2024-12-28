@@ -15,7 +15,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final String[] PUBLIC_ENDPOINTS = {"/api/v1/appointment/public/**", "/api/v1/appointment/payment/public/**"
+    private final String[] PUBLIC_ENDPOINTS = {
+            "/api/v1/appointment/public/**",
+            "/api/v1/appointment/payment/public/**",
+            "/api/v1/appointment/health-check-result/public/**"
     };
 
     @Autowired
