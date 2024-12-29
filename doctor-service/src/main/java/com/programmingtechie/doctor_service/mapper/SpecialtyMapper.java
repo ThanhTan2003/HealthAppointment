@@ -19,6 +19,7 @@ public class SpecialtyMapper {
                 .specialtyId(specialty.getId())
                 .specialtyName(specialty.getName())
                 .description(specialty.getDescription())
+                .image(specialty.getImage())
                 .build();
     }
 

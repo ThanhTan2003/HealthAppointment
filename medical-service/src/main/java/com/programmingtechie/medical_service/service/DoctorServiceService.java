@@ -102,7 +102,7 @@ public class DoctorServiceService {
         DoctorService doctorService = DoctorService.builder()
                 .doctorId(doctorServiceRequest.getDoctorId())
                 .service(service)
-                .isActive(doctorServiceRequest.getIsActive())
+                .isActive(true)
                 .unitPrice(service.getUnitPrice())
                 .build();
 
@@ -169,7 +169,6 @@ public class DoctorServiceService {
         if (serviceTimeFrames.size() > 0)
             throw new IllegalArgumentException("Đã có lịch khám đang hoạt động. Vui lòng kiểm tra lại!");
 
-
         doctorService.setIsActive(false);
         doctorServiceRepository.save(doctorService);
         //doctorServiceRepository.delete(doctorService);
@@ -178,7 +177,7 @@ public class DoctorServiceService {
     // Lay danh sach dịch vu cua bac si theo doctorId
     public PageResponse<DoctorServiceResponse> getDoctorServicesByDoctorId(String doctorId, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").ascending());
-        Page<DoctorService> doctorServices = doctorServiceRepository.findByDoctorId(doctorId, pageable);
+        Page<DoctorService> doctorServices = doctorServiceRepository.findByDoctorIdAndIsActiveTrue(doctorId, pageable);
 
         List<DoctorServiceResponse> doctorServiceResponses = doctorServices.getContent().stream()
                 .map(doctorServiceMapper::toDoctorServiceResponse)

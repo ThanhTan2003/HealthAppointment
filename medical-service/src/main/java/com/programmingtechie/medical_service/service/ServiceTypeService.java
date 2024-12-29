@@ -3,6 +3,7 @@ package com.programmingtechie.medical_service.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.medical_service.mapper.ServiceTypeMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,12 +22,14 @@ import lombok.RequiredArgsConstructor;
 public class ServiceTypeService {
     private final ServiceTypeRepository serviceTypeRepository;
 
+    private final ServiceTypeMapper serviceTypeMapper;
+
     public PageResponse<ServiceTypeResponse> getAllServiceTypes(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<ServiceType> pageData = serviceTypeRepository.findDistinctServiceTypeIds(pageable);
 
         List<ServiceTypeResponse> serviceTypeResponses = pageData.getContent().stream()
-                .map(this::mapToServiceTypeResponse)
+                .map(serviceTypeMapper::toServiceTypeResponse)
                 .collect(Collectors.toList());
 
         return PageResponse.<ServiceTypeResponse>builder()
@@ -42,7 +45,7 @@ public class ServiceTypeService {
         ServiceType serviceType = serviceTypeRepository
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy loại dịch vụ với id: " + id));
-        return mapToServiceTypeResponse(serviceType);
+        return serviceTypeMapper.toServiceTypeResponse(serviceType);
     }
 
     public ServiceTypeResponse createServiceType(ServiceTypeRequest serviceTypeRequest) {
@@ -53,7 +56,7 @@ public class ServiceTypeService {
                 .build();
 
         serviceType = serviceTypeRepository.save(serviceType);
-        return mapToServiceTypeResponse(serviceType);
+        return serviceTypeMapper.toServiceTypeResponse(serviceType);
     }
 
     public ServiceTypeResponse updateServiceType(String id, ServiceTypeRequest serviceTypeRequest) {
@@ -65,7 +68,7 @@ public class ServiceTypeService {
         serviceType.setDescription(serviceTypeRequest.getDescription());
 
         serviceType = serviceTypeRepository.save(serviceType);
-        return mapToServiceTypeResponse(serviceType);
+        return serviceTypeMapper.toServiceTypeResponse(serviceType);
     }
 
     public void deleteServiceType(String id) {
@@ -80,7 +83,7 @@ public class ServiceTypeService {
         Page<ServiceType> pageData = serviceTypeRepository.searchServiceTypes(keyword, pageable);
 
         List<ServiceTypeResponse> serviceTypeResponses = pageData.getContent().stream()
-                .map(this::mapToServiceTypeResponse)
+                .map(serviceTypeMapper::toServiceTypeResponse)
                 .collect(Collectors.toList());
 
         return PageResponse.<ServiceTypeResponse>builder()
@@ -89,14 +92,6 @@ public class ServiceTypeService {
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(serviceTypeResponses)
-                .build();
-    }
-
-    private ServiceTypeResponse mapToServiceTypeResponse(ServiceType serviceType) {
-        return ServiceTypeResponse.builder()
-                .id(serviceType.getId())
-                .name(serviceType.getName())
-                .description(serviceType.getDescription())
                 .build();
     }
 }

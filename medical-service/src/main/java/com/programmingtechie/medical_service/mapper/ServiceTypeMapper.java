@@ -11,6 +11,7 @@ public class ServiceTypeMapper {
         return ServiceTypeResponse.builder()
                 .id(serviceType.getId())
                 .name(serviceType.getName())
+                .image(serviceType.getImage())
                 .description(serviceType.getDescription())
                 .build();
     }

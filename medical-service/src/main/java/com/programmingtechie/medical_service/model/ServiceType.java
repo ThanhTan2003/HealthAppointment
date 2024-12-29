@@ -25,6 +25,9 @@ public class ServiceType {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "image", columnDefinition = "TEXT")
+    private String image;
+
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;
 

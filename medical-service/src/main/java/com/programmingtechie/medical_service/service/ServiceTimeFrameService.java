@@ -83,9 +83,10 @@ public class ServiceTimeFrameService {
     @Transactional
     public ServiceTimeFrameResponse createServiceTimeFrame(ServiceTimeFrameRequest serviceTimeFrameRequest) {
         // Kiểm tra sự tồn tại của ServiceTimeFrame với doctorServiceId và dayOfWeek
-        List<ServiceTimeFrame> existingTimeFrames = serviceTimeFrameRepository.findByDoctorServiceIdAndDayOfWeek(
+        List<ServiceTimeFrame> existingTimeFrames = serviceTimeFrameRepository.findByDoctorServiceIdAndDayOfWeekAndTimeFrameId(
                 serviceTimeFrameRequest.getDoctorServiceId(),
                 serviceTimeFrameRequest.getDayOfWeek(),
+                serviceTimeFrameRequest.getTimeFrameId(),
                 true); // isActive = true
 
         if (!existingTimeFrames.isEmpty()) {
@@ -94,9 +95,10 @@ public class ServiceTimeFrameService {
         }
 
         // Kiểm tra xem có ServiceTimeFrame nào tồn tại với doctorServiceId và dayOfWeek mà isActive = false không
-        existingTimeFrames = serviceTimeFrameRepository.findByDoctorServiceIdAndDayOfWeek(
+        existingTimeFrames = serviceTimeFrameRepository.findByDoctorServiceIdAndDayOfWeekAndTimeFrameId(
                 serviceTimeFrameRequest.getDoctorServiceId(),
                 serviceTimeFrameRequest.getDayOfWeek(),
+                serviceTimeFrameRequest.getTimeFrameId(),
                 false); // isActive = false
 
         if (!existingTimeFrames.isEmpty()) {
@@ -205,7 +207,8 @@ public class ServiceTimeFrameService {
                 .orElseThrow(
                         () -> new IllegalArgumentException("Không tìm thấy khung thời gian dịch vụ với id: " + id));
         serviceTimeFrame.setIsActive(false);
-        serviceTimeFrameRepository.delete(serviceTimeFrame);
+        serviceTimeFrameRepository.save(serviceTimeFrame);
+        //serviceTimeFrameRepository.delete(serviceTimeFrame);
     }
 
     public List<ServiceTimeFrameResponse> getServiceTimeFramesByDoctorIdAndDayOfWeek(

@@ -43,6 +43,15 @@ public interface ServiceTimeFrameRepository extends JpaRepository<ServiceTimeFra
 
     @Query("SELECT stf FROM ServiceTimeFrame stf " + "WHERE stf.doctorService.id = :doctorServiceId "
             + "AND stf.dayOfWeek = :dayOfWeek "
+            + "AND stf.timeFrame.id = :timeFrameId "
+            + "AND stf.isActive = :isActive "
+            + "AND unaccent(LOWER(stf.status)) = unaccent(LOWER('nhan dang ky'))" +
+            " ORDER BY stf.timeFrame.startTime ASC")
+    List<ServiceTimeFrame> findByDoctorServiceIdAndDayOfWeekAndTimeFrameId(
+            String doctorServiceId, String dayOfWeek, String timeFrameId, Boolean isActive);
+
+    @Query("SELECT stf FROM ServiceTimeFrame stf " + "WHERE stf.doctorService.id = :doctorServiceId "
+            + "AND stf.dayOfWeek = :dayOfWeek "
             + "AND stf.isActive = :isActive "
             + "AND unaccent(LOWER(stf.status)) = unaccent(LOWER('nhan dang ky')) "
             + "AND (stf.lastUpdated >= :oneMonthAgo) " +
