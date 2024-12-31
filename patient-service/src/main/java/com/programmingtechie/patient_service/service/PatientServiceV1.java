@@ -45,33 +45,36 @@ public class PatientServiceV1 {
     }
 
     public PatientResponse updatePatient(String patientId, PatientUpdateRequest patientUpdateRequest) {
+        // Lấy đối tượng từ cơ sở dữ liệu
         Patient patient = patientRepository
                 .findById(patientId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thông tin!"));
 
-        patient = Patient.builder()
-                .fullName(patientUpdateRequest.getFullName())
-                .dateOfBirth(patientUpdateRequest.getDateOfBirth())
-                .gender(patientUpdateRequest.getGender())
-                .insuranceId(patientUpdateRequest.getInsuranceId())
-                .identificationCode(patientUpdateRequest.getIdentificationCode())
-                .nation(patientUpdateRequest.getNation())
-                .occupation(patientUpdateRequest.getOccupation())
-                .phoneNumber(patientUpdateRequest.getPhoneNumber())
-                .email(patientUpdateRequest.getEmail())
-                .country(patientUpdateRequest.getCountry())
-                .province(patientUpdateRequest.getProvince())
-                .district(patientUpdateRequest.getDistrict())
-                .ward(patientUpdateRequest.getWard())
-                .address(patientUpdateRequest.getAddress())
-                .relationship(patientUpdateRequest.getRelationship())
-                .note(patientUpdateRequest.getNote())
-                .build();
+        // Cập nhật thông tin
+        patient.setFullName(patientUpdateRequest.getFullName());
+        patient.setDateOfBirth(patientUpdateRequest.getDateOfBirth());
+        patient.setGender(patientUpdateRequest.getGender());
+        patient.setInsuranceId(patientUpdateRequest.getInsuranceId());
+        patient.setIdentificationCode(patientUpdateRequest.getIdentificationCode());
+        //patient.setNation(patientUpdateRequest.getNation());
+        patient.setOccupation(patientUpdateRequest.getOccupation());
+        patient.setPhoneNumber(patientUpdateRequest.getPhoneNumber());
+        patient.setEmail(patientUpdateRequest.getEmail());
+        patient.setCountry(patientUpdateRequest.getCountry());
+        patient.setProvince(patientUpdateRequest.getProvince());
+        patient.setDistrict(patientUpdateRequest.getDistrict());
+        patient.setWard(patientUpdateRequest.getWard());
+        patient.setAddress(patientUpdateRequest.getAddress());
+        patient.setRelationship(patientUpdateRequest.getRelationship());
+        patient.setNote(patientUpdateRequest.getNote());
 
+        // Lưu lại đối tượng đã được cập nhật
         patientRepository.save(patient);
 
+        // Chuyển đổi sang PatientResponse
         return patientMapper.mapToPatientResponse(patient);
     }
+
 
     public void deletePatient(String patientId) {
         if (!patientRepository.existsById(patientId)) {
