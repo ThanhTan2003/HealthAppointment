@@ -56,7 +56,7 @@ public class PatientServiceV1 {
         patient.setGender(patientUpdateRequest.getGender());
         patient.setInsuranceId(patientUpdateRequest.getInsuranceId());
         patient.setIdentificationCode(patientUpdateRequest.getIdentificationCode());
-        //patient.setNation(patientUpdateRequest.getNation());
+        patient.setNation(patientUpdateRequest.getNation());
         patient.setOccupation(patientUpdateRequest.getOccupation());
         patient.setPhoneNumber(patientUpdateRequest.getPhoneNumber());
         patient.setEmail(patientUpdateRequest.getEmail());
